@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notensatz — Vorschau</title>
+<!-- Entwicklungswerkzeug, nicht Teil der App und nicht im Precache.
+     Dient nur dazu, den Renderer aus js/music/notation.js anzusehen. -->
+<style>
+  body { background:#0C2226; color:#ECE3D0; font-family:system-ui, sans-serif;
+         margin:0; padding:24px; }
+  h2 { font-weight:400; font-size:15px; color:#8FA5A6; margin:28px 0 6px;
+       border-bottom:1px solid #1E4E56; padding-bottom:4px; }
+  .box { background:#123236; border-radius:10px; padding:8px 12px; overflow-x:auto; }
+  svg.staff { height:140px; display:block; color:#ECE3D0; }
+  .staff-label { font-family:Barlow, system-ui, sans-serif; font-size:11px;
+                 fill:#8FA5A6; stroke:none; }
+  svg.staff.small { height:84px; }
+  .nt-aktiv   { color:#C89B4A; }
+  .nt-richtig { color:#7FB069; }
+  .nt-falsch  { color:#D97A5A; }
+  .row { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
+</style>
+</head>
+<body>
+<div id="out"></div>
+
+<script type="module">
+import * as N from "../js/music/notation.js";
+import * as T from "../js/music/theory.js";
+
+const P = (step, alter, octave = 4) => ({ step, alter, octave });
+const out = document.getElementById("out");
+const show = (title, svg, cls = "") => {
+  out.insertAdjacentHTML("beforeend",
+    `<h2>${title}</h2><div class="box ${cls}">${svg}</div>`);
+};
+
+show("Violinschlüssel allein, leeres System",
+  N.renderStaff({ notes: [], width: 200 }));
+
+show("Tonumfang: notiert B3 bis Fis6, mit Hilfslinien",
+  N.renderStaff({
+    notes: [58, 62, 67, 72, 76, 81, 86, 90].map(m =>
+      ({ pitch: T.fromMidi(m, "sharp"), dur: N.DUR.viertel,
+         accidental: T.fromMidi(m, "sharp").alter !== 0,
+         label: T.spellWithOctave(T.fromMidi(m, "sharp")) })),
+  }));
+
+for (const k of [T.MAJOR_KEYS[0], T.MAJOR_KEYS[3], T.MAJOR_KEYS[9], T.MAJOR_KEYS[11]]) {
+  const sc = T.buildScale({ ...k.tonic, octave: 4 }, "dur");
+  show(`${k.name} — Vorzeichnung ${k.sig}`,
+    N.renderStaff({
+      keySig: k.sig,
+      notes: N.pitchesToNotes(sc, N.DUR.viertel, { accidentalsFor: k.sig,
+        labels: sc.map(p => T.spell(p)) }),
+    }));
+}
+
+show("a-Moll harmonisch — das Gis muss ein Auflösungs- und Kreuzzeichen tragen",
+  N.renderStaff({
+    keySig: 0,
+    notes: N.pitchesToNotes(T.buildScale(P(5,0,4), "moll_harmonisch"), N.DUR.viertel,
+      { accidentalsFor: 0, labels: T.buildScale(P(5,0,4), "moll_harmonisch").map(p => T.spell(p)) }),
+  }));
+
+show("Notenwerte: ganze, halbe, viertel, achtel, sechzehntel, punktiert",
+  N.renderStaff({
+    timeSig: [4, 4],
+    notes: [
+      { pitch: P(4,0,4), dur: N.DUR.ganze },
+      { barline: true },
+      { pitch: P(4,0,4), dur: N.DUR.halbe },
+      { pitch: P(4,0,4), dur: N.DUR.halbe, dots: 1 },
+      { barline: true },
+      { pitch: P(4,0,4), dur: N.DUR.viertel },
+      { pitch: P(4,0,4), dur: N.DUR.achtel },
+      { pitch: P(4,0,4), dur: N.DUR.sechzehntel },
+      { pitch: P(4,0,4), dur: N.DUR.viertel, dots: 1 },
+    ],
+  }));
+
+show("Pausen: ganze, halbe, viertel, achtel, sechzehntel",
+  N.renderStaff({
+    timeSig: [4, 4],
+    notes: [
+      { dur: 4 }, { dur: 2 }, { dur: 1 }, { dur: 0.5 }, { dur: 0.25 },
+    ],
+  }));
+
+show("Alle Vorzeichen: Kreuz, Doppelkreuz, Be, Doppelbe, Auflösung",
+  N.renderStaff({
+    notes: [
+      { pitch: P(3,1,5), dur: 1, accidental: true, label: "Fis" },
+      { pitch: P(3,2,5), dur: 1, accidental: true, label: "Fisis" },
+      { pitch: P(6,-1,4), dur: 1, accidental: true, label: "B" },
+      { pitch: P(6,-2,4), dur: 1, accidental: true, label: "Heses" },
+      { pitch: P(6,0,4), dur: 1, accidental: true, label: "H" },
+    ],
+  }));
+
+show("Hälse: Richtungswechsel an der Mittellinie",
+  N.renderStaff({
+    notes: [60,62,64,65,67,69,71,72,74,76,77].map(m =>
+      ({ pitch: T.fromMidi(m, "sharp"), dur: N.DUR.viertel })),
+  }));
+
+show("Zustandsfarben für Übungen",
+  N.renderStaff({
+    notes: [
+      { pitch: P(0,0,5), dur: 1, state: "richtig" },
+      { pitch: P(1,0,5), dur: 1, state: "richtig" },
+      { pitch: P(2,0,5), dur: 1, state: "aktiv" },
+      { pitch: P(3,0,5), dur: 1 },
+      { pitch: P(4,0,5), dur: 1, state: "falsch" },
+    ],
+  }));
+
+show("Klingend gegen gegriffen: klingend Es-Dur liest sich als C-Dur",
+  N.renderStaff({
+    keySig: 0,
+    notes: N.pitchesToNotes(T.buildScale(P(0,0,4), "dur"), N.DUR.viertel,
+      { accidentalsFor: 0, labels: T.buildScale(P(0,0,4), "dur").map(p => T.spell(p)) }),
+  }));
+</script>
+</body>
+</html>
