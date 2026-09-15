@@ -12,7 +12,7 @@
    ========================================================================== */
 "use strict";
 
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE   = "sax-uebeplan-" + VERSION;
 
 // Relative Pfade, damit derselbe Worker unter jedem Unterverzeichnis läuft
@@ -21,18 +21,39 @@ const ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
+  "./css/base.css",
+  "./css/shell.css",
+  "./css/tools.css",
+  "./js/audio/context.js",
+  "./js/audio/drone.js",
+  "./js/audio/metronome.js",
+  "./js/audio/signals.js",
+  "./js/core/dom.js",
+  "./js/core/session.js",
+  "./js/core/store.js",
+  "./js/data/plan.js",
+  "./js/main.js",
+  "./js/music/glyphs.js",
+  "./js/music/notation.js",
+  "./js/music/theory.js",
+  "./js/tools/bordun.js",
+  "./js/tools/daten.js",
+  "./js/tools/metronom.js",
+  "./js/tools/protokoll.js",
+  "./js/tools/session.js",
+  "./js/views.js",
+  "./fonts/barlow-400-latin-ext.woff2",
+  "./fonts/barlow-400-latin.woff2",
+  "./fonts/barlow-500-latin-ext.woff2",
+  "./fonts/barlow-500-latin.woff2",
+  "./fonts/barlow-600-latin-ext.woff2",
+  "./fonts/barlow-600-latin.woff2",
+  "./fonts/instrument-serif-400-italic-latin.woff2",
+  "./fonts/instrument-serif-400-latin.woff2",
+  "./icons/apple-touch-icon.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
-  "./icons/icon-maskable-512.png",
-  "./icons/apple-touch-icon.png",
-  "./fonts/instrument-serif-400-latin.woff2",
-  "./fonts/instrument-serif-400-italic-latin.woff2",
-  "./fonts/barlow-400-latin.woff2",
-  "./fonts/barlow-400-latin-ext.woff2",
-  "./fonts/barlow-500-latin.woff2",
-  "./fonts/barlow-500-latin-ext.woff2",
-  "./fonts/barlow-600-latin.woff2",
-  "./fonts/barlow-600-latin-ext.woff2"
+  "./icons/icon-maskable-512.png"
 ];
 
 self.addEventListener("install", event => {

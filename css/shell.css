@@ -1,0 +1,141 @@
+/* ==========================================================================
+   Gerüst: eine Spalte, Reiterleiste unten in Daumenreichweite
+   ========================================================================== */
+
+#app{
+  max-width: 480px; margin: 0 auto;
+  min-height: 100%;
+  display: flex; flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+}
+
+main{
+  flex: 1;
+  padding: 10px var(--pad) 130px;
+}
+
+/* Kopfzeile: Datum und, wo sinnvoll, ein Bedienelement des Werkzeugs.
+   Klein gehalten — der Timer ist der Hero. */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  gap: 12px;
+  padding: 10px var(--pad) 0;
+  color: var(--cane-dim);
+  font-size: 14px;
+  min-height: 24px;
+}
+.topbar select{
+  background: var(--surface); color: var(--cane);
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 6px 10px; font-size: 14px;
+}
+.focus-line{
+  padding: 4px var(--pad) 0;
+  color: var(--cane-dim); font-size: 14px;
+}
+
+/* Werkzeugleiste: waagrecht scrollbar, damit auch sechs Einträge passen,
+   ohne dass etwas umbricht oder schrumpft. */
+#toolbar{
+  display: flex; gap: 8px;
+  padding: 12px var(--pad) 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+#toolbar::-webkit-scrollbar{ display: none; }
+#toolbar .chip{ flex: none; }
+
+.chips{
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin: 0 0 14px;
+}
+.chip{
+  min-height: 42px; padding: 8px 15px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--cane-dim);
+  font-size: 15px;
+  white-space: nowrap;
+  transition: background .12s ease, color .12s ease;
+}
+.chip.on{
+  background: var(--brass); border-color: var(--brass); color: #12242A;
+  font-weight: 500;
+}
+.chip:active{ background: var(--surface-hi); }
+.chip.on:active{ background: var(--brass-dim); }
+
+/* ==========================================================================
+   Reiterleiste und Streifen „läuft gerade"
+   ========================================================================== */
+nav{
+  position: fixed; left:0; right:0; bottom:0;
+  background: rgba(12,34,38,.94);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 8;
+}
+nav .inner{ max-width:480px; margin:0 auto; display:flex; }
+nav button{
+  flex:1; padding: 13px 0 15px;
+  font-size: 13px; color: var(--cane-dim);
+  border-top: 2px solid transparent; margin-top: -1px;
+}
+nav button[aria-selected="true"]{ color: var(--brass); border-top-color: var(--brass); }
+
+/* Bordun und Metronom laufen über Reiterwechsel hinweg weiter. Dieser
+   Streifen zeigt das und schaltet mit einem Tipp ab — ohne zurückzunavigieren,
+   mit dem Instrument in der Hand. */
+#running{
+  position: fixed; left: 0; right: 0; bottom: 0;
+  margin-bottom: calc(env(safe-area-inset-bottom) + 58px);
+  display: flex; gap: 8px; justify-content: center;
+  padding: 0 var(--pad) 8px;
+  z-index: 9;
+  pointer-events: none;
+}
+.running-chip{
+  pointer-events: auto;
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 38px; padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--brass); color: #12242A;
+  font-size: 14px; font-weight: 500;
+  box-shadow: 0 4px 14px rgba(0,0,0,.35);
+}
+.running-chip .dot{
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #12242A;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.running-chip .x{ opacity: .6; font-size: 13px; }
+@keyframes pulse{ 0%,100%{ opacity:1 } 50%{ opacity:.25 } }
+
+/* ==========================================================================
+   Hinweisstreifen
+   ========================================================================== */
+/* left:0/right:0 plus auto-Rand statt left:50%: bei left:50% waere die
+   Breite auf die halbe Viewportbreite begrenzt und laengere Meldungen
+   wuerden unnoetig umbrechen. */
+.toast{
+  position: fixed; left: 0; right: 0; bottom: 104px;
+  width: max-content; max-width: calc(100% - 40px);
+  margin-inline: auto;
+  background: var(--brass); color: #12242A;
+  padding: 11px 20px; border-radius: 999px;
+  font-size: 15px; font-weight: 500;
+  opacity: 0; pointer-events:none; transition: opacity .2s ease;
+  z-index: 10;
+}
+.toast.show{ opacity: 1; }
+/* Variante fuer den Update-Hinweis: der bleibt stehen und ist antippbar,
+   deshalb braucht er eine echte Trefferflaeche und sichtbaren Fokus. */
+.toast.tap{
+  pointer-events: auto; cursor: pointer;
+  min-height: 48px; padding: 13px 22px;
+  display: flex; align-items: center;
+}
+.toast.tap:focus-visible{ outline: 2px solid #12242A; outline-offset: -5px; }

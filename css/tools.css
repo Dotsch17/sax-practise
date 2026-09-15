@@ -1,0 +1,227 @@
+/* ==========================================================================
+   Die Bausteine der einzelnen Werkzeuge
+   ========================================================================== */
+
+/* --- Session-Runner ------------------------------------------------------- */
+.now{ margin-top: 14px; text-align: left; }
+.now h1{
+  font-family: var(--serif); font-weight: 400;
+  font-size: 34px; line-height: 1.1;
+  margin: 0 0 2px;
+}
+.now .of{ color: var(--cane-dim); font-size: 14px; margin-bottom: 14px; }
+
+.clock{
+  font-family: var(--serif);
+  font-size: 92px; line-height: 0.95;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin: 6px 0 2px;
+  color: var(--cane);
+  transition: color .2s ease;
+}
+.clock.running{ color: var(--brass); }
+.clock.done{ color: var(--brass); font-style: italic; }
+
+/* Fortschrittsbalken statt Ring: bei 92px-Ziffern ist eine gerade Linie
+   aus der Entfernung besser ablesbar als ein duenner Kreis. */
+.bar{
+  height: 3px; background: var(--line); border-radius: 2px; overflow: hidden;
+  margin: 10px 0 18px;
+}
+.bar > i{
+  display:block; height:100%; width:0%;
+  background: var(--brass);
+  transition: width .25s linear;
+}
+
+.cues{ list-style: none; margin: 0 0 22px; padding: 0; }
+.cues li{
+  position: relative;
+  padding-left: 18px; margin-bottom: 7px;
+  color: var(--cane-dim); font-size: 15px; line-height: 1.4;
+}
+.cues li::before{
+  content:""; position:absolute; left:0; top:.62em;
+  width:7px; height:1px; background: var(--brass-dim);
+}
+
+.controls{ display:flex; gap: 10px; }
+.controls button{
+  flex: 1; min-height: 60px;
+  border-radius: var(--radius);
+  font-size: 18px; font-weight: 500;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition: background .12s ease;
+}
+.controls button:active{ background: var(--surface-hi); }
+.controls .primary{
+  background: var(--brass); color: #12242A; border-color: var(--brass);
+  font-weight: 600;
+}
+.controls .primary:active{ background: var(--brass-dim); }
+
+/* Blockliste -- echte Reihenfolge, deshalb sind Nummern hier berechtigt */
+.plan{ margin-top: 30px; border-top: 1px solid var(--line); }
+.plan-row{
+  display:flex; align-items:center; gap: 12px;
+  width: 100%;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+.plan-row .idx{
+  font-family: var(--serif); font-size: 19px;
+  color: var(--cane-dim); width: 20px; flex: none;
+}
+.plan-row .name{ flex:1; font-size: 16px; }
+.plan-row .min{ color: var(--cane-dim); font-size: 14px; font-variant-numeric: tabular-nums; }
+.plan-row .mark{ width: 20px; flex:none; text-align:center; color: var(--brass); }
+.plan-row[data-state="current"]{ background: var(--surface); }
+.plan-row[data-state="current"] .idx,
+.plan-row[data-state="current"] .name{ color: var(--brass); }
+.plan-row[data-state="done"] .name{ color: var(--cane-dim); }
+
+.total{ padding: 14px 4px; color: var(--cane-dim); font-size: 14px; display:flex; justify-content:space-between; }
+
+/* --- Bordun --------------------------------------------------------------- */
+.keys{
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  margin-bottom: 16px;
+}
+.key{
+  min-height: 62px;
+  border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  line-height: 1.15;
+}
+.key b{ font-size: 19px; font-weight: 500; }
+.key span{ font-size: 11.5px; color: var(--cane-dim); margin-top: 2px; }
+.key[aria-pressed="true"]{
+  background: var(--brass); border-color: var(--brass); color: #12242A;
+}
+.key[aria-pressed="true"] span{ color: #12242A; opacity:.75; }
+
+/* --- Regler und Felder ---------------------------------------------------- */
+.slider{ display:flex; align-items:center; gap: 12px; margin: 14px 0; }
+.slider label{ font-size: 14px; color: var(--cane-dim); width: 74px; flex:none; }
+.slider-val{
+  font-size: 14px; color: var(--cane-dim);
+  min-width: 52px; text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+input[type=range]{
+  flex:1; -webkit-appearance:none; appearance:none;
+  height: 3px; background: var(--line); border-radius:2px;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width: 26px; height: 26px; border-radius:50%;
+  background: var(--brass); border: 0;
+}
+input[type=range]::-moz-range-thumb{
+  width: 26px; height: 26px; border-radius:50%; background: var(--brass); border:0;
+}
+
+input[type=number], input[type=text], select{
+  background: var(--surface); color: var(--cane);
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px; font-family: inherit; font-size: 16px;
+  width: 100%;
+}
+
+textarea{
+  width:100%; min-height: 84px; resize: vertical;
+  background: var(--surface); color: var(--cane);
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px; font-family: inherit; font-size: 16px;
+}
+
+.wide{
+  width:100%; min-height: 58px; border-radius: var(--radius);
+  background: var(--surface); border:1px solid var(--line);
+  font-size: 17px; font-weight: 500;
+  margin-top: 4px;
+}
+.wide[aria-pressed="true"], .wide.on{
+  background: var(--brass); border-color: var(--brass); color:#12242A;
+}
+.wide:active{ background: var(--surface-hi); }
+.wide.primary{ background: var(--brass); border-color: var(--brass); color: #12242A; font-weight: 600; }
+.wide.primary:active{ background: var(--brass-dim); }
+
+.row2{ display:flex; gap: 10px; margin-top: 14px; }
+.row2 button{
+  flex:1; min-height: 50px; border-radius: 10px;
+  background: var(--surface); border:1px solid var(--line); font-size: 15px;
+}
+.row2 button:active{ background: var(--surface-hi); }
+
+.grid3{
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  margin-bottom: 12px;
+}
+.grid3 label{
+  display: flex; flex-direction: column; gap: 5px;
+  font-size: 13px; color: var(--cane-dim);
+}
+
+.panel{
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px; margin: 14px 0;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+/* --- Metronom ------------------------------------------------------------- */
+.bpm{ display:flex; align-items:center; gap: 12px; margin-bottom: 8px; }
+.bpm .val{
+  font-family: var(--serif); font-size: 52px; line-height:1;
+  font-variant-numeric: tabular-nums; min-width: 96px;
+}
+.bpm .step{
+  width: 58px; height: 58px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--line);
+  font-size: 26px;
+}
+.bpm .step:active{ background: var(--surface-hi); }
+.beats{ display:flex; gap: 7px; margin: 14px 0; }
+.beats i{
+  flex:1; height: 8px; border-radius: 4px; background: var(--line);
+  transition: background .06s linear;
+}
+.beats i.on{ background: var(--brass); }
+.beats i.accent.on{ background: var(--cane); }
+
+/* --- Protokoll ------------------------------------------------------------ */
+.entry{ border-bottom: 1px solid var(--line); padding: 14px 2px; }
+.entry .head{ display:flex; justify-content:space-between; gap:10px; font-size: 15px; }
+.entry .head b{ font-weight: 500; }
+.entry .meta{ color: var(--cane-dim); font-size: 13.5px; margin-top: 3px; }
+.entry .note{ color: var(--cane-dim); font-size: 14.5px; margin-top: 7px; font-style: italic; }
+
+/* --- Notensatz ------------------------------------------------------------ */
+.staff-wrap{
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  margin: 12px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+svg.staff{
+  height: 128px; display: block;
+  color: var(--cane);
+  stroke-linecap: butt;
+}
+svg.staff.compact{ height: 96px; }
+.staff-label{
+  font-family: var(--sans); font-size: 11px;
+  fill: var(--cane-dim); stroke: none;
+}
+.nt-aktiv   { color: var(--brass); }
+.nt-richtig { color: #7FB069; }
+.nt-falsch  { color: #D97A5A; }
+.nt-blass   { color: var(--cane-dim); opacity: .45; }
