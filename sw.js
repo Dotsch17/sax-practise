@@ -1,0 +1,79 @@
+/* ==========================================================================
+   Service Worker — Offlinebetrieb
+
+   WICHTIG: Bei jeder Änderung an index.html, manifest.json, den Icons oder
+   den Schriften muss VERSION hochgezählt werden. Der Browser erkennt eine
+   neue Fassung ausschließlich daran, dass sich diese Datei byteweise
+   unterscheidet. Bleibt sie gleich, liefert der Cache dauerhaft den alten
+   Stand aus, auch wenn auf GitHub Pages längst etwas Neues liegt.
+
+   Cache-First für alles Eigene, Network-First für nichts — es gibt kein
+   Backend, und die einzigen Daten liegen in localStorage.
+   ========================================================================== */
+"use strict";
+
+const VERSION = "v1";
+const CACHE   = "sax-uebeplan-" + VERSION;
+
+// Relative Pfade, damit derselbe Worker unter jedem Unterverzeichnis läuft
+// (auf GitHub Pages liegt die App unter /sax-practise/, lokal unter /).
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./icons/icon-maskable-512.png",
+  "./icons/apple-touch-icon.png",
+  "./fonts/instrument-serif-400-latin.woff2",
+  "./fonts/instrument-serif-400-italic-latin.woff2",
+  "./fonts/barlow-400-latin.woff2",
+  "./fonts/barlow-400-latin-ext.woff2",
+  "./fonts/barlow-500-latin.woff2",
+  "./fonts/barlow-500-latin-ext.woff2",
+  "./fonts/barlow-600-latin.woff2",
+  "./fonts/barlow-600-latin-ext.woff2"
+];
+
+self.addEventListener("install", event => {
+  // Kein skipWaiting: die neue Fassung wartet, bis der Nutzer den Hinweis
+  // antippt. Sonst würde mitten in einer laufenden Session neu geladen.
+  event.waitUntil(
+    caches.open(CACHE).then(cache => cache.addAll(ASSETS))
+  );
+});
+
+self.addEventListener("activate", event => {
+  event.waitUntil((async () => {
+    const names = await caches.keys();
+    await Promise.all(names.map(n => n === CACHE ? null : caches.delete(n)));
+    await self.clients.claim();
+  })());
+});
+
+// Erst auf Zuruf der Seite übernehmen, siehe Modul 7 in index.html.
+self.addEventListener("message", event => {
+  if(event.data === "skip-waiting") self.skipWaiting();
+});
+
+self.addEventListener("fetch", event => {
+  const req = event.request;
+  if(req.method !== "GET") return;
+
+  const url = new URL(req.url);
+  if(url.origin !== self.location.origin) return;   // Fremdes unangetastet lassen
+
+  // Navigation: immer die gecachte Seite, damit der Kaltstart ohne Netz
+  // funktioniert. Ohne Treffer bleibt nur das Netz.
+  if(req.mode === "navigate"){
+    event.respondWith(
+      caches.match("./index.html", { ignoreSearch: true })
+        .then(hit => hit || fetch(req))
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(req, { ignoreSearch: true }).then(hit => hit || fetch(req))
+  );
+});

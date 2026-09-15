@@ -64,8 +64,20 @@ Sekunden-Dekrement — gedrosselte Timer verlieren sonst Zeit.
 
 ## 4. Aktueller Stand
 
-`index.html` ist eine vollständig funktionierende, abhängigkeitsfreie
-Einzeldatei. Vanilla JS, kein Build-Schritt. Inhalt:
+Eine installierbare PWA ohne Build-Schritt und ohne Laufzeit-Abhängigkeiten.
+Der gesamte Code steht weiterhin in `index.html`, daneben liegen nur statische
+Dateien:
+
+```
+index.html      Oberfläche, Logik, Stile — die gesamte App
+manifest.json   Name, Icons, Vollbildstart
+sw.js           Service Worker, versionierter Precache für den Offlinebetrieb
+icons/          192, 512, maskable 512, apple-touch-icon 180
+fonts/          Instrument Serif und Barlow als woff2, selbst gehostet
+tools/          Icon-Generator, gehört nicht zur App und läuft nie beim Deploy
+```
+
+Inhalt von `index.html`:
 
 - Session-Runner: sieben Blöcke, Countdown pro Block, Merkpunkte, Pause,
   automatisches Weiterspringen, Signalton am Blockende, Wochenauswahl 1 bis 4
@@ -77,6 +89,9 @@ Einzeldatei. Vanilla JS, kein Build-Schritt. Inhalt:
   Klicks exakt auf der Audio-Uhr).
 - Protokoll mit Notiz, Verlauf, JSON-Export und -Import.
 - Screen Wake Lock während laufender Timer.
+- Offlinebetrieb: Service Worker mit Cache-First-Precache. Eine neue Fassung
+  übernimmt nicht von selbst, sondern meldet sich als antippbarer Hinweis —
+  sonst würde mitten in einer laufenden Session neu geladen.
 
 Der Code ist in sieben nummerierte Module geteilt. Die Nummerierung ist die
 geplante Schnittkante für einen späteren Framework-Umbau:
@@ -89,7 +104,7 @@ geplante Schnittkante für einen späteren Framework-Umbau:
 | 4 | Timer, Wake Lock | Hook oder Service |
 | 5 | Rendering | Komponenten |
 | 6 | Event-Bindung | entfällt |
-| 7 | Startsequenz | Entry Point |
+| 7 | Startsequenz, Service-Worker-Registrierung | Entry Point |
 
 **Regel:** Alle inhaltlichen Änderungen am Übungsplan passieren ausschließlich
 in Modul 1. Nirgends sonst stehen Blocknamen, Minuten oder Merkpunkte.
@@ -112,9 +127,13 @@ zweite Akzentfarbe einführen.
 ```
 
 Schrift: Instrument Serif für Countdown-Ziffern und Überschriften, Barlow für
-alles andere, beide von Google Fonts mit Fallback auf Georgia beziehungsweise
-system-ui. Die App muss ohne Netz benutzbar bleiben, deshalb dürfen Schriften
-nie funktionskritisch sein.
+alles andere, mit Fallback auf Georgia beziehungsweise system-ui. Beide liegen
+seit Phase 2 als woff2-Subsets unter `fonts/` im Repo und werden nicht mehr von
+Google geladen — sonst sähe der erste Start ohne Netz falsch aus. Herkunft,
+Subsets und Lizenz stehen in `fonts/HERKUNFT.md`. Die App muss ohne Netz
+benutzbar bleiben, deshalb dürfen Schriften nie funktionskritisch sein:
+Notenzeichen wie ♯ und ♭ sind in den Subsets nicht enthalten und kommen wie
+bisher aus der Systemschrift.
 
 Weitere Vorgaben: Mindesthöhe 58 px für alle primären Bedienelemente,
 maximale Spaltenbreite 480 px, `prefers-reduced-motion` respektieren,
@@ -155,14 +174,20 @@ Vorversion schreiben — der Nutzer hat dann echte Übungsdaten drin.
 
 **Phase 1 — abgeschlossen.** Session-Runner, Bordun, Metronom, Protokoll.
 
-**Phase 2 — Offline und Installation.**
-- `manifest.json` mit Name, Icons (192 und 512 px), `display: "standalone"`,
-  `start_url: "."`, `theme_color: "#0C2226"`.
-- Minimaler Service Worker, der `index.html`, das Manifest, die Icons und die
-  Schriftdateien cacht. Cache-First für Assets, Network-First für nichts, weil
-  es kein Backend gibt.
-- Abnahme: Im Flugmodus vom Home-Bildschirm starten, Session vollständig
-  durchlaufen, Bordun und Metronom funktionieren.
+**Phase 2 — umgesetzt, Abnahme am Gerät steht aus.**
+- `manifest.json` liegt vor, verlinkt, mit Icons 192, 512 und maskable 512,
+  `display: "standalone"`, `start_url: "."`, `scope: "./"`,
+  `theme_color: "#0C2226"`. Zusätzlich ein `apple-touch-icon` mit 180 px, weil
+  iOS den für „Zum Home-Bildschirm" zuverlässiger auswertet als das Manifest.
+- `sw.js` precacht Seite, Manifest, Icons und Schriften und beantwortet
+  eigene GET-Requests cache-first, Navigationen mit `index.html`. Fremde
+  Herkünfte und alles außer GET laufen unangetastet durch. Network-First für
+  nichts, weil es kein Backend gibt.
+- Die Schriften liegen selbst gehostet im Repo, siehe Abschnitt 5.
+- Offen — das kann nur der Nutzer am iPhone: im Flugmodus vom Home-Bildschirm
+  starten, Session vollständig durchlaufen, Bordun und Metronom prüfen.
+  Lokal ist nur die Worker-Logik gegengeprüft, nicht die Registrierung: der
+  eingebettete Testbrowser lässt keine Service Worker zu.
 
 **Phase 3 — Übe-Auswertung.**
 - Verlaufsansicht: Minuten pro Woche, Blockverteilung, Serie ohne Lücke.
@@ -209,11 +234,24 @@ unwichtigste Teil, deshalb bewusst zuletzt.
   klar sagen, was der Nutzer am Gerät gegenprüfen muss.
 - iOS-Test läuft über GitHub Pages oder einen HTTPS-Tunnel. Simulator und
   Desktop-Safari verhalten sich bei Audio-Unlock und Wake Lock anders.
+- Der Service Worker lässt sich nicht in jedem Testbrowser registrieren. Seine
+  Handler sind aber ohne Browser prüfbar: `sw.js` in einem Node-Kontext mit
+  nachgebauten `caches`- und Event-Globals laden und Install, Activate, Fetch
+  und Message einzeln feuern. Das fängt fehlende Precache-Pfade und falsche
+  Cache-Namen ab. Was nur am Gerät geht: Registrierung, Update-Hinweis und
+  der echte Kaltstart im Flugmodus.
 
 ## 11. Deployment
 
 GitHub Pages, Branch `main`, Ordner root, Datei heißt `index.html`.
+Adresse: https://dotsch17.github.io/sax-practise/
 Am iPhone in Safari öffnen, Teilen, „Zum Home-Bildschirm".
+
+**Pflicht bei jedem Deploy:** `VERSION` in `sw.js` hochzählen. Der Browser
+erkennt eine neue Fassung ausschließlich daran, dass sich `sw.js` byteweise
+unterscheidet. Wer nur `index.html` ändert, liefert dem installierten Gerät
+dauerhaft den alten Stand aus — die Änderung liegt dann zwar auf GitHub Pages,
+kommt aber nie an. Das ist der Preis für Cache-First ohne Build-Schritt.
 
 Achtung: Jede Domain hat eigenen localStorage. Wenn der Nutzer die App von
 einer anderen URL neu lädt, sind die Daten leer — dann Export und Import

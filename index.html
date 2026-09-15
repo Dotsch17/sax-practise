@@ -5,20 +5,81 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Übeplan Saxophon</title>
 
-<!-- Add to Home Screen: sorgt dafuer, dass die App unter iOS ohne Safari-Leisten
-     im Vollbild startet. Fuer eine echte PWA kommen spaeter noch manifest.json
-     und ein Service Worker dazu (siehe README-Kommentar ganz unten). -->
+<!-- Installation: manifest.json liefert Name, Icons und Vollbildstart. iOS wertet
+     fuer "Zum Home-Bildschirm" zusaetzlich die apple-Angaben und den
+     apple-touch-icon aus, deshalb stehen beide Wege nebeneinander. -->
+<link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Üben">
 <meta name="theme-color" content="#0C2226">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+
+<!-- Nur die beiden Schnitte vorladen, die beim ersten Bild sichtbar sind:
+     Countdown-Ziffern und Grundschrift. -->
+<link rel="preload" href="fonts/instrument-serif-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/barlow-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 
 <style>
+/* ==========================================================================
+   0. Schriften
+   Selbst gehostet unter fonts/, damit die App auch beim allerersten Start
+   ohne Netz richtig aussieht. Es sind die latin-Subsets; Notenzeichen wie
+   ♯ und ♭ sind darin nicht enthalten und kommen wie bisher aus der
+   Systemschrift. Herkunft und Lizenz: fonts/HERKUNFT.md.
+   ========================================================================== */
+@font-face{
+  font-family: "Instrument Serif"; font-style: normal; font-weight: 400;
+  font-display: swap;
+  src: url(fonts/instrument-serif-400-latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family: "Instrument Serif"; font-style: italic; font-weight: 400;
+  font-display: swap;
+  src: url(fonts/instrument-serif-400-italic-latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family: "Barlow"; font-style: normal; font-weight: 400;
+  font-display: swap;
+  src: url(fonts/barlow-400-latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family: "Barlow"; font-style: normal; font-weight: 400;
+  font-display: swap;
+  src: url(fonts/barlow-400-latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face{
+  font-family: "Barlow"; font-style: normal; font-weight: 500;
+  font-display: swap;
+  src: url(fonts/barlow-500-latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family: "Barlow"; font-style: normal; font-weight: 500;
+  font-display: swap;
+  src: url(fonts/barlow-500-latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face{
+  font-family: "Barlow"; font-style: normal; font-weight: 600;
+  font-display: swap;
+  src: url(fonts/barlow-600-latin.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family: "Barlow"; font-style: normal; font-weight: 600;
+  font-display: swap;
+  src: url(fonts/barlow-600-latin-ext.woff2) format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 /* ==========================================================================
    1. Tokens
    Farbwelt: Innenfutter eines Instrumentenkoffers (Petrol), Lackmessing als
@@ -305,8 +366,13 @@ nav button{
 }
 nav button[aria-selected="true"]{ color: var(--brass); border-top-color: var(--brass); }
 
+/* left:0/right:0 plus auto-Rand statt left:50%: bei left:50% waere die
+   Breite auf die halbe Viewportbreite begrenzt und laengere Meldungen
+   wuerden unnoetig umbrechen. */
 .toast{
-  position: fixed; left: 50%; bottom: 92px; transform: translateX(-50%);
+  position: fixed; left: 0; right: 0; bottom: 92px;
+  width: max-content; max-width: calc(100% - 40px);
+  margin-inline: auto;
   background: var(--brass); color: #12242A;
   padding: 11px 20px; border-radius: 999px;
   font-size: 15px; font-weight: 500;
@@ -314,6 +380,14 @@ nav button[aria-selected="true"]{ color: var(--brass); border-top-color: var(--b
   z-index: 10;
 }
 .toast.show{ opacity: 1; }
+/* Variante fuer den Update-Hinweis: der bleibt stehen und ist antippbar,
+   deshalb braucht er eine echte Trefferflaeche und sichtbaren Fokus. */
+.toast.tap{
+  pointer-events: auto; cursor: pointer;
+  min-height: 48px; padding: 13px 22px;
+  display: flex; align-items: center;
+}
+.toast.tap:focus-visible{ outline: 2px solid #12242A; outline-offset: -5px; }
 
 @media (prefers-reduced-motion: reduce){
   *{ transition: none !important; animation: none !important; }
@@ -850,12 +924,31 @@ function escapeHtml(s){
 }
 
 let toastTimer;
-function toast(msg){
+// Mit onTap bleibt der Hinweis stehen, bis er angetippt wird -- das braucht
+// der Update-Hinweis aus Modul 7. Ohne onTap wie bisher: 1,8 Sekunden.
+function toast(msg, onTap){
   const t = $("#toast");
-  t.textContent = msg; t.classList.add("show");
+  t.textContent = msg;
+  t.classList.add("show");
+  t.classList.toggle("tap", !!onTap);
+  t.onclick = onTap || null;
+  if(onTap){
+    t.setAttribute("role", "button");
+    t.setAttribute("tabindex", "0");
+  }else{
+    t.removeAttribute("role");
+    t.removeAttribute("tabindex");
+  }
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
+  if(!onTap) toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
 }
+
+$("#toast").addEventListener("keydown", e => {
+  if((e.key === "Enter" || e.key === " ") && e.currentTarget.onclick){
+    e.preventDefault();
+    e.currentTarget.onclick();
+  }
+});
 
 /* ==========================================================================
    MODUL 6 — Ereignisse
@@ -962,20 +1055,51 @@ renderBeats();
 renderKeys();
 selectBlock(Math.max(0, currentPlan().findIndex(b => !S.day.done.includes(b.id))));
 
-/* --------------------------------------------------------------------------
-   Nächste Schritte, wenn du daraus ein richtiges Projekt machst:
+/* --- Service Worker ------------------------------------------------------
+   Registrierung nur ueber http(s); unter file:// wirft register(). Der neue
+   Worker uebernimmt bewusst nicht von selbst, sondern wartet auf den Tipp
+   des Nutzers -- sonst wuerde die Seite mitten in einer laufenden Session
+   neu geladen. Beim Deployen VERSION in sw.js hochzaehlen, sonst merkt der
+   Browser nichts von der neuen Fassung. */
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  window.addEventListener("load", async () => {
+    try{
+      const reg = await navigator.serviceWorker.register("sw.js", { updateViaCache: "none" });
 
-   1. Auf GitHub Pages: Datei als index.html ins Repo, Settings → Pages →
-      Branch main / root. Läuft sofort unter https, das ist Voraussetzung für
-      Mikrofonzugriff später.
-   2. Echte PWA: manifest.json mit name, icons, display:"standalone",
-      start_url:"." dazulegen und verlinken, plus ein minimaler Service Worker,
-      der index.html und die Schriften cacht. Dann läuft die App auch offline.
-   3. Umbau auf Vite plus React: MODUL 1 wird plan.js, MODUL 2 ein Store,
-      MODUL 3 bleibt fast unverändert als audio.js (reines Web Audio, kein DOM),
-      MODUL 5 wird zu Komponenten. Die Trennung ist hier schon so angelegt.
-   4. Analyseteil: getUserMedia plus AudioWorklet, Tonhöhe per YIN oder
-      Autokorrelation. Erst dann, wenn 1 bis 3 stehen.
+      let accepted = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if(!accepted) return;   // Erstinstallation, kein Grund neu zu laden
+        accepted = false;
+        location.reload();
+      });
+
+      const offerUpdate = worker => toast("Neue Version — neu laden", () => {
+        accepted = true;
+        worker.postMessage("skip-waiting");
+      });
+
+      // Ein vorhandener controller bedeutet, dass schon eine Fassung laeuft:
+      // was jetzt installiert wird, ist ein Update und keine Erstinstallation.
+      if(reg.waiting && navigator.serviceWorker.controller) offerUpdate(reg.waiting);
+
+      reg.addEventListener("updatefound", () => {
+        const sw = reg.installing;
+        if(!sw) return;
+        sw.addEventListener("statechange", () => {
+          if(sw.state === "installed" && navigator.serviceWorker.controller) offerUpdate(sw);
+        });
+      });
+    }catch(e){
+      console.warn("Service Worker nicht registriert.", e);
+    }
+  });
+}
+
+/* --------------------------------------------------------------------------
+   Wie es weitergeht, steht in CLAUDE.md, Abschnitt 8. Kurz: Phase 3 wertet
+   day.spent aus, Phase 4 waere der Umbau auf Vite plus React (MODUL 1 wird
+   plan.js, MODUL 3 wandert unveraendert nach audio.js), Phase 5 bringt die
+   Tonhoehen- und Spektrumanalyse.
    -------------------------------------------------------------------------- */
 </script>
 </body>
