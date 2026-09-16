@@ -157,9 +157,13 @@ export function chordSymbol(root, qualityId, naming = NAMING.DE) {
    Die Auswahl ist die eines Lehrers, nicht die einer Datenbank: was man
    wirklich übt, bevor man Standards spielt. */
 
+/* `sigVersatz` ist die Verschiebung der Vorzeichnung gegenüber Dur, in
+   Quintschritten: Moll liegt drei Quinten tiefer als seine Durparallele,
+   Dorisch zwei. Ohne diese Angabe stünde über einem dorischen Vamp auf D
+   eine Vorzeichnung mit zwei Kreuzen, wo keines hingehört. */
 export const PROGRESSIONS = [
   {
-    id: "dur251", name: "II–V–I in Dur", takt: 4, tempo: 120,
+    id: "dur251", sigVersatz: 0, name: "II–V–I in Dur", takt: 4, tempo: 120,
     was: "Die Grundformel des Jazz. Kann sie jeder Ton in jeder Tonart, ist die halbe Arbeit getan.",
     akkorde: [
       { grad: 2, q: "m7", takte: 1 },
@@ -168,7 +172,7 @@ export const PROGRESSIONS = [
     ],
   },
   {
-    id: "moll251", name: "II–V–I in Moll", takt: 4, tempo: 110,
+    id: "moll251", sigVersatz: -3, name: "II–V–I in Moll", takt: 4, tempo: 110,
     was: "Dieselbe Formel, dunkler. Der alterierte Akkord in der Mitte ist der Punkt, an dem es interessant wird.",
     akkorde: [
       { grad: 2, q: "m7b5", takte: 1 },
@@ -177,7 +181,7 @@ export const PROGRESSIONS = [
     ],
   },
   {
-    id: "blues", name: "Blues, einfach", takt: 4, tempo: 100,
+    id: "blues", sigVersatz: 0, name: "Blues, einfach", takt: 4, tempo: 100,
     was: "Zwölf Takte, drei Akkorde. Das Übungsfeld, auf dem alles andere wächst.",
     akkorde: [
       { grad: 0, q: "dom7", takte: 4 },
@@ -189,7 +193,7 @@ export const PROGRESSIONS = [
     ],
   },
   {
-    id: "jazzblues", name: "Jazz-Blues", takt: 4, tempo: 130,
+    id: "jazzblues", sigVersatz: 0, name: "Jazz-Blues", takt: 4, tempo: 130,
     was: "Der Blues mit Zwischendominanten und II–V. So wird er auf der Session gespielt.",
     akkorde: [
       { grad: 0, q: "dom7", takte: 1 },
@@ -205,12 +209,12 @@ export const PROGRESSIONS = [
     ],
   },
   {
-    id: "dorisch_vamp", name: "Dorischer Vamp", takt: 4, tempo: 120,
+    id: "dorisch_vamp", sigVersatz: -2, name: "Dorischer Vamp", takt: 4, tempo: 120,
     was: "Ein Akkord, acht Takte. Kein Harmoniewechsel, an dem man sich festhalten kann — hier zeigt sich, ob du eine Linie bauen kannst.",
     akkorde: [{ grad: 0, q: "m7", takte: 8 }],
   },
   {
-    id: "modal_zwei", name: "Modal, zwei Zentren", takt: 4, tempo: 130,
+    id: "modal_zwei", sigVersatz: -2, name: "Modal, zwei Zentren", takt: 4, tempo: 130,
     was: "Acht Takte, dann einen Halbton höher und zurück. Der Wechsel ist der ganze Reiz.",
     akkorde: [
       { grad: 0, q: "m7", takte: 8 },
@@ -219,7 +223,7 @@ export const PROGRESSIONS = [
     ],
   },
   {
-    id: "rhythm_a", name: "Rhythm Changes, A-Teil", takt: 4, tempo: 160,
+    id: "rhythm_a", sigVersatz: 0, name: "Rhythm Changes, A-Teil", takt: 4, tempo: 160,
     was: "Schnelle Wechsel über I–VI–II–V. Übt das Denken in Zweitaktgruppen.",
     akkorde: [
       { grad: 0, q: "maj7", takte: 1 }, { grad: 9, q: "m7", takte: 1 },
@@ -229,7 +233,7 @@ export const PROGRESSIONS = [
     ],
   },
   {
-    id: "quintfall", name: "Quintfall", takt: 4, tempo: 120,
+    id: "quintfall", sigVersatz: 0, name: "Quintfall", takt: 4, tempo: 120,
     was: "Sieben Dominanten hintereinander, jede eine Quinte tiefer. Die beste Übung für Zieltöne überhaupt.",
     akkorde: [
       { grad: 2, q: "dom7", takte: 1 }, { grad: 7, q: "dom7", takte: 1 },
@@ -239,7 +243,7 @@ export const PROGRESSIONS = [
     ],
   },
   {
-    id: "ballade", name: "Balladenwendung", takt: 4, tempo: 68,
+    id: "ballade", sigVersatz: 0, name: "Balladenwendung", takt: 4, tempo: 68,
     was: "Langsam, viel Platz. Hier hört man jeden Ton — und jede Intonation.",
     akkorde: [
       { grad: 0, q: "maj7", takte: 2 },

@@ -39,11 +39,17 @@ const MODI = [
 
 // Klingende Tonarten. Für ein Es-Instrument sind die bequemen Blues-Tonarten
 // klingend B, Es und F — gegriffen also G, C und D.
+// `sig` ist die klingende Vorzeichnung und steht hier fest, statt aus dem
+// ersten Akkord geraten zu werden: bei einem II-V-I ist der erste Akkord die
+// zweite Stufe, nicht die Tonika. Wer das verwechselt, zeigt drei Kreuze,
+// wo eines hingehört.
 const TONARTEN = [
-  { pc: 10, name: "B" }, { pc: 3, name: "Es" }, { pc: 5, name: "F" },
-  { pc: 0, name: "C" }, { pc: 7, name: "G" }, { pc: 2, name: "D" },
-  { pc: 9, name: "A" }, { pc: 4, name: "E" }, { pc: 11, name: "H" },
-  { pc: 6, name: "Fis" }, { pc: 1, name: "Des" }, { pc: 8, name: "As" },
+  { pc: 10, name: "B",   sig: -2 }, { pc: 3, name: "Es",  sig: -3 },
+  { pc: 5,  name: "F",   sig: -1 }, { pc: 0, name: "C",   sig:  0 },
+  { pc: 7,  name: "G",   sig:  1 }, { pc: 2, name: "D",   sig:  2 },
+  { pc: 9,  name: "A",   sig:  3 }, { pc: 4, name: "E",   sig:  4 },
+  { pc: 11, name: "H",   sig:  5 }, { pc: 6, name: "Fis", sig:  6 },
+  { pc: 1,  name: "Des", sig: -5 }, { pc: 8, name: "As",  sig: -4 },
 ];
 
 let sel = {
@@ -232,9 +238,11 @@ function zeigeAkkord(root) {
   $("#im-naechst", root).textContent = n && n.symbol !== g.symbol ? `dann ${n.symbol}` : "";
 
   // Die Vorzeichnung folgt der gegriffenen Tonart des Stücks, nicht der des
-  // Einzelakkords — sonst wechselt sie mitten im Chorus.
-  const tonikaKlingend = akkorde[0].root;
-  const sig = writtenKeySignature(majorKeySignature(tonikaKlingend));
+  // Einzelakkords — sonst wechselte sie mitten im Chorus. Und sie kommt aus
+  // der gewählten Tonart, nicht aus dem ersten Akkord: der ist bei einem
+  // II-V-I die zweite Stufe.
+  const sig = writtenKeySignature(
+    TONARTEN[sel.tonartIdx].sig + (progOf().sigVersatz || 0));
 
   let toene, beschriftung;
   if (sel.modus === "skala") {

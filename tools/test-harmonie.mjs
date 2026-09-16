@@ -140,5 +140,17 @@ console.log("\nMuster auf Skalen anwenden");
   }
 }
 
+console.log("\nJede Akkordfolge hat einen Vorzeichnungsversatz");
+for (const prog of H.PROGRESSIONS) {
+  ok(typeof prog.sigVersatz === "number",
+     `${prog.name}: sigVersatz gesetzt`);
+  ok(prog.sigVersatz <= 0 && prog.sigVersatz >= -3,
+     `${prog.name}: Versatz ${prog.sigVersatz} ist plausibel`);
+}
+// Moll liegt drei Quinten unter der Durparallele, Dorisch zwei.
+eq(H.PROGRESSIONS.find(p => p.id === "moll251").sigVersatz, -3, "Moll-II-V-I");
+eq(H.PROGRESSIONS.find(p => p.id === "dorisch_vamp").sigVersatz, -2, "dorischer Vamp");
+eq(H.PROGRESSIONS.find(p => p.id === "dur251").sigVersatz, 0, "Dur-II-V-I");
+
 console.log(fail ? `\n${fail} von ${n} Prüfungen fehlgeschlagen\n` : `\nAlle ${n} Prüfungen bestanden\n`);
 process.exit(fail ? 1 : 0);
