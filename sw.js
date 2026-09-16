@@ -43,6 +43,7 @@ const ASSETS = [
   "./js/tools/protokoll.js",
   "./js/tools/session.js",
   "./js/tools/stimmgeraet.js",
+  "./js/tools/tonleitern.js",
   "./js/views.js",
   "./fonts/barlow-400-latin-ext.woff2",
   "./fonts/barlow-400-latin.woff2",

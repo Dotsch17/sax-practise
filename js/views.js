@@ -17,13 +17,14 @@ import session   from "./tools/session.js";
 import bordun    from "./tools/bordun.js";
 import stimmgeraet from "./tools/stimmgeraet.js";
 import metronom  from "./tools/metronom.js";
+import tonleitern from "./tools/tonleitern.js";
 import protokoll from "./tools/protokoll.js";
 import daten     from "./tools/daten.js";
 
 export const TABS = [
   { id: "ueben",   label: "Üben",    tools: [session] },
   { id: "ton",     label: "Ton",     tools: [stimmgeraet, bordun] },
-  { id: "technik", label: "Technik", tools: [metronom] },
+  { id: "technik", label: "Technik", tools: [tonleitern, metronom] },
   { id: "gehoer",  label: "Gehör",   tools: [] },
   { id: "journal", label: "Journal", tools: [protokoll, daten] },
 ];
