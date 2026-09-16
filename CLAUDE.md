@@ -10,8 +10,10 @@ Code änderst. Wenn sich eine Entscheidung ändert, aktualisiere sie hier.
 Eine Übe-App für einen einzelnen Nutzer: Dominik, Visual-Computing-Master an
 der TU Wien, spielt Altsaxophon (Yamaha YAS-480), bereitet sich auf die
 Aufnahmeprüfung IGP Saxophon an der mdw vor. Die App führt durch eine
-strukturierte tägliche Übe-Session für klassischen Ton, liefert Bordunton und
-Metronom und protokolliert, was gemacht wurde.
+strukturierte tägliche Übe-Session für klassischen Ton und deckt daneben die
+Prüfungsdisziplinen ab: Stimmgerät mit Intonationskarte, Bordun, Metronom,
+Tonleitern, Rhythmus, Blattspiel, Gehörbildung, Auswertung, Repertoire und
+einen Wissensteil. Ziel ist, dass zum Üben kein zweites Werkzeug nötig ist.
 
 **Primärer Nutzungskontext, der alle UI-Entscheidungen bestimmt:** Das iPhone
 steht am Notenständer im Probelokal. Der Nutzer hat beide Hände am Instrument,
@@ -30,9 +32,15 @@ auf Deutsch, Bezeichner im Code auf Englisch.
   „repackaged websites"). Verteilung läuft über GitHub Pages plus
   „Zum Home-Bildschirm".
 - Mehrere Nutzer, Synchronisation zwischen Geräten, Cloud-Konto.
-- Ein Framework-Umbau, solange der aktuelle Umfang in einer Datei passt.
-  Siehe Phase 4.
-- Notendarstellung, Playalongs, Repertoireverwaltung.
+- Ein Framework. Der Umfang hat die Einzeldatei gesprengt, aber die Antwort
+  darauf waren native ES-Module, nicht Vite plus React. Null Abhängigkeiten
+  und kein Build-Schritt sind das Wertvollste am Projekt: eine App, die in
+  zehn Jahren noch startet.
+- Playalongs, Aufnahmen fremder Stücke, Notenbibliothek.
+- Grifftabellen. Griffe unterscheiden sich am Instrument, besonders im
+  Altissimo. Was bei diesem Instrument trägt, gehört ins Repertoire zur
+  konkreten Stelle — nicht in eine allgemeine Tabelle, die aus zweiter Hand
+  abgeschrieben wäre.
 
 ## 3. Zielplattform und harte Einschränkungen
 
@@ -65,49 +73,60 @@ Sekunden-Dekrement — gedrosselte Timer verlieren sonst Zeit.
 ## 4. Aktueller Stand
 
 Eine installierbare PWA ohne Build-Schritt und ohne Laufzeit-Abhängigkeiten.
-Der gesamte Code steht weiterhin in `index.html`, daneben liegen nur statische
-Dateien:
 
 ```
-index.html      Oberfläche, Logik, Stile — die gesamte App
+index.html      Gerüst und Einstiegspunkt
 manifest.json   Name, Icons, Vollbildstart
 sw.js           Service Worker, versionierter Precache für den Offlinebetrieb
+css/            base, shell, tools
+js/             der gesamte Code, siehe Tabelle unten
 icons/          192, 512, maskable 512, apple-touch-icon 180
 fonts/          Instrument Serif und Barlow als woff2, selbst gehostet
-tools/          Icon-Generator, gehört nicht zur App und läuft nie beim Deploy
+tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 ```
 
-Inhalt von `index.html`:
+**Die Werkzeuge, nach Bereichen:**
 
-- Session-Runner: sieben Blöcke, Countdown pro Block, Merkpunkte, Pause,
-  automatisches Weiterspringen, Signalton am Blockende, Wochenauswahl 1 bis 4
-  mit abweichenden Minutenverteilungen.
-- Bordunton über alle zwölf klingenden Tonhöhen, jeweils mit dem zugehörigen
-  Griff am Alt. Sägezahn plus zwei Teiltöne plus leichte Verstimmung durch
-  einen Tiefpass.
-- Metronom mit vorausschauendem Scheduler (25 ms Intervall, 100 ms Vorlauf,
-  Klicks exakt auf der Audio-Uhr).
-- Protokoll mit Notiz, Verlauf, JSON-Export und -Import.
-- Screen Wake Lock während laufender Timer.
-- Offlinebetrieb: Service Worker mit Cache-First-Precache. Eine neue Fassung
-  übernimmt nicht von selbst, sondern meldet sich als antippbarer Hinweis —
-  sonst würde mitten in einer laufenden Session neu geladen.
+| Bereich | Werkzeuge |
+|---|---|
+| Üben | Session-Runner: sieben Blöcke, Countdown, Merkpunkte, Wochen 1 bis 4 |
+| Ton | Stimmgerät mit Intonationskarte, Bordun über zwölf klingende Tonhöhen |
+| Technik | Tonleitern, Rhythmus mit Messung, Blattspiel, Metronom |
+| Gehör | Intervalle, Akkorde, Skalen, Richtung |
+| Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
 
-Der Code ist in sieben nummerierte Module geteilt. Die Nummerierung ist die
-geplante Schnittkante für einen späteren Framework-Umbau:
+Bordun und Metronom laufen über Bereichswechsel hinweg weiter; der Streifen
+„läuft gerade" über der Reiterleiste schaltet sie von überall ab.
 
-| Modul | Inhalt | Beim Umbau |
-|---|---|---|
-| 1 | Übungsplan als reine Daten (`BLOCKS`, `WEEKS`) | `plan.js` |
-| 2 | Zustand, localStorage, Migration | Store |
-| 3 | Audio: Bordun, Metronom, Signalton | `audio.js`, unverändert übernehmbar |
-| 4 | Timer, Wake Lock | Hook oder Service |
-| 5 | Rendering | Komponenten |
-| 6 | Event-Bindung | entfällt |
-| 7 | Startsequenz, Service-Worker-Registrierung | Entry Point |
+Der Code liegt in ES-Modulen. Kein Build-Schritt, keine
+Laufzeit-Abhängigkeiten. Aufteilung:
 
-**Regel:** Alle inhaltlichen Änderungen am Übungsplan passieren ausschließlich
-in Modul 1. Nirgends sonst stehen Blocknamen, Minuten oder Merkpunkte.
+| Ordner | Inhalt |
+|---|---|
+| `js/core/` | DOM-Helfer, Zustand und Speicherung, Session-Timer und Wake Lock |
+| `js/audio/` | AudioContext, Bordun, Metronom, Signale, Tonhöhenerkennung |
+| `js/music/` | Theorie, Notensatz, Notenzeichen, Rhythmus- und Melodiegenerator |
+| `js/data/` | Übungsplan und Wissenstexte — alles Inhaltliche |
+| `js/tools/` | ein Modul je Werkzeug, alle mit derselben Schnittstelle |
+| `js/views.js` | welches Werkzeug in welchem Bereich steht |
+| `js/main.js` | Navigation, Startsequenz, Service-Worker-Registrierung |
+| `css/` | `base.css` Tokens und Schriften, `shell.css` Gerüst, `tools.css` Bausteine |
+
+**Regeln, die nicht verhandelbar sind:**
+
+- Alle inhaltlichen Änderungen am Übungsplan passieren ausschließlich in
+  `js/data/plan.js`. Nirgends sonst stehen Blocknamen, Minuten oder
+  Merkpunkte. Dasselbe gilt für `js/data/wissen.js`.
+- `js/audio/` und `js/music/` enthalten **kein DOM**. Das ist nicht Stilfrage:
+  falls iOS blockierend wird, wandert derselbe Code unter Capacitor, und dort
+  gibt es kein `document`. Anzeigen hängen sich über Rückrufe ein
+  (`onBeat`, `onPitch`, `onChange`).
+- Jedes Werkzeug exportiert `{ id, label, mount(root), unmount?() }`.
+  `unmount()` bekommt **kein** Argument und muss alles abräumen, was `mount()`
+  angelegt hat — besonders Zuhörer auf `document` und laufende Timer.
+- Was ohne Browser prüfbar ist, wird geprüft: Theorie, Notensatz,
+  Tonhöhenerkennung, Rhythmus- und Melodiegenerator liegen bewusst
+  DOM-frei, damit sie das können.
 
 ## 5. Design — festgelegt, nicht neu erfinden
 
@@ -135,6 +154,25 @@ benutzbar bleiben, deshalb dürfen Schriften nie funktionskritisch sein:
 Notenzeichen wie ♯ und ♭ sind in den Subsets nicht enthalten und kommen wie
 bisher aus der Systemschrift.
 
+Was daraus folgt und beim Bauen schon zweimal schiefging:
+
+- Richtig und falsch werden **nicht** über Grün und Rot unterschieden,
+  sondern über Messing gegen gedämpft, plus ein Zeichen (✓ und ✕) und eine
+  andere Strichart. Das hält die eine Akzentfarbe ein und ist bei
+  Rotblindheit lesbar.
+- `[hidden]` ist in `base.css` mit `!important` erzwungen. Die Browser-Regel
+  hat sehr niedrige Spezifität, und jede eigene Regel mit `display:flex`
+  schlägt sie — dann steht ein Element sichtbar da, obwohl der Code es
+  versteckt hat.
+- Auswahlreihen mit vielen Einträgen bekommen `.chips.scroll`: einzeilig und
+  seitlich scrollbar. Umbrechende Chips schieben die Hauptsache unter die
+  Falz.
+
+Notenzeichen kommen aus `js/music/glyphs.js`, nicht aus einer Schrift. Die
+Umrisse stammen aus Bravura (SIL OFL 1.1) und wurden einmalig mit
+`tools/extract-glyphs.py` in Pfaddaten übersetzt. Bewusst als Quellcode statt
+als Schriftdatei: so kommt zur Laufzeit nichts dazu.
+
 Weitere Vorgaben: Mindesthöhe 58 px für alle primären Bedienelemente,
 maximale Spaltenbreite 480 px, `prefers-reduced-motion` respektieren,
 sichtbarer Tastaturfokus, `env(safe-area-inset-*)` beachten. Keine
@@ -142,19 +180,31 @@ Einblend-Animationen beim Seitenaufbau.
 
 ## 6. Datenmodell
 
-Ein einziges Objekt in localStorage unter `sax.uebeplan.v1`. Bewusst eines,
+Ein einziges Objekt in localStorage unter `sax.uebeplan.v2`. Bewusst eines,
 damit Export und Import trivial bleiben.
 
 ```js
 {
+  v: 2,
   week: 1..4,
   day:  { date: "YYYY-MM-DD", done: [blockId], spent: { blockId: seconds } },
-  log:  [ { date, week, blocks: [name], minutes, note } ],
-  settings: { droneVol, bpm, beats }
+  log:  [ { date, week, blocks: [name], minutes, spent, note } ],
+  settings: { droneVol, bpm, beats, a4, naming, pitchView, metroSound, countIn },
+  drills: { "<id>": { ... } },     // Fortschritt je Übung, frei geformt
+  repertoire: [ { id, titel, komponist, status, stellen: [...], notiz } ],
+  read: [artikelId],
 }
 ```
 
+`drills` ist bewusst flach und nach Übung getrennt, damit eine neue Übung
+keine Migration braucht. Die Schlüssel sind sprechend:
+`skala:dur:C-Dur`, `gehoer:intervalle:leicht`, `rhythmus:2`,
+`blattspiel:3`, `stimmgeraet:noten`.
+
 Beim Laden wird `day` verworfen, wenn das Datum nicht dem heutigen entspricht.
+Die Migration von `v1` läuft automatisch; `v1` bleibt als Sicherung liegen und
+wird nicht gelöscht.
+
 Bei jeder Schemaänderung den Schlüssel hochzählen und eine Migration von der
 Vorversion schreiben — der Nutzer hat dann echte Übungsdaten drin.
 
@@ -168,56 +218,86 @@ Vorversion schreiben — der Nutzer hat dann echte Übungsdaten drin.
   klassischen Ton. Reihenfolge und Merkpunkte sind fachlich begründet und nicht
   beliebig umsortierbar. Bei Unsicherheit nachfragen statt raten.
 - Der Nutzer arbeitet am Altissimo-Register; G, G♯ und A gelingen teilweise.
-  Falls Altissimo-Funktionen dazukommen, ist das der Ausgangspunkt.
+  Der nächste Schritt ist nicht ein neuer Ton, sondern Verlässlichkeit.
+- **Deutsche Tonnamen sind der Standard**: H ist der Ton unter C, B ist H
+  erniedrigt. Ohne Tonartzusammenhang gilt die Bläser-Schreibweise
+  C Des D Es E F Fis G As A B H — dafür gibt es `chromatic()` in `theory.js`,
+  und ein Test hält fest, dass die zwölf Bordun-Tasten genau so heißen wie in
+  der ersten Fassung.
+- **Skalen und Intervalle werden über Stufen buchstabiert, nie über
+  Halbtöne.** Die siebte Stufe in a-Moll harmonisch ist ein Gis, kein As;
+  eine große Terz über Fis ist ein Ais, kein B. Beides klingt gleich und
+  liest sich falsch. Dafür gibt es `buildScale()`, `buildChord()` und
+  `intervalFrom()`.
+- **Vorzeichnungen kommen aus dem buchstabierten Grundton**
+  (`majorKeySignature`), nicht aus der Tonhöhenklasse: Ges-Dur hat sechs Ben,
+  Fis-Dur sechs Kreuze, und beides klingt gleich.
+- **Was der Nutzer greift, ist die Hauptangabe**, klingend steht daneben —
+  außer in der Gehörbildung. Die wird am Klavier geprüft, also klingend.
+- Tonleitern und Blattspiel bleiben im notierten Umfang B3 bis Fis6
+  (`RANGE` in `theory.js`). Eine Übung, die darüber hinausläuft, ist
+  unbrauchbar.
 
 ## 8. Roadmap
 
-**Phase 1 — abgeschlossen.** Session-Runner, Bordun, Metronom, Protokoll.
+**Phase 1 bis 3 — abgeschlossen.** Session-Runner mit Bordun, Metronom und
+Protokoll; PWA mit Offlinebetrieb; Auswertung, die zeigt, welcher Block
+regelmäßig ausgelassen wird.
 
-**Phase 2 — umgesetzt, Abnahme am Gerät steht aus.**
-- `manifest.json` liegt vor, verlinkt, mit Icons 192, 512 und maskable 512,
-  `display: "standalone"`, `start_url: "."`, `scope: "./"`,
-  `theme_color: "#0C2226"`. Zusätzlich ein `apple-touch-icon` mit 180 px, weil
-  iOS den für „Zum Home-Bildschirm" zuverlässiger auswertet als das Manifest.
-- `sw.js` precacht Seite, Manifest, Icons und Schriften und beantwortet
-  eigene GET-Requests cache-first, Navigationen mit `index.html`. Fremde
-  Herkünfte und alles außer GET laufen unangetastet durch. Network-First für
-  nichts, weil es kein Backend gibt.
-- Die Schriften liegen selbst gehostet im Repo, siehe Abschnitt 5.
-- Offen — das kann nur der Nutzer am iPhone: im Flugmodus vom Home-Bildschirm
-  starten, Session vollständig durchlaufen, Bordun und Metronom prüfen.
-  Lokal ist nur die Worker-Logik gegengeprüft, nicht die Registrierung: der
-  eingebettete Testbrowser lässt keine Service Worker zu.
+**Phase 4 — Modulsplit statt Framework, abgeschlossen.** Die ursprüngliche
+Planung sah Vite plus React vor. Der Umfang hat die Einzeldatei tatsächlich
+gesprengt, aber die Antwort darauf waren native ES-Module: das behält null
+Abhängigkeiten und keinen Build-Schritt und ist genau die Schnittkante, die
+die alte Modultabelle schon vorzeichnete. Diese Entscheidung bleibt, solange
+sie trägt.
 
-**Phase 3 — Übe-Auswertung.**
-- Verlaufsansicht: Minuten pro Woche, Blockverteilung, Serie ohne Lücke.
-- Das bereits erfasste `day.spent` auswerten, also tatsächlich verbrachte statt
-  geplanter Zeit.
-- Abnahme: Nach zwei Wochen Nutzung ist erkennbar, welcher Block regelmäßig
-  ausgelassen wird.
+**Phase 5 — Tonhöhenerkennung, teilweise umgesetzt.**
+- Umgesetzt: YIN in `js/audio/pitch.js`, Stimmgerät mit Cent-Anzeige für
+  Griff und klingende Tonhöhe, Intonationskarte über viele Sessions.
+- Bewusst anders als geplant: die Erkennung läuft im Hauptthread über einen
+  `AnalyserNode`, nicht in einem AudioWorklet. Für ein Stimmgerät ist das
+  schnell genug (1,2 ms je Durchlauf bei 30 Messungen je Sekunde), und ein
+  Worklet wäre nur bei einem hörbaren Regelkreis nötig. Falls das je
+  gebraucht wird, ist der Wechsel lokal: `pitch.js` hat keine
+  DOM-Abhängigkeiten.
+- Die in Abschnitt 3 genannten 10 ms Latenz sind für tiefe Töne physikalisch
+  nicht erreichbar. Eine verlässliche Grundtonerkennung braucht rund zwei
+  Perioden; bei klingend Des3 sind das 15 ms. Das Fenster ist 2048 Punkte,
+  also gut 40 ms.
 
-**Phase 4 — Umbau auf Vite plus React,** nur falls der Umfang es erzwingt.
-Vorher begründen, warum eine Datei nicht mehr reicht. Modul 3 wandert dabei
-unverändert und framework-frei nach `audio.js`.
+**Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-**Phase 5 — Audio-Analyse.** Der fachlich interessanteste und für das Üben
-unwichtigste Teil, deshalb bewusst zuletzt.
-- `getUserMedia` plus AudioWorklet.
-- Tonhöhenerkennung per YIN oder Autokorrelation, Ziel unter 10 ms Latenz auf
-  einem aktuellen iPhone.
-- Stimmanzeige in Cent, mit Bezug auf die klingende und die gegriffene Tonhöhe.
-- Aufnahme eines langen Tons plus Spektrogramm und spektraler Schwerpunkt über
-  die Zeit. Zweck: sichtbar machen, ob das Spektrum stabil bleibt — Flackern
-  bedeutet, dass Ansatz oder Luft wackeln.
-- Referenzaufnahmen vergleichen (Tag 1 gegen Tag 30, identische Aufnahmekette).
+1. **Aufnahme und Tonanalyse.** Einen langen Ton aufnehmen, Tonhöhenverlauf
+   in Cent, Hüllkurve, Spektrum und spektralen Schwerpunkt über die Zeit
+   zeigen. Zweck: sichtbar machen, ob das Spektrum stabil bleibt — Flackern
+   heißt, dass Ansatz oder Luft wackeln. Audio gehört in IndexedDB, nicht in
+   localStorage.
+2. **Referenzaufnahmen vergleichen**, Tag 1 gegen Tag 30, identische
+   Aufnahmekette. Baut auf 1 auf.
+3. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent aus dem
+   Tonhöhenverlauf. Baut auf 1 auf.
+4. **Melodiediktat** in der Gehörbildung: Melodie hören, Töne eingeben.
+   Der Notensatz und der Melodiegenerator stehen bereits.
+5. **Obertonübung mit Rückmeldung**: erkennen, welcher Teilton gerade
+   klingt, und ob das Matching gegen den gegriffenen Ton stimmt. Das ist die
+   fachlich wertvollste offene Idee, weil sie genau den Block unterstützt,
+   der laut Auswertung am häufigsten ausgelassen wird.
+6. **Prüfungssimulation**: Ablauf mit Zeitdruck, zufällige Tonart, Blattspiel
+   ohne zweiten Versuch.
 
 ## 9. Arbeitsweise
 
 - Keine Abhängigkeiten ohne Rückfrage. Der aktuelle Stand ist bewusst
-  abhängigkeitsfrei.
-- Kein Build-Schritt in den Phasen 1 bis 3.
-- Änderungen klein halten und einzeln verifizieren. Nicht mehrere Phasen
-  gleichzeitig angehen.
+  abhängigkeitsfrei — zur Laufzeit lädt die App nichts nach.
+  Entwicklungswerkzeuge unter `tools/` dürfen eigene Voraussetzungen haben
+  (Pillow für die Icons, fontTools für die Notenzeichen); sie laufen nie beim
+  Deployen und nie im Browser.
+- Kein Build-Schritt. Wer einen einführen will, begründet es hier zuerst.
+- Änderungen klein halten und einzeln verifizieren.
+- Was rechnerisch prüfbar ist, wird geprüft, bevor es eine Oberfläche
+  bekommt. Musiktheorie, Notensatz und die Generatoren sind genau deshalb
+  DOM-frei. Bei jedem dieser Module haben die Tests echte Fehler gefunden,
+  die im Browser nur zufällig aufgefallen wären.
 - Kommentare auf Deutsch, knapp, und nur dort, wo das *Warum* nicht offensichtlich
   ist. Was der Code tut, steht im Code.
 - Wenn du auf eine Plattformgrenze stößt, die in Abschnitt 3 nicht steht:
@@ -225,15 +305,26 @@ unwichtigste Teil, deshalb bewusst zuletzt.
 
 ## 10. Verifizieren
 
-- JavaScript-Syntax prüfen, bevor du eine Änderung für fertig erklärst.
-- Alle im JS über `$("#...")` angesprochenen IDs müssen im HTML existieren.
-  Das ist bei einer Einzeldatei die häufigste Fehlerquelle.
+**`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
+jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
+eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
+die vier Testsuiten — Theorie, Notensatz, Rhythmus, Melodien,
+Tonhöhenerkennung. Rund 12 500 Prüfungen.
+
+- `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`
+  mit dem Repo im Gleichstand. Eine neue Datei, die nicht drinsteht, fehlt im
+  Flugmodus — und das merkt man erst im Probelokal ohne Netz.
+- Wie der Notensatz aussieht, zeigt `tools/notation-preview.html`. Das kann
+  nur ein Mensch beurteilen; die Testsuite prüft nur, was stumm kaputtgeht.
 - Lokal über einen HTTP-Server testen, nicht über `file://` — sonst
   verhalten sich Audio und Storage anders.
 - Audio lässt sich headless nicht sinnvoll testen. Bei Änderungen an Modul 3
   klar sagen, was der Nutzer am Gerät gegenprüfen muss.
 - iOS-Test läuft über GitHub Pages oder einen HTTPS-Tunnel. Simulator und
   Desktop-Safari verhalten sich bei Audio-Unlock und Wake Lock anders.
+- Nach dem Anfassen der Navigation: einmal jedes Werkzeug in jedem Bereich
+  öffnen. Ein Werkzeug, dessen `mount()` wirft, zeigt eine Fehlermeldung
+  statt die App abzuschieszen — aber gesehen werden muss es trotzdem.
 - Der Service Worker lässt sich nicht in jedem Testbrowser registrieren. Seine
   Handler sind aber ohne Browser prüfbar: `sw.js` in einem Node-Kontext mit
   nachgebauten `caches`- und Event-Globals laden und Install, Activate, Fetch

@@ -12,7 +12,7 @@
    ========================================================================== */
 "use strict";
 
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE   = "sax-uebeplan-" + VERSION;
 
 // Relative Pfade, damit derselbe Worker unter jedem Unterverzeichnis läuft
