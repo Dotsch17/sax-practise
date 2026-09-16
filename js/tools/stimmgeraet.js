@@ -5,11 +5,11 @@
    Unterschied machen:
 
    1. Es zeigt Griff und klingende Tonhöhe gleichzeitig. Am Es-Instrument ist
-      das der Unterschied zwischen „ich spiele ein A" und „im Raum kommt ein
-      C an", und Verwechslungen davon kosten im Ensemble Nerven.
+      das der Unterschied zwischen „ich spiele ein A“ und „im Raum kommt ein
+      C an“, und Verwechslungen davon kosten im Ensemble Nerven.
 
-   2. Es merkt sich, welche Töne du wie verstimmst. Der Block „Intonation"
-      sagt „Abweichende Töne notieren" — das macht die App jetzt von selbst.
+   2. Es merkt sich, welche Töne du wie verstimmst. Der Block „Intonation“
+      sagt „Abweichende Töne notieren“ — das macht die App jetzt von selbst.
       Nach ein paar Sessions steht da, ob dein tiefes Des wirklich zu tief
       ist oder ob du es dir nur einbildest.
 
@@ -176,7 +176,7 @@ function onPitch(root, p) {
   freqEl.textContent = p.freq.toFixed(1) + " Hz · Ziel " + midiToFreq(soundingMidi, a4).toFixed(1);
   stabEl.textContent = "± " + Math.round(p.spreadCents) + " Cent";
 
-  // „Rein" heiszt hier unter 5 Cent. Enger ist beim Blasinstrument
+  // „Rein“ heiszt hier unter 5 Cent. Enger ist beim Blasinstrument
   // Selbstbetrug: allein das Anblasen bewegt die Tonhöhe um mehr.
   tuner.classList.toggle("in-tune", Math.abs(cents) <= 5);
 
@@ -252,7 +252,7 @@ function renderMap(root) {
     <p class="hint spaced">
       Deutlich daneben: ${auffaellig.map(r =>
         `${name(r.midi)} ${Math.round(r.mean) > 0 ? "+" : ""}${Math.round(r.mean)}`).join(", ")}.
-      Diese Töne gehören in den Block „Intonation" — mit Bordun, chromatisch
+      Diese Töne gehören in den Block „Intonation“ — mit Bordun, chromatisch
       gebunden, und auf die Schwebung hören statt aufs Display.
     </p>` : "");
 }

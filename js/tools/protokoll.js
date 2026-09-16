@@ -2,7 +2,7 @@
    Protokoll
 
    Was heute gemacht wurde, plus eine Notiz. Die Notiz ist der wertvollste
-   Teil: „welches Blatt, welche Töne waren schief" beantwortet in vier Wochen
+   Teil: „welches Blatt, welche Töne waren schief“ beantwortet in vier Wochen
    Fragen, die keine Statistik beantworten kann.
    ========================================================================== */
 

@@ -403,3 +403,116 @@ svg.staff.compact{ height: 96px; }
 }
 .weiter{ background: var(--brass) !important; color:#12242A; font-weight:600;
          border-color: var(--brass) !important; }
+
+/* --- Auswertung ------------------------------------------------------------ */
+.stat-row{ display:flex; gap:10px; margin: 10px 0 4px; }
+.stat{
+  flex:1; text-align:center;
+  background: var(--surface); border:1px solid var(--line);
+  border-radius: var(--radius); padding: 12px 6px;
+}
+.stat b{
+  display:block;
+  font-family: var(--serif); font-weight:400; font-size: 34px; line-height:1;
+  color: var(--brass);
+  font-variant-numeric: tabular-nums;
+}
+.stat span{ display:block; font-size: 12px; color: var(--cane-dim); margin-top: 4px; }
+
+.daybars{
+  display:flex; gap:3px; align-items:flex-end;
+  height: 110px; margin: 10px 0 4px;
+}
+.daybar{
+  flex:1; height:100%;
+  display:flex; flex-direction:column; justify-content:flex-end;
+}
+.daybar i{
+  display:block; width:100%;
+  background: var(--brass); border-radius: 2px 2px 0 0;
+  min-height: 0;
+}
+.daybar u{
+  display:block; text-align:center; text-decoration:none;
+  font-size: 9px; color: var(--cane-dim);
+  height: 12px; margin-top: 3px; overflow:hidden;
+}
+
+.bbar{ display:flex; align-items:center; gap:10px; padding: 6px 2px; font-size: 14px; }
+.bbar-name{ width: 112px; flex:none; color: var(--cane-dim); }
+.bbar-track{
+  flex:1; height: 10px; border-radius: 5px;
+  background: color-mix(in srgb, var(--line) 60%, transparent);
+  overflow:hidden;
+}
+.bbar-track i{ display:block; height:100%; background: var(--brass); border-radius:5px; }
+.bbar-n{ width: 26px; flex:none; text-align:right; font-variant-numeric: tabular-nums;
+         color: var(--cane-dim); }
+
+/* Geplant gegen wirklich: zwei Balken uebereinander. Der geplante ist nur
+   eine Kontur, der wirkliche ist gefuellt -- so braucht es keine zweite Farbe. */
+.pr-row{ display:flex; align-items:center; gap:10px; padding: 7px 2px; font-size: 14px; }
+.pr-name{ width: 112px; flex:none; color: var(--cane-dim); }
+.pr-bars{ flex:1; position:relative; height: 20px; }
+.pr-bars i{ position:absolute; left:0; height: 8px; border-radius: 4px; }
+.pr-bars .plan{ top:0; border: 1px solid var(--brass-dim); background: none; }
+.pr-bars .echt{ top: 11px; background: var(--brass); }
+.pr-n{ width: 44px; flex:none; text-align:right; font-variant-numeric: tabular-nums;
+       color: var(--cane-dim); }
+
+/* --- Wissen ---------------------------------------------------------------- */
+.diag{
+  border-bottom: 1px solid var(--line);
+  padding: 2px 0;
+}
+.diag summary{
+  padding: 15px 2px;
+  font-size: 16px;
+  cursor: pointer;
+  list-style: none;
+  display: flex; align-items: center; gap: 10px;
+  min-height: 52px;
+}
+.diag summary::-webkit-details-marker{ display:none; }
+.diag summary::before{
+  content: "+"; flex: none;
+  width: 20px; color: var(--brass);
+  font-family: var(--serif); font-size: 20px;
+}
+.diag[open] summary::before{ content: "−"; }
+.diag[open] summary{ color: var(--brass); }
+.diag-liste{
+  margin: 0 0 10px; padding-left: 32px;
+  color: var(--cane-dim); font-size: 15px; line-height: 1.5;
+}
+.diag-liste li{ margin-bottom: 8px; }
+.diag-links{ display:flex; gap:8px; flex-wrap:wrap; padding: 0 0 14px 32px; }
+.diag-links .chip{ min-height: 38px; font-size: 14px; padding: 6px 13px; }
+
+.artikel-liste{ display:flex; flex-direction:column; gap:8px; margin-bottom: 6px; }
+.artikel-karte{
+  text-align: left; width: 100%;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 13px 15px;
+}
+.artikel-karte:active{ background: var(--surface-hi); }
+.artikel-karte b{
+  display:block; font-family: var(--serif); font-weight: 400; font-size: 22px;
+  margin-bottom: 3px;
+}
+.artikel-karte span{ display:block; color: var(--cane-dim); font-size: 14px; line-height:1.4; }
+/* Gelesenes bekommt einen Messingstrich, keine zweite Farbe. */
+.artikel-karte.gelesen{ border-left: 3px solid var(--brass); }
+
+.artikel-lead{
+  font-size: 17px; line-height: 1.5;
+  color: var(--cane);
+  border-left: 2px solid var(--brass-dim);
+  padding-left: 14px;
+  margin: 8px 0 18px;
+}
+.artikel-text{ font-size: 15.5px; line-height: 1.6; color: var(--cane-dim); }
+.zurueck{
+  color: var(--cane-dim); font-size: 15px;
+  min-height: 44px; padding: 8px 2px;
+}

@@ -1,7 +1,7 @@
 /* ==========================================================================
    Tonleitern
 
-   Für die Aufnahmeprüfung zählt, was du greifst — wenn jemand „D-Dur" sagt,
+   Für die Aufnahmeprüfung zählt, was du greifst — wenn jemand „D-Dur“ sagt,
    meint er die Tonart, die du liest. Deshalb ist der Griff hier die
    Hauptangabe und die klingende Tonart steht klein daneben. Wer das
    verwechselt, übt die falsche Tonart.

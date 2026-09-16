@@ -80,7 +80,7 @@ function render(root) {
       ${SOUNDS.map(x => `<button class="chip" data-sound="${x.v}">${x.label}</button>`).join("")}
     </div>
     <p class="hint">
-      „Zunge" ist so kurz, dass du deine eigene Artikulation dagegen hörst —
+      „Zunge“ ist so kurz, dass du deine eigene Artikulation dagegen hörst —
       gut für Block 6.
     </p>`;
 

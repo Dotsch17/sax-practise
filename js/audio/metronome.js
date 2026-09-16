@@ -57,8 +57,8 @@ function notifyState() {
 
 /* --- Klangerzeugung ------------------------------------------------------- */
 
-// Drei Klangfarben: „klick" ist ein kurzer Sinus, „holz" klingt trockener,
-// „zunge" ist so kurz, dass man die eigene Artikulation dagegen hört.
+// Drei Klangfarben: „klick“ ist ein kurzer Sinus, „holz“ klingt trockener,
+// „zunge“ ist so kurz, dass man die eigene Artikulation dagegen hört.
 const TONES = {
   klick: { accent: 1600, normal: 1050, sub: 780, decay: 0.05, type: "sine" },
   holz:  { accent: 2400, normal: 1400, sub: 900, decay: 0.03, type: "triangle" },

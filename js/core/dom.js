@@ -36,7 +36,7 @@ export function mmss(sec) {
   return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
 }
 
-/** „3 h 12 min" für längere Zeiträume im Protokoll. */
+/** „3 h 12 min“ für längere Zeiträume im Protokoll. */
 export function humanMinutes(min) {
   const m = Math.round(min);
   if (m < 60) return m + " min";

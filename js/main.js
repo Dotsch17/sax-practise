@@ -86,7 +86,7 @@ function renderTopbar() {
   fl.hidden = !focus;
 }
 
-/* --- Streifen „läuft gerade" ---------------------------------------------- */
+/* --- Streifen „läuft gerade“ ---------------------------------------------- */
 
 /* Bordun und Metronom laufen weiter, wenn man den Reiter wechselt. Ohne
    diesen Streifen müsste man zurücknavigieren, um sie auszuschalten — und

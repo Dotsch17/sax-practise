@@ -2,7 +2,7 @@
    Bordun
 
    Zwölf klingende Tonhöhen, zu jeder der zugehörige Griff am Alt. Die
-   Zuordnung wird nie „vereinfacht": das Altsaxophon ist in Es, der Griff ist
+   Zuordnung wird nie „vereinfacht“: das Altsaxophon ist in Es, der Griff ist
    die klingende Tonhöhe plus eine grosze Sexte. Wer hier schludert, übt
    monatelang gegen die falsche Tonhöhe.
    ========================================================================== */

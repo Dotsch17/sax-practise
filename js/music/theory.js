@@ -13,7 +13,7 @@
      geprüft wird: H ist der Ton unter C, B ist H erniedrigt. Wer international
      lesen will, stellt in den Einstellungen um.
    - Das Altsaxophon ist in Es. Der Griff ist die klingende Tonhöhe plus neun
-     Halbtöne. Hier heiszt das durchgehend `written` und `sounding`, nie „Ton"
+     Halbtöne. Hier heiszt das durchgehend `written` und `sounding`, nie „Ton“
      ohne Zusatz — diese Verwechslung ist die häufigste Fehlerquelle.
    ========================================================================== */
 
