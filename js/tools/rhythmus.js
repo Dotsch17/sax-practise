@@ -33,6 +33,8 @@ const drillId = () => `rhythmus:${sel.stufe}`;
 
 function render(root) {
   const d = drill(drillId(), {});
+  const bpm = clamp(state().settings.bpm, 40, 180);
+  if (bpm !== state().settings.bpm) setSetting("bpm", bpm);
   root.innerHTML = `
     <div class="chips scroll" id="r-stufen" role="group" aria-label="Stufe"></div>
 
@@ -54,8 +56,8 @@ function render(root) {
 
     <div class="slider">
       <label for="r-bpm">Tempo</label>
-      <input type="range" id="r-bpm" min="40" max="180" value="${state().settings.bpm}">
-      <span class="slider-val"><span id="r-bpm-val">${state().settings.bpm}</span> bpm</span>
+      <input type="range" id="r-bpm" min="40" max="180" value="${bpm}">
+      <span class="slider-val"><span id="r-bpm-val">${bpm}</span> bpm</span>
     </div>
 
     <div class="row2">

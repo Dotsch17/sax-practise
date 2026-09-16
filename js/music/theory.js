@@ -141,9 +141,30 @@ const MAJOR_SIGNATURES = {
   1: -5,  // Des
 };
 
+// Stellung der Stammtöne im Quintenzirkel: F C G D A E H.
+const CIRCLE = [0, 2, 4, -1, 1, 3, 5];   // Index ist die Stufe C D E F G A H
+
 /**
- * Vorzeichnung einer Tonart. `mode` ist "major" oder "minor"; Moll wird über
- * die Parallele gerechnet, also plus drei Halbtöne.
+ * Vorzeichnung aus dem buchstabierten Grundton. Das ist die genaue Variante:
+ * Ges-Dur und Fis-Dur klingen gleich, haben aber sechs Ben gegen sechs
+ * Kreuze. Aus der Tonhöhenklasse allein ist das nicht zu entscheiden.
+ */
+export function majorKeySignature({ step, alter }) {
+  return CIRCLE[step] + alter * 7;
+}
+
+/**
+ * Dasselbe für Moll. Die Durparallele liegt drei Quintenschritte abwärts:
+ * a-Moll teilt die Vorzeichnung mit C-Dur, nicht mit A-Dur.
+ */
+export function minorKeySignature(tonic) {
+  return majorKeySignature(tonic) - 3;
+}
+
+/**
+ * Vorzeichnung einer Tonart aus der Tonhöhenklasse. Ungenau bei den
+ * enharmonischen Grenzfällen — dort majorKeySignature() nehmen.
+ * `mode` ist "major" oder "minor"; Moll wird über die Parallele gerechnet.
  */
 export function keySignature(tonicPc, mode = "major") {
   const pc = mode === "minor" ? (((tonicPc + 3) % 12) + 12) % 12 : ((tonicPc % 12) + 12) % 12;

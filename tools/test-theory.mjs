@@ -116,6 +116,20 @@ eq(T.keySignature(0, "minor"), -3, "c-Moll, drei Ben");
 eq(T.keySignatureSteps(3), [3, 0, 4], "drei Kreuze sind Fis Cis Gis");
 eq(T.keySignatureSteps(-3), [6, 2, 5], "drei Ben sind B Es As");
 
+console.log("\nVorzeichnung aus dem buchstabierten Grundton");
+// Ges-Dur und Fis-Dur klingen gleich, haben aber sechs Ben gegen sechs
+// Kreuze. Aus der Tonhoehenklasse allein ist das nicht zu entscheiden --
+// genau daran ist der Melodiegenerator zuerst gescheitert.
+eq(T.majorKeySignature({step:4,alter:-1}), -6, "Ges-Dur hat sechs Ben");
+eq(T.majorKeySignature({step:3,alter:1}), 6, "Fis-Dur hat sechs Kreuze");
+for (const k of T.MAJOR_KEYS) {
+  eq(T.majorKeySignature(k.tonic), k.sig, k.name + ": Vorzeichnung aus dem Grundton");
+}
+for (const k of T.MINOR_KEYS) {
+  eq(T.minorKeySignature(k.tonic), k.sig, k.name + ": Vorzeichnung aus dem Grundton");
+}
+eq(T.minorKeySignature({step:5,alter:0}), 0, "a-Moll teilt die Vorzeichnung mit C-Dur, nicht mit A-Dur");
+
 console.log("\nTransposition Altsaxophon");
 eq(T.toWritten(58), 67, "klingend B3 wird zu Griff G4");
 eq(T.spell(T.fromMidi(58, "flat")), "B", "klingend ist es ein B");
