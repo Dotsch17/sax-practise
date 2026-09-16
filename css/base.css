@@ -78,6 +78,12 @@
 
 *,*::before,*::after{ box-sizing:border-box; }
 
+/* Die Browser-Regel fuer [hidden] ist display:none mit sehr niedriger
+   Spezifitaet. Jede eigene Regel mit display:flex schlaegt sie -- und dann
+   steht ein Element sichtbar da, obwohl der Code es versteckt hat. Das ist
+   hier mehrfach passiert, deshalb einmal zentral und mit Nachdruck. */
+[hidden]{ display: none !important; }
+
 html,body{ margin:0; height:100%; }
 
 body{

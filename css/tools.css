@@ -516,3 +516,24 @@ svg.staff.compact{ height: 96px; }
   color: var(--cane-dim); font-size: 15px;
   min-height: 44px; padding: 8px 2px;
 }
+
+/* --- Rhythmus: Tippfläche -------------------------------------------------
+   Grosz genug, um sie ohne Hinsehen zu treffen — beim Tippen schaut man auf
+   die Noten, nicht auf den Knopf. */
+.tapfeld{
+  width: 100%; min-height: 150px;
+  margin-top: 12px;
+  border-radius: var(--radius);
+  border: 2px dashed var(--line);
+  background: var(--surface);
+  color: var(--cane-dim);
+  font-size: 20px;
+  display:flex; align-items:center; justify-content:center;
+  touch-action: manipulation;
+  user-select: none;
+}
+.tapfeld.aktiv{
+  border-style: solid; border-color: var(--brass);
+  color: var(--brass);
+}
+.tapfeld.schlag{ background: var(--brass); color: #12242A; border-color: var(--brass); }

@@ -77,6 +77,8 @@ try {
 // 4. Die restlichen Suiten.
 ok = run(["tools/test-theory.mjs"], "Musiktheorie") && ok;
 ok = run(["tools/test-notation.mjs"], "Notensatz") && ok;
+ok = run(["tools/test-rhythmus.mjs"], "Rhythmus") && ok;
+ok = run(["tools/test-pitch.mjs"], "Tonhoehenerkennung") && ok;
 ok = run(["tools/sync-precache.mjs"], "Precache-Liste") && ok;
 
 console.log(ok ? "\nAlles grün.\n" : "\nEs gibt Fehler.\n");

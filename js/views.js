@@ -19,6 +19,7 @@ import stimmgeraet from "./tools/stimmgeraet.js";
 import metronom  from "./tools/metronom.js";
 import tonleitern from "./tools/tonleitern.js";
 import gehoer    from "./tools/gehoer.js";
+import rhythmus  from "./tools/rhythmus.js";
 import protokoll from "./tools/protokoll.js";
 import statistik from "./tools/statistik.js";
 import wissen    from "./tools/wissen.js";
@@ -27,7 +28,7 @@ import daten     from "./tools/daten.js";
 export const TABS = [
   { id: "ueben",   label: "Üben",    tools: [session] },
   { id: "ton",     label: "Ton",     tools: [stimmgeraet, bordun] },
-  { id: "technik", label: "Technik", tools: [tonleitern, metronom] },
+  { id: "technik", label: "Technik", tools: [tonleitern, rhythmus, metronom] },
   { id: "gehoer",  label: "Gehör",   tools: [gehoer] },
   { id: "journal", label: "Journal", tools: [protokoll, statistik, wissen, daten] },
 ];
