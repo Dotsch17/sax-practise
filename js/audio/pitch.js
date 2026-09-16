@@ -34,6 +34,8 @@ let stream = null;
 let source = null;
 let analyser = null;
 let buf = null;
+let spekBuf = null;
+let mitSpektrum = false;
 let raf = null;
 let lastRun = 0;
 let history = [];            // für den Median, gegen Zappeln
@@ -114,8 +116,14 @@ export function rmsOf(x) {
 /**
  * Fragt das Mikrofon an und startet die Erkennung.
  * Wirft, wenn der Nutzer ablehnt oder kein sicherer Kontext vorliegt.
+ *
+ * `opts.spektrum` schaltet die Spektrumauswertung dazu: spektraler
+ * Schwerpunkt und die Stärke der ersten Teiltöne. Die kostet rund tausend
+ * Rechenschritte je Bild und wird deshalb nur eingeschaltet, wo sie
+ * gebraucht wird — für ein Stimmgerät ist sie sinnlos.
  */
-export async function start() {
+export async function start(opts = {}) {
+  mitSpektrum = !!opts.spektrum;
   if (analyser) return;
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new Error("Dieser Browser gibt kein Mikrofon her.");
@@ -142,6 +150,7 @@ export async function start() {
   // Bewusst nicht an die Ausgabe hängen — sonst pfeift es.
 
   buf = new Float32Array(analyser.fftSize);
+  spekBuf = new Float32Array(analyser.frequencyBinCount);
   history = [];
   lastRun = 0;
   loop();
@@ -152,7 +161,7 @@ export function stop() {
   raf = null;
   try { source?.disconnect(); } catch (e) {}
   for (const t of stream?.getTracks() || []) t.stop();
-  stream = null; source = null; analyser = null; buf = null;
+  stream = null; source = null; analyser = null; buf = null; spekBuf = null;
   history = [];
   for (const fn of watchers) fn(null);
 }
@@ -203,5 +212,59 @@ function loop() {
     silent: false,
     midiExact: freqToMidi(median),
   };
+
+  if (mitSpektrum) {
+    analyser.getFloatFrequencyData(spekBuf);
+    Object.assign(payload, spektrum(spekBuf, ctx.sampleRate, median));
+  }
+
   for (const fn of watchers) fn(payload);
+}
+
+/* --- Spektrum ---------------------------------------------------------------- */
+
+/**
+ * Spektraler Schwerpunkt und die Stärke der ersten Teiltöne.
+ *
+ * Der Schwerpunkt ist das gewichtete Mittel aller Frequenzen — er sagt, wie
+ * hell der Klang ist. Beim Üben langer Töne ist nicht sein Wert interessant,
+ * sondern seine Ruhe: flackert er, wackeln Ansatz oder Luft, und zwar bevor
+ * man es hört.
+ *
+ * `dB` ist, was getFloatFrequencyData liefert; gerechnet wird linear.
+ */
+export function spektrum(dB, sampleRate, f0) {
+  const binHz = sampleRate / 2 / dB.length;
+  let summe = 0, gewichtet = 0;
+
+  for (let i = 1; i < dB.length; i++) {
+    // Unter -90 dB ist nur Rauschen; das würde den Schwerpunkt nach oben
+    // ziehen, weil hohe Bins zahlreicher sind als tiefe.
+    if (dB[i] < -90) continue;
+    const m = Math.pow(10, dB[i] / 20);
+    summe += m;
+    gewichtet += m * i * binHz;
+  }
+  const centroid = summe > 0 ? gewichtet / summe : 0;
+
+  // Teiltonstärken, jeweils das Maximum in einem kleinen Fenster um k*f0 —
+  // der Grundton liegt selten exakt auf einer Binmitte.
+  const harmonische = [];
+  if (f0 > 0) {
+    for (let k = 1; k <= 8; k++) {
+      const bin = Math.round(k * f0 / binHz);
+      if (bin >= dB.length - 1) { harmonische.push(0); continue; }
+      let best = -Infinity;
+      for (let j = Math.max(1, bin - 2); j <= Math.min(dB.length - 1, bin + 2); j++) {
+        if (dB[j] > best) best = dB[j];
+      }
+      harmonische.push(Math.pow(10, best / 20));
+    }
+    // Auf den Grundton beziehen: absolute Pegel hängen am Abstand zum
+    // Mikrofon, die Verhältnisse nicht.
+    const bezug = harmonische[0] || 1e-9;
+    for (let k = 0; k < harmonische.length; k++) harmonische[k] /= bezug;
+  }
+
+  return { centroid, harmonische };
 }

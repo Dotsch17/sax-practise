@@ -4,11 +4,12 @@
    lauter ist als der Grundton, ist beim Saxophon der Normalfall und bringt
    einfache Autokorrelation zuverlässig zum Oktavsprung. */
 
-import { yin, rmsOf } from "../js/audio/pitch.js";
+import { yin, rmsOf, spektrum } from "../js/audio/pitch.js";
 import { midiToFreq, freqToMidi } from "../js/music/theory.js";
 
 let fail = 0, n = 0;
 const ok = (c, m) => { n++; if (!c) { console.log("  FAIL " + m); fail++; } };
+const eq = (a, b, m) => ok(a === b, `${m} (erwartet ${b}, bekommen ${a})`);
 
 const SR = 48000;
 const LEN = 2048;
@@ -141,6 +142,61 @@ console.log("\nGeschwindigkeit");
   const ms = (performance.now() - t0) / runs;
   console.log(`  ${ms.toFixed(2)} ms je Durchlauf`);
   ok(ms < 25, `unter 25 ms je Durchlauf, sonst ruckelt die Anzeige (${ms.toFixed(1)} ms)`);
+}
+
+console.log("\nSpektrum");
+{
+  // Ein gerechnetes Spektrum bauen: Bins in dB, mit Teiltoenen auf k*f0.
+  const BINS = 1024, SR = 48000;
+  const binHz = SR / 2 / BINS;
+  const baue = (f0, staerken, rauschDb = -120) => {
+    const dB = new Float32Array(BINS).fill(rauschDb);
+    staerken.forEach((amp, k) => {
+      if (amp <= 0) return;
+      const bin = Math.round((k + 1) * f0 / binHz);
+      if (bin < BINS) dB[bin] = 20 * Math.log10(amp);
+    });
+    return dB;
+  };
+
+  // Nur der Grundton: der Schwerpunkt muss bei f0 liegen.
+  let r = spektrum(baue(440, [1]), SR, 440);
+  ok(Math.abs(r.centroid - 440) < binHz * 2,
+     `reiner Grundton: Schwerpunkt bei ${r.centroid.toFixed(0)} statt 440 Hz`);
+  ok(Math.abs(r.harmonische[0] - 1) < 0.01, "der Grundton ist der Bezug, also 1");
+  ok(r.harmonische[1] < 0.01, "kein zweiter Teilton");
+
+  // Teiltonverhaeltnisse werden richtig gemessen.
+  r = spektrum(baue(220, [1, 0.5, 0.25]), SR, 220);
+  ok(Math.abs(r.harmonische[1] - 0.5) < 0.05, `zweiter Teilton halb so stark (${r.harmonische[1].toFixed(2)})`);
+  ok(Math.abs(r.harmonische[2] - 0.25) < 0.05, `dritter Teilton viertel (${r.harmonische[2].toFixed(2)})`);
+  eq(r.harmonische.length, 8, "acht Teiltoene werden gemessen");
+
+  // Ein hellerer Klang hat einen hoeheren Schwerpunkt -- das ist die
+  // eigentliche Aussage dieser Zahl.
+  const dumpf = spektrum(baue(220, [1, 0.2, 0.05]), SR, 220);
+  const hell  = spektrum(baue(220, [1, 0.9, 0.8, 0.7, 0.6]), SR, 220);
+  ok(hell.centroid > dumpf.centroid * 1.5,
+     `heller Klang hat hoeheren Schwerpunkt (${hell.centroid.toFixed(0)} gegen ${dumpf.centroid.toFixed(0)} Hz)`);
+
+  // Der Pegel darf den Schwerpunkt nicht verschieben: leiser gespielt ist
+  // nicht dumpfer.
+  const laut  = spektrum(baue(220, [1, 0.5, 0.25]), SR, 220);
+  const leise = spektrum(baue(220, [0.05, 0.025, 0.0125]), SR, 220);
+  ok(Math.abs(laut.centroid - leise.centroid) < binHz * 2,
+     "der Schwerpunkt haengt nicht am Pegel");
+  ok(Math.abs(laut.harmonische[1] - leise.harmonische[1]) < 0.05,
+     "die Teiltonverhaeltnisse haengen nicht am Pegel");
+
+  // Stille darf keine Zahl erfinden.
+  r = spektrum(new Float32Array(BINS).fill(-140), SR, 0);
+  eq(r.centroid, 0, "reine Stille hat keinen Schwerpunkt");
+
+  // Rauschen unter der Schwelle darf den Schwerpunkt nicht hochziehen.
+  const mitRauschen = spektrum(baue(220, [1, 0.5], -95), SR, 220);
+  const ohne = spektrum(baue(220, [1, 0.5], -130), SR, 220);
+  ok(Math.abs(mitRauschen.centroid - ohne.centroid) < binHz * 3,
+     "Rauschen unter -90 dB wird ignoriert");
 }
 
 console.log(fail ? `\n${fail} von ${n} Prüfungen fehlgeschlagen\n` : `\nAlle ${n} Prüfungen bestanden\n`);

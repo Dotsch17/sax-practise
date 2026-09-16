@@ -16,6 +16,8 @@
 import session   from "./tools/session.js";
 import bordun    from "./tools/bordun.js";
 import stimmgeraet from "./tools/stimmgeraet.js";
+import tonanalyse from "./tools/tonanalyse.js";
+import obertoene  from "./tools/obertoene.js";
 import metronom  from "./tools/metronom.js";
 import tonleitern from "./tools/tonleitern.js";
 import gehoer    from "./tools/gehoer.js";
@@ -24,6 +26,7 @@ import rhythmus  from "./tools/rhythmus.js";
 import blattspiel from "./tools/blattspiel.js";
 import griffe     from "./tools/griffe.js";
 import improvisation from "./tools/improvisation.js";
+import callresponse from "./tools/callresponse.js";
 import protokoll from "./tools/protokoll.js";
 import statistik from "./tools/statistik.js";
 import wissen    from "./tools/wissen.js";
@@ -32,10 +35,10 @@ import daten     from "./tools/daten.js";
 
 export const TABS = [
   { id: "ueben",   label: "Üben",    tools: [session] },
-  { id: "ton",     label: "Ton",     tools: [stimmgeraet, bordun] },
+  { id: "ton",     label: "Ton",     tools: [stimmgeraet, obertoene, tonanalyse, bordun] },
   { id: "technik", label: "Technik", tools: [tonleitern, rhythmus, blattspiel, griffe, metronom] },
   { id: "gehoer",  label: "Gehör",   tools: [nachspielen, gehoer] },
-  { id: "impro",   label: "Impro",   tools: [improvisation] },
+  { id: "impro",   label: "Impro",   tools: [improvisation, callresponse] },
   { id: "journal", label: "Journal", tools: [protokoll, statistik, repertoire, wissen, daten] },
 ];
 

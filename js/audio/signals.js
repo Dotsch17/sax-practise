@@ -87,6 +87,23 @@ export function playChord(midis, opts = {}) {
   return dur + 0.05;
 }
 
+/**
+ * Spielt Töne zu festen Zeitpunkten der Audio-Uhr. Für alles, was mit einer
+ * laufenden Begleitung zusammenpassen muss: `playMelody` rechnet relativ zu
+ * „jetzt" und liefe dadurch gegen die Band aus dem Takt.
+ *
+ * noten: [{ midi, zeit, dauer }] — zeit und dauer in Sekunden.
+ */
+export function playAt(noten, opts = {}) {
+  const { a4 = 440, amp = 0.22 } = opts;
+  const ctx = audio();
+  for (const nt of noten) {
+    if (nt.zeit < ctx.currentTime - 0.05) continue;   // schon vorbei
+    voice(ctx, midiToFreq(nt.midi, a4), Math.max(nt.zeit, ctx.currentTime),
+          Math.max(0.08, nt.dauer), amp);
+  }
+}
+
 /** Ein Referenzton, etwa als Ausgangspunkt einer Gehörübung. */
 export function playNote(midi, opts = {}) {
   return playMelody([midi], { noteDur: 0.9, ...opts });

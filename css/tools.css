@@ -709,3 +709,133 @@ svg.staff.compact{ height: 96px; }
   .griffeditor{ flex-direction: column; align-items: center; }
   .griffgruppen{ width: 100%; }
 }
+
+/* --- Call and Response -----------------------------------------------------
+   Die Bühne muss aus zwei Metern sagen, wer dran ist. Gefüllt heiszt du,
+   leer heiszt zuhören — Messing markiert wie überall „jetzt aktiv". */
+.cr-bühne{
+  border: 2px solid var(--line); border-radius: var(--radius);
+  background: var(--surface);
+  padding: 18px 16px 14px; margin: 8px 0 14px;
+  text-align: center;
+  transition: border-color .12s ease, background .12s ease;
+}
+.cr-bühne.hoeren{ border-color: var(--line); }
+.cr-bühne.antworten{
+  border-color: var(--brass);
+  background: color-mix(in srgb, var(--brass) 14%, var(--surface));
+}
+.cr-phase{
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--cane-dim);
+}
+.cr-bühne.antworten .cr-phase{ color: #12242A; }
+.cr-akkord{
+  font-family: var(--serif); font-size: 58px; line-height: 1.05;
+  color: var(--brass);
+  margin-top: 2px;
+}
+.cr-bühne.antworten .cr-akkord{ color: #12242A; }
+/* Die Takte des Vorspiels sind in der Formleiste vorgezeichnet. */
+.formleiste i.call{ background: color-mix(in srgb, var(--cane-dim) 45%, transparent); }
+.cr-bühne.antworten .formleiste i{ background: color-mix(in srgb, #12242A 25%, transparent); }
+.cr-bühne.antworten .formleiste i.on{ background: #12242A; }
+
+/* --- Tonanalyse ------------------------------------------------------------ */
+.ta-pegel{ margin: 10px 0 14px; }
+.ta-pegel-balken{
+  height: 10px; border-radius: 5px;
+  background: color-mix(in srgb, var(--line) 60%, transparent);
+  overflow: hidden;
+}
+.ta-pegel-balken i{
+  display:block; height:100%; width:0%;
+  background: var(--brass);
+  transition: width .06s linear;
+}
+.ta-pegel-text{
+  margin-top: 6px; font-size: 14px; color: var(--cane-dim);
+  font-variant-numeric: tabular-nums; min-height: 20px;
+}
+
+/* Kurven: die Form zählt, nicht der Ablesewert. Deshalb keine Achsen,
+   nur die Randwerte und — wo sinnvoll — die Nulllinie. */
+.kurve-wrap{
+  position: relative;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px 10px; margin-bottom: 4px;
+}
+.kurve{ display:block; width:100%; height: 90px; }
+.kurve-achse{ position:absolute; inset:8px 10px; width:calc(100% - 20px); height:90px; pointer-events:none; }
+.kurve-linie{ fill:none; stroke: var(--brass); stroke-width: 1.6;
+              vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.kurve-null{ stroke: var(--cane-dim); stroke-width: 1; stroke-dasharray: 3 3;
+             vector-effect: non-scaling-stroke; opacity:.6; }
+.kurve-txt{ font-family: var(--sans); font-size: 9px; fill: var(--cane-dim); }
+
+.harm{ display:flex; gap:6px; align-items:flex-end; height: 90px; margin-bottom: 10px; }
+.harm-bar{ flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; }
+.harm-bar i{ display:block; width:100%; background: var(--brass); border-radius: 2px 2px 0 0; min-height:1px; }
+.harm-bar u{ display:block; text-align:center; text-decoration:none;
+             font-size:10px; color: var(--cane-dim); margin-top:3px; }
+
+.ta-zeile{
+  display:flex; align-items:center; gap:10px; width:100%;
+  padding: 11px 4px; border-bottom: 1px solid var(--line);
+  text-align:left; font-size: 14px;
+}
+.ta-zeile.on{ background: var(--surface); }
+.ta-zeile-ton{ width: 48px; flex:none; font-family: var(--serif); font-size: 18px; color: var(--brass); }
+.ta-zeile-datum{ flex:1; color: var(--cane-dim); font-size: 13px; }
+.ta-zeile-wert{ flex:none; color: var(--cane-dim); font-variant-numeric: tabular-nums; }
+
+/* --- Obertöne --------------------------------------------------------------- */
+.ob-anzeige{
+  text-align:center; padding: 16px 12px;
+  border: 2px solid var(--line); border-radius: var(--radius);
+  background: var(--surface);
+  margin: 6px 0 14px;
+  transition: border-color .12s ease;
+}
+.ob-anzeige.treffer{ border-color: var(--brass); }
+.ob-gross{ font-family: var(--serif); font-size: 40px; line-height:1.1; }
+.ob-anzeige.treffer .ob-gross{ color: var(--brass); }
+.ob-klein{ color: var(--cane-dim); font-size: 14px; min-height: 20px;
+           font-variant-numeric: tabular-nums; }
+
+/* Die Naturtonreihe als Leiter, oben der höchste Teilton — so steht sie
+   auch auf dem Papier. */
+.ob-leiter{ border-top: 1px solid var(--line); margin-bottom: 14px; }
+.ob-stufe{
+  display:flex; align-items:center; gap:10px;
+  padding: 7px 4px; border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.ob-stufe.ziel{ background: color-mix(in srgb, var(--brass) 10%, transparent); }
+.ob-k{
+  width: 24px; flex:none; text-align:center;
+  font-family: var(--serif); font-size: 18px; color: var(--cane-dim);
+}
+.ob-stufe.an .ob-k{ color: var(--brass); }
+.ob-ton{ width: 46px; flex:none; font-weight: 500; }
+.ob-cent{ width: 38px; flex:none; text-align:right; color: var(--cane-dim);
+          font-size: 12px; font-variant-numeric: tabular-nums; }
+.ob-bar{
+  flex:1; height: 8px; border-radius: 4px;
+  background: color-mix(in srgb, var(--line) 55%, transparent);
+  overflow:hidden;
+}
+.ob-bar i{ display:block; height:100%; width:0%; background: var(--brass);
+           transition: width .08s linear; }
+
+.ob-match{ display:flex; gap:10px; }
+.ob-match-feld{
+  flex:1; padding: 12px 10px; text-align:center;
+  border: 1px dashed var(--line); border-radius: 10px;
+}
+.ob-match-feld.voll{ border-style: solid; border-color: var(--brass); }
+.ob-match-feld b{ display:block; font-family: var(--serif); font-weight:400; font-size: 20px; }
+.ob-match-feld.voll b{ color: var(--brass); }
+.ob-match-feld span{ display:block; font-size: 12px; color: var(--cane-dim); margin-top: 2px; }
