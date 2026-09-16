@@ -102,6 +102,17 @@ export function fromMidi(midi, prefer = "sharp") {
   return { step, alter, octave };
 }
 
+/**
+ * Die übliche Schreibweise eines Tons ohne Tonartzusammenhang: Des, Es, As
+ * und B mit Be, nur Fis mit Kreuz. So sagen es Bläser, so steht es auf
+ * Griffbildern, und so hiesz es schon in der ersten Fassung der App.
+ * Ohne diese Festlegung stünde in der Gehörbildung "Dis – Ais" statt
+ * "Es – B", und das liest sich falsch.
+ */
+const FLAT_PCS = new Set([1, 3, 8, 10]);
+export const chromatic = midi =>
+  fromMidi(midi, FLAT_PCS.has(((midi % 12) + 12) % 12) ? "flat" : "sharp");
+
 /* --- Tonarten ----------------------------------------------------------- */
 
 // Reihenfolge der Kreuze: Fis Cis Gis Dis Ais Eis His  (Stufen F C G D A E H)
@@ -176,20 +187,25 @@ export const CHORDS = {
   vermindert7:  { name: "Verminderter Septakkord", steps: [0,3,6,9] },
 };
 
+// `steps` ist die Stufenzahl, also um wieviele Buchstaben es weitergeht.
+// Sie und nicht die Halbtonzahl entscheidet, wie der zweite Ton geschrieben
+// wird: eine grosze Terz über Fis ist Ais und nicht B, auch wenn beides
+// gleich klingt. Der Tritonus ist von Natur aus zweideutig; hier gilt er als
+// übermäszige Quarte, also drei Stufen.
 export const INTERVALS = [
-  { semitones: 0,  short: "P1",  name: "Prime" },
-  { semitones: 1,  short: "kl2", name: "Kleine Sekunde" },
-  { semitones: 2,  short: "gr2", name: "Große Sekunde" },
-  { semitones: 3,  short: "kl3", name: "Kleine Terz" },
-  { semitones: 4,  short: "gr3", name: "Große Terz" },
-  { semitones: 5,  short: "P4",  name: "Quarte" },
-  { semitones: 6,  short: "TT",  name: "Tritonus" },
-  { semitones: 7,  short: "P5",  name: "Quinte" },
-  { semitones: 8,  short: "kl6", name: "Kleine Sexte" },
-  { semitones: 9,  short: "gr6", name: "Große Sexte" },
-  { semitones: 10, short: "kl7", name: "Kleine Septime" },
-  { semitones: 11, short: "gr7", name: "Große Septime" },
-  { semitones: 12, short: "P8",  name: "Oktave" },
+  { semitones: 0,  steps: 0, short: "r1",  name: "Reine Prime" },
+  { semitones: 1,  steps: 1, short: "kl2", name: "Kleine Sekunde" },
+  { semitones: 2,  steps: 1, short: "gr2", name: "Große Sekunde" },
+  { semitones: 3,  steps: 2, short: "kl3", name: "Kleine Terz" },
+  { semitones: 4,  steps: 2, short: "gr3", name: "Große Terz" },
+  { semitones: 5,  steps: 3, short: "r4",  name: "Reine Quarte" },
+  { semitones: 6,  steps: 3, short: "TT",  name: "Tritonus" },
+  { semitones: 7,  steps: 4, short: "r5",  name: "Reine Quinte" },
+  { semitones: 8,  steps: 5, short: "kl6", name: "Kleine Sexte" },
+  { semitones: 9,  steps: 5, short: "gr6", name: "Große Sexte" },
+  { semitones: 10, steps: 6, short: "kl7", name: "Kleine Septime" },
+  { semitones: 11, steps: 6, short: "gr7", name: "Große Septime" },
+  { semitones: 12, steps: 7, short: "r8",  name: "Reine Oktave" },
 ];
 
 /**
@@ -198,7 +214,7 @@ export const INTERVALS = [
  * richtigen Buchstabierens: in a-Moll harmonisch muss die siebte Stufe ein
  * G sein, also wird sie zu Gis und nicht zu As.
  */
-function spellOnStep(midi, step) {
+export function spellOnStep(midi, step) {
   const octave = Math.floor(midi / 12) - 1;
   // Drei Kandidaten prüfen, weil der Buchstabe über eine Oktavgrenze
   // rutschen kann: His4 klingt wie C5, Ces5 klingt wie H4.
@@ -231,6 +247,18 @@ export function buildScale(tonic, scaleKey, octaves = 1) {
   }
   out.push(at(octaves * 12, 0));
   return out;
+}
+
+/**
+ * Buchstabiert den zweiten Ton eines Intervalls richtig. `richtung` ist 1
+ * für aufwärts und -1 für abwärts.
+ */
+export function intervalFrom(root, semitones, richtung = 1) {
+  const iv = INTERVALS.find(i => i.semitones === semitones);
+  const steps = iv ? iv.steps : Math.round(semitones * 7 / 12);
+  const midi = toMidi(root) + richtung * semitones;
+  const step = (((root.step + richtung * steps) % 7) + 7) % 7;
+  return spellOnStep(midi, step);
 }
 
 /** Akkorde sind Terzschichtungen, die Buchstaben springen also um zwei. */

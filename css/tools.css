@@ -353,3 +353,53 @@ svg.staff.compact{ height: 96px; }
 }
 .keycell.leer b{ color: var(--cane-dim); opacity: .5; }
 .keycell:active{ background: var(--surface-hi); }
+
+/* --- Abfragen: Gehör, Theorie, Rhythmus ------------------------------------
+   Richtig und falsch unterscheiden sich über Messing gegen gedämpft plus
+   ein Zeichen, nicht über Grün gegen Rot. Eine Akzentfarbe, wie festgelegt. */
+.quiz{ margin-top: 4px; }
+.quiz-score{
+  display:flex; justify-content:space-between; gap:10px;
+  color: var(--cane-dim); font-size: 13px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+.quiz-score b{
+  font-family: var(--serif); font-size: 19px; font-weight: 400;
+  color: var(--cane); margin-right: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.quiz-play{ font-size: 19px; min-height: 64px; }
+
+.answers{
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 8px; margin-top: 14px;
+}
+.answer{
+  min-height: 58px; padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 15px; line-height: 1.2;
+}
+.answer:active{ background: var(--surface-hi); }
+.answer:disabled{ opacity: .45; }
+.answer.richtig{
+  background: var(--brass); border-color: var(--brass); color: #12242A;
+  font-weight: 600; opacity: 1;
+}
+.answer.richtig::after{ content: " ✓"; }
+.answer.falsch{
+  border-color: var(--cane-dim); border-style: dashed;
+  opacity: .85; text-decoration: line-through;
+}
+.answer.falsch::after{ content: " ✕"; }
+
+.quiz-feedback{ margin-top: 20px; }
+.quiz-verdict{
+  font-family: var(--serif); font-size: 26px;
+  margin: 0 0 4px;
+}
+.weiter{ background: var(--brass) !important; color:#12242A; font-weight:600;
+         border-color: var(--brass) !important; }

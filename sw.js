@@ -39,6 +39,7 @@ const ASSETS = [
   "./js/music/theory.js",
   "./js/tools/bordun.js",
   "./js/tools/daten.js",
+  "./js/tools/gehoer.js",
   "./js/tools/metronom.js",
   "./js/tools/protokoll.js",
   "./js/tools/session.js",

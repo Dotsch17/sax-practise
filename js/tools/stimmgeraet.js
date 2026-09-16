@@ -26,7 +26,7 @@ import * as pitch from "../audio/pitch.js";
 import * as drone from "../audio/drone.js";
 import { holdScreen, releaseScreen } from "../core/session.js";
 import {
-  centsOff, midiToFreq, toWritten, toSounding, fromMidi, spell, NAMING,
+  centsOff, midiToFreq, toWritten, toSounding, chromatic, spell, NAMING,
 } from "../music/theory.js";
 
 const DRILL = "stimmgeraet:noten";
@@ -36,10 +36,8 @@ const HOLD_MS = 600;          // so lange muss er stehen, bevor er zählt
 let hold = { midi: null, since: 0, cents: [] };
 let running = false;
 
-const FLAT_PCS = new Set([1, 3, 8, 10]);
 const naming = () => state().settings.naming === "en" ? NAMING.EN : NAMING.DE;
-const name = midi => spell(
-  fromMidi(midi, FLAT_PCS.has(((midi % 12) + 12) % 12) ? "flat" : "sharp"), naming());
+const name = midi => spell(chromatic(midi), naming());
 
 /* --- Ansicht --------------------------------------------------------------- */
 

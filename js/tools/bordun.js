@@ -12,7 +12,7 @@
 import { $, $$, el } from "../core/dom.js";
 import { state, setSetting } from "../core/store.js";
 import * as drone from "../audio/drone.js";
-import { fromMidi, spell, toWritten, NAMING } from "../music/theory.js";
+import { chromatic, spell, toWritten, NAMING } from "../music/theory.js";
 
 // Klingender Tonvorrat C3 bis H3. Das ist die Lage, in der ein Bordun trägt,
 // ohne den eigenen Ton zu verdecken.
@@ -20,12 +20,7 @@ const FIRST = 48, COUNT = 12;
 
 const naming = () => state().settings.naming === "en" ? NAMING.EN : NAMING.DE;
 
-// Für eine chromatische Reihe ohne Tonart gilt die übliche Schreibweise:
-// Des, Es, As und B mit Be, nur Fis mit Kreuz. So sagen es Bläser, und so
-// steht es auch auf den Griffbildern.
-const FLAT_PCS = new Set([1, 3, 8, 10]);
-export const chromaticSpell = midi =>
-  spell(fromMidi(midi, FLAT_PCS.has(((midi % 12) + 12) % 12) ? "flat" : "sharp"), naming());
+const chromaticSpell = midi => spell(chromatic(midi), naming());
 
 function keyLabel(midi) {
   return { sounding: chromaticSpell(midi), written: chromaticSpell(toWritten(midi)) };

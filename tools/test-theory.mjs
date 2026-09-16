@@ -51,6 +51,60 @@ for (let m = 24; m <= 108; m++) {
   ok(T.toMidi(T.fromMidi(m, "flat")) === m, "Hin und zurück mit Ben bei " + m);
 }
 
+console.log("\nChromatische Schreibweise ohne Tonart");
+eq(T.spell(T.chromatic(61)), "Des", "61 ist Des, nicht Cis");
+eq(T.spell(T.chromatic(63)), "Es", "63 ist Es, nicht Dis");
+eq(T.spell(T.chromatic(66)), "Fis", "66 ist Fis, nicht Ges");
+eq(T.spell(T.chromatic(68)), "As", "68 ist As, nicht Gis");
+eq(T.spell(T.chromatic(70)), "B", "70 ist B, nicht Ais");
+eq(T.spell(T.chromatic(71)), "H", "71 ist H");
+eq(T.spell(T.chromatic(60)), "C", "60 ist C");
+for (let m = 36; m <= 96; m++) ok(T.toMidi(T.chromatic(m)) === m, "chromatic rechnet zurueck bei " + m);
+// Die zwoelf Bordun-Tasten muessen genau so heiszen wie in der ersten Fassung.
+eq(Array.from({length:12},(_,i)=>T.spell(T.chromatic(48+i))),
+   ["C","Des","D","Es","E","F","Fis","G","As","A","B","H"],
+   "die zwoelf Bordun-Tasten");
+// Klingend B entspricht Griff G -- CLAUDE.md Abschnitt 7.
+eq(T.spell(T.chromatic(T.toWritten(58))), "G", "klingend B wird zu Griff G");
+
+console.log("\nIntervallkuerzel sind deutsch");
+eq(T.INTERVALS.find(i=>i.semitones===7).short, "r5", "reine Quinte heiszt r5, nicht P5");
+eq(T.INTERVALS.find(i=>i.semitones===0).short, "r1", "reine Prime heiszt r1");
+eq(T.INTERVALS.find(i=>i.semitones===12).short, "r8", "reine Oktave heiszt r8");
+ok(T.INTERVALS.every(i=>!/^P/.test(i.short)), "kein englisches P mehr");
+eq(T.INTERVALS.length, 13, "dreizehn Intervalle von Prime bis Oktave");
+
+console.log("\nIntervalle werden ueber die Stufenzahl buchstabiert");
+// Eine grosze Terz ueber Fis ist Ais, nicht B -- gleich klingend, falsch
+// geschrieben. Genau das ist im Gehoertraining der haeufigste Lesefehler.
+const iv = (m, st, dir = 1) => T.spell(T.intervalFrom(T.chromatic(m), st, dir));
+eq(iv(66, 4), "Ais", "grosze Terz ueber Fis ist Ais, nicht B");
+eq(iv(66, 3), "A", "kleine Terz ueber Fis ist A");
+eq(iv(61, 4), "F", "grosze Terz ueber Des ist F");
+eq(iv(70, 4), "D", "grosze Terz ueber B ist D");
+eq(iv(68, 7), "Es", "reine Quinte ueber As ist Es");
+eq(iv(63, 11), "D", "grosze Septime ueber Es ist D");
+eq(iv(60, 6), "Fis", "Tritonus ueber C ist Fis");
+eq(iv(60, 5, -1), "G", "reine Quarte unter C ist G");
+eq(iv(60, 4, -1), "As", "grosze Terz unter C ist As");
+eq(iv(60, 0), "C", "die Prime bleibt der Grundton");
+eq(iv(60, 12), "C", "die Oktave bleibt der Buchstabe");
+// Ueber alle Grundtoene und Intervalle: Klang und Buchstabe muessen passen.
+for (let m = 55; m <= 67; m++) {
+  const r = T.chromatic(m);
+  for (const info of T.INTERVALS) {
+    for (const dir of [1, -1]) {
+      const z = T.intervalFrom(r, info.semitones, dir);
+      eq(T.toMidi(z), m + dir * info.semitones,
+         `${T.spell(r)} ${info.short} ${dir > 0 ? "auf" : "ab"}: klingt richtig`);
+      const stufen = ((z.step - r.step) * dir + 7) % 7;
+      ok(stufen === info.steps % 7,
+         `${T.spell(r)} ${info.short} ${dir > 0 ? "auf" : "ab"}: ${T.spell(z)} steht auf der richtigen Stufe`);
+      ok(Math.abs(z.alter) <= 2, `${T.spell(r)} ${info.short}: kein Dreifachvorzeichen`);
+    }
+  }
+}
+
 console.log("\nVorzeichnungen");
 eq(T.keySignature(0), 0, "C-Dur ohne Vorzeichen");
 eq(T.keySignature(7), 1, "G-Dur, ein Kreuz");
