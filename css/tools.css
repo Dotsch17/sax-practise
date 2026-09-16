@@ -221,7 +221,109 @@ svg.staff.compact{ height: 96px; }
   font-family: var(--sans); font-size: 11px;
   fill: var(--cane-dim); stroke: none;
 }
+/* Nur Messing als Akzent, wie in CLAUDE.md Abschnitt 5 festgelegt. Richtig
+   und falsch werden deshalb nicht über Grün und Rot unterschieden, sondern
+   über Helligkeit und Form — das ist auch bei Rotblindheit lesbar, und Grün
+   gegen Rot wäre hier ohnehin die vierte und fünfte Farbe im Bild. */
 .nt-aktiv   { color: var(--brass); }
-.nt-richtig { color: #7FB069; }
-.nt-falsch  { color: #D97A5A; }
+.nt-richtig { color: var(--brass); }
+.nt-falsch  { color: var(--cane-dim); opacity: .55; }
+.nt-falsch ellipse, .nt-falsch path{ stroke-dasharray: 2 2; }
 .nt-blass   { color: var(--cane-dim); opacity: .45; }
+
+/* --- Stimmgerät ------------------------------------------------------------
+   Die Richtung der Abweichung trägt die Nadel, nicht die Farbe. Messing
+   erscheint nur, wenn der Ton rein ist — das ist der „aktiv"-Zustand aus
+   Abschnitt 5 und gleichzeitig das einzige, was man aus zwei Metern sieht. */
+.tuner{
+  text-align: center;
+  padding: 10px 0 4px;
+}
+.tuner-note{
+  font-family: var(--serif);
+  font-size: 86px; line-height: 1;
+  margin: 0;
+  transition: color .15s ease;
+}
+.tuner.in-tune .tuner-note{ color: var(--brass); }
+.tuner-alt{
+  color: var(--cane-dim); font-size: 15px;
+  margin-top: 2px; min-height: 22px;
+}
+
+.tuner-scale{
+  position: relative;
+  height: 54px;
+  margin: 22px 0 6px;
+}
+.tuner-ticks{ position:absolute; inset:0; }
+.tuner-ticks i{
+  position:absolute; top: 12px;
+  width: 1px; height: 14px;
+  background: var(--line);
+  transform: translateX(-50%);
+}
+.tuner-ticks i.mid{ height: 30px; top: 6px; background: var(--cane-dim); }
+.tuner-target{
+  position:absolute; left:0; right:0; top: 21px;
+  height: 1px; background: var(--line);
+}
+.tuner-needle{
+  position:absolute; top: 0; left: 50%;
+  width: 4px; height: 42px;
+  border-radius: 2px;
+  background: var(--cane);
+  transform: translateX(-50%);
+  transition: left .09s linear, background .15s ease;
+}
+.tuner.in-tune .tuner-needle{ background: var(--brass); }
+
+.tuner-cents{
+  font-family: var(--serif);
+  font-size: 30px;
+  font-variant-numeric: tabular-nums;
+  color: var(--cane-dim);
+}
+.tuner.in-tune .tuner-cents{ color: var(--brass); }
+.tuner-cents small{ font-family: var(--sans); font-size: 13px; }
+
+.tuner-meta{
+  display:flex; justify-content:space-between;
+  color: var(--cane-dim); font-size: 13px;
+  margin-top: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Intonationskarte */
+.into-row{
+  display:flex; align-items:center; gap: 10px;
+  padding: 7px 2px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.into-note{
+  width: 42px; flex:none;
+  font-family: var(--serif); font-size: 19px;
+}
+.into-bar{
+  flex: 1; position: relative; height: 10px;
+  background: color-mix(in srgb, var(--line) 60%, transparent);
+  border-radius: 5px;
+}
+.into-bar .mid{
+  position:absolute; left:50%; top:-2px; width:1px; height:14px;
+  background: var(--cane-dim); opacity:.6;
+}
+.into-bar .fill{
+  position:absolute; top:0; height:100%;
+  background: var(--brass);
+  border-radius: 5px;
+}
+.into-val{
+  width: 38px; flex:none; text-align:right;
+  font-variant-numeric: tabular-nums;
+}
+.into-n{
+  width: 68px; flex:none; text-align:right;
+  color: var(--cane-dim); font-size: 12px;
+}
