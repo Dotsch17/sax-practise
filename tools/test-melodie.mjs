@@ -4,7 +4,7 @@
    nach einem Sprung umgekehrt wird, ob Anfang und Ende auf dem Grundton
    liegen. */
 
-import { generateMelodie, spannweite, STUFEN } from "../js/music/melodie.js";
+import { generateMelodie, generatePhrase, spannweite, STUFEN } from "../js/music/melodie.js";
 import { toMidi, spell, RANGE, MAJOR_KEYS, keySignatureSteps } from "../js/music/theory.js";
 
 let fail = 0, n = 0;
@@ -125,6 +125,38 @@ console.log("\nDerselbe Startwert gibt dieselbe Melodie");
   const c = JSON.stringify(generateMelodie({ tonic: MAJOR_KEYS[2].tonic, seed: 4 }).noten);
   eq(a, b, "gleicher Startwert, gleiches Ergebnis");
   ok(a !== c, "anderer Startwert, anderes Ergebnis");
+}
+
+console.log("\nPhrasen fuers Nachspielen");
+for (const key of MAJOR_KEYS) {
+  for (const laenge of [2, 3, 4, 6, 8]) {
+    for (let seed = 0; seed < 6; seed++) {
+      const p = generatePhrase({ tonic: key.tonic, laenge, seed, sprung: 0.25 });
+      eq(p.length, laenge, `${key.name}, ${laenge} Toene: richtige Laenge`);
+      ok(p.every(x => toMidi(x) >= RANGE.writtenLow && toMidi(x) <= RANGE.writtenHigh),
+         `${key.name}, ${laenge} Toene: alles im Umfang`);
+      eq(spell(p[0]), spell(key.tonic), `${key.name}: beginnt auf dem Grundton`);
+    }
+  }
+}
+{
+  // Auch hier soll es ueberwiegend Schritte geben, sonst kann man sich die
+  // Phrase nicht merken -- und Merken ist die ganze Uebung.
+  let schritte = 0, spruenge = 0;
+  for (let seed = 0; seed < 200; seed++) {
+    const p = generatePhrase({ tonic: MAJOR_KEYS[0].tonic, laenge: 6, seed, sprung: 0.25 });
+    for (let i = 1; i < p.length; i++) {
+      Math.abs(toMidi(p[i]) - toMidi(p[i-1])) <= 2 ? schritte++ : spruenge++;
+    }
+  }
+  const anteil = schritte / (schritte + spruenge);
+  ok(anteil > 0.55, `ueberwiegend Schritte (${(anteil*100).toFixed(0)} %)`);
+  ok(spruenge > 0, "aber es gibt auch Spruenge");
+}
+{
+  const a = JSON.stringify(generatePhrase({ tonic: MAJOR_KEYS[0].tonic, seed: 9 }));
+  const b = JSON.stringify(generatePhrase({ tonic: MAJOR_KEYS[0].tonic, seed: 9 }));
+  eq(a, b, "gleicher Startwert, gleiche Phrase");
 }
 
 console.log(fail ? `\n${fail} von ${n} Prüfungen fehlgeschlagen\n` : `\nAlle ${n} Prüfungen bestanden\n`);

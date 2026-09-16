@@ -79,6 +79,8 @@ ok = run(["tools/test-theory.mjs"], "Musiktheorie") && ok;
 ok = run(["tools/test-notation.mjs"], "Notensatz") && ok;
 ok = run(["tools/test-rhythmus.mjs"], "Rhythmus") && ok;
 ok = run(["tools/test-melodie.mjs"], "Melodien") && ok;
+ok = run(["tools/test-harmonie.mjs"], "Harmonielehre") && ok;
+ok = run(["tools/test-notenfolge.mjs"], "Notenerkennung") && ok;
 ok = run(["tools/test-pitch.mjs"], "Tonhoehenerkennung") && ok;
 ok = run(["tools/sync-precache.mjs"], "Precache-Liste") && ok;
 

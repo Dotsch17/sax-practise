@@ -12,7 +12,8 @@ der TU Wien, spielt Altsaxophon (Yamaha YAS-480), bereitet sich auf die
 Aufnahmeprüfung IGP Saxophon an der mdw vor. Die App führt durch eine
 strukturierte tägliche Übe-Session für klassischen Ton und deckt daneben die
 Prüfungsdisziplinen ab: Stimmgerät mit Intonationskarte, Bordun, Metronom,
-Tonleitern, Rhythmus, Blattspiel, Gehörbildung, Auswertung, Repertoire und
+Tonleitern, Rhythmus, Blattspiel, Gehörbildung, Nachspielen nach Gehör,
+Improvisation mit Begleitband, Auswertung, Repertoire, eigene Griffe und
 einen Wissensteil. Ziel ist, dass zum Üben kein zweites Werkzeug nötig ist.
 
 **Primärer Nutzungskontext, der alle UI-Entscheidungen bestimmt:** Das iPhone
@@ -37,10 +38,10 @@ auf Deutsch, Bezeichner im Code auf Englisch.
   und kein Build-Schritt sind das Wertvollste am Projekt: eine App, die in
   zehn Jahren noch startet.
 - Playalongs, Aufnahmen fremder Stücke, Notenbibliothek.
-- Grifftabellen. Griffe unterscheiden sich am Instrument, besonders im
-  Altissimo. Was bei diesem Instrument trägt, gehört ins Repertoire zur
-  konkreten Stelle — nicht in eine allgemeine Tabelle, die aus zweiter Hand
-  abgeschrieben wäre.
+- **Mitgelieferte** Grifftabellen. Griffe unterscheiden sich am Instrument,
+  besonders im Altissimo; eine abgeschriebene Tabelle wäre für genau dieses
+  Alt vermutlich falsch. Das Werkzeug „Griffe" liefert deshalb nur das
+  Klappenbild, die Griffe trägt der Nutzer selbst ein.
 
 ## 3. Zielplattform und harte Einschränkungen
 
@@ -91,8 +92,9 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 |---|---|
 | Üben | Session-Runner: sieben Blöcke, Countdown, Merkpunkte, Wochen 1 bis 4 |
 | Ton | Stimmgerät mit Intonationskarte, Bordun über zwölf klingende Tonhöhen |
-| Technik | Tonleitern, Rhythmus mit Messung, Blattspiel, Metronom |
-| Gehör | Intervalle, Akkorde, Skalen, Richtung |
+| Technik | Tonleitern, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
+| Gehör | Nachspielen mit Mikrofonkontrolle, Intervalle/Akkorde/Skalen |
+| Impro | Begleitung aus Bass, Comping und Becken über neun Akkordfolgen |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
 
 Bordun und Metronom laufen über Bereichswechsel hinweg weiter; der Streifen
@@ -104,8 +106,8 @@ Laufzeit-Abhängigkeiten. Aufteilung:
 | Ordner | Inhalt |
 |---|---|
 | `js/core/` | DOM-Helfer, Zustand und Speicherung, Session-Timer und Wake Lock |
-| `js/audio/` | AudioContext, Bordun, Metronom, Signale, Tonhöhenerkennung |
-| `js/music/` | Theorie, Notensatz, Notenzeichen, Rhythmus- und Melodiegenerator |
+| `js/audio/` | AudioContext, Bordun, Metronom, Signale, Tonhöhenerkennung, Notenerkennung, Begleitung |
+| `js/music/` | Theorie, Harmonielehre, Notensatz, Notenzeichen, Griffbild, Rhythmus- und Melodiegenerator |
 | `js/data/` | Übungsplan und Wissenstexte — alles Inhaltliche |
 | `js/tools/` | ein Modul je Werkzeug, alle mit derselben Schnittstelle |
 | `js/views.js` | welches Werkzeug in welchem Bereich steht |
@@ -124,9 +126,9 @@ Laufzeit-Abhängigkeiten. Aufteilung:
 - Jedes Werkzeug exportiert `{ id, label, mount(root), unmount?() }`.
   `unmount()` bekommt **kein** Argument und muss alles abräumen, was `mount()`
   angelegt hat — besonders Zuhörer auf `document` und laufende Timer.
-- Was ohne Browser prüfbar ist, wird geprüft: Theorie, Notensatz,
-  Tonhöhenerkennung, Rhythmus- und Melodiegenerator liegen bewusst
-  DOM-frei, damit sie das können.
+- Was ohne Browser prüfbar ist, wird geprüft: Theorie, Harmonielehre,
+  Notensatz, Tonhöhen- und Notenerkennung sowie die Rhythmus- und
+  Melodiegeneratoren liegen bewusst DOM-frei, damit sie das können.
 
 ## 5. Design — festgelegt, nicht neu erfinden
 
@@ -234,6 +236,18 @@ Vorversion schreiben — der Nutzer hat dann echte Übungsdaten drin.
   Fis-Dur sechs Kreuze, und beides klingt gleich.
 - **Was der Nutzer greift, ist die Hauptangabe**, klingend steht daneben —
   außer in der Gehörbildung. Die wird am Klavier geprüft, also klingend.
+- **Bei der Improvisation ist das die teuerste Verwechslung überhaupt.** Die
+  Begleitung klingt klingend, die Akkordsymbole stehen gegriffen. Über einem
+  klingenden C7 liest man A7. Wer das dreht, übt über die falschen Töne und
+  merkt es nicht, weil die Begleitung ja richtig klingt.
+- **Zieltöne sind Terz und Septime** und in `harmonie.js` eine eigene Größe,
+  nicht etwas, das man aus der Akkordtabelle heraussucht. Sie tragen die
+  Harmonie; wer beim Üben nur sie spielt, klingt nach Musik, bevor Skalen
+  sitzen.
+- **Griffe stehen nicht im Code.** Altissimo-Griffe unterscheiden sich am
+  Instrument; eine abgeschriebene Tabelle wäre für genau dieses Alt
+  vermutlich falsch. `griffbild.js` kennt nur die Klappenanordnung, die
+  Griffe selbst liegen in den Nutzerdaten und werden in der App eingetragen.
 - Tonleitern und Blattspiel bleiben im notierten Umfang B3 bis Fis6
   (`RANGE` in `theory.js`). Eine Übung, die darüber hinausläuft, ist
   unbrauchbar.
@@ -265,6 +279,21 @@ sie trägt.
   Perioden; bei klingend Des3 sind das 15 ms. Das Fenster ist 2048 Punkte,
   also gut 40 ms.
 
+**Phase 6 — Improvisation und Gehör am Instrument, umgesetzt.**
+- `harmonie.js`: Akkordarten mit Skala und Zieltönen, neun Akkordfolgen,
+  Muster. Folgen werden klingend gespeichert und gegriffen angezeigt.
+- `begleitung.js`: Bass, Comping und Becken aus Web Audio, mit Swing als
+  Verhältnis statt als Schalter. Derselbe vorausschauende Scheduler wie beim
+  Metronom, aber mit absolut gerechneten Positionen statt fortlaufend
+  addierter — das summiert keine Rundungsfehler und übersteht Tempowechsel.
+- `notenfolge.js`: macht aus dem Tonhöhenstrom einzelne Noten. Der Sammler
+  ist ein reiner Zustandsautomat und deshalb ohne Mikrofon prüfbar; die
+  Fälle, die beim Saxophon wirklich vorkommen — Oktavsprung bei der
+  Ansprache, gebundene Töne ohne Lücke, Wackler mitten im Ton — stehen
+  als Tests drin.
+- Nachspielen: die App spielt eine Phrase, der Nutzer spielt sie nach, das
+  Mikrofon prüft. Verglichen wird klingend, angezeigt wird der Griff.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
 1. **Aufnahme und Tonanalyse.** Einen langen Ton aufnehmen, Tonhöhenverlauf
@@ -278,11 +307,14 @@ sie trägt.
    Tonhöhenverlauf. Baut auf 1 auf.
 4. **Melodiediktat** in der Gehörbildung: Melodie hören, Töne eingeben.
    Der Notensatz und der Melodiegenerator stehen bereits.
-5. **Obertonübung mit Rückmeldung**: erkennen, welcher Teilton gerade
+5. **Call and Response über die Begleitung**: die App spielt zwei Takte
+   vor, der Nutzer antwortet zwei Takte. Begleitung und Notenerkennung
+   stehen beide schon; es fehlt die Taktsynchronisation zwischen beiden.
+6. **Obertonübung mit Rückmeldung**: erkennen, welcher Teilton gerade
    klingt, und ob das Matching gegen den gegriffenen Ton stimmt. Das ist die
    fachlich wertvollste offene Idee, weil sie genau den Block unterstützt,
    der laut Auswertung am häufigsten ausgelassen wird.
-6. **Prüfungssimulation**: Ablauf mit Zeitdruck, zufällige Tonart, Blattspiel
+7. **Prüfungssimulation**: Ablauf mit Zeitdruck, zufällige Tonart, Blattspiel
    ohne zweiten Versuch.
 
 ## 9. Arbeitsweise

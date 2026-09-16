@@ -16,8 +16,9 @@ bleiben auf dem Gerät.
 |---|---|
 | **Üben** | Session-Runner: sieben Blöcke, Countdown, Merkpunkte, vier Wochenpläne |
 | **Ton** | Stimmgerät mit Intonationskarte · Bordun über zwölf klingende Tonhöhen |
-| **Technik** | Tonleitern in allen Tonarten · Rhythmus mit Messung · Blattspiel · Metronom |
-| **Gehör** | Intervalle · Akkorde · Skalen · höher oder tiefer |
+| **Technik** | Tonleitern in allen Tonarten · Rhythmus mit Messung · Blattspiel · Griffe · Metronom |
+| **Gehör** | Nachspielen mit Mikrofonkontrolle · Intervalle · Akkorde · Skalen |
+| **Impro** | Begleitband über neun Akkordfolgen, mit Zieltönen und Skalen |
 | **Journal** | Protokoll · Auswertung · Repertoire · Wissen · Daten |
 
 Ein paar Dinge, die es anderswo so nicht gibt:
@@ -33,6 +34,12 @@ Ein paar Dinge, die es anderswo so nicht gibt:
   mit zwei verschiedenen Lösungen.
 - **Die Auswertung zeigt, welchen Block du systematisch auslässt.** Meistens
   ist es der, den du am nötigsten hättest.
+- **Nachspielen prüft mit dem Mikrofon.** Die App spielt eine Phrase, du
+  spielst sie nach, und sie sagt dir Ton für Ton, ob du getroffen hast. Das
+  ist die Übung, die man sonst nur zu zweit machen kann.
+- **Die Begleitband zeigt gegriffene Akkorde.** Über einem klingenden C7
+  steht groß „A7" — das, was du liest und spielst. Dazu wahlweise die Skala,
+  die Zieltöne, die Akkordtöne oder ein Muster.
 - **Der Wissensteil geht vom Symptom aus.** Beim Üben hat man ein Problem,
   keine Frage.
 
@@ -68,8 +75,9 @@ node tools/check.mjs
 ```
 
 Das prüft Syntax und Ladbarkeit aller Module, das Manifest, die
-Precache-Liste und rund 12 500 Einzelprüfungen in fünf Testsuiten
-(Musiktheorie, Notensatz, Tonhöhenerkennung, Rhythmus- und Melodiegenerator).
+Precache-Liste und rund 17 100 Einzelprüfungen in sieben Testsuiten
+(Musiktheorie, Notensatz, Tonhöhenerkennung, Notenerkennung, Harmonielehre,
+Rhythmus- und Melodiegenerator).
 Was dort grün ist, kann trotzdem am Gerät scheitern — Audio, Mikrofon, Wake
 Lock und Service Worker lassen sich nur dort testen. Was rot ist, ist am
 Gerät sicher kaputt.

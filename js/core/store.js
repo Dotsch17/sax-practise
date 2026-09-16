@@ -39,6 +39,9 @@ export const defaultState = () => ({
   // IndexedDB, weil es für localStorage um Gröszenordnungen zu grosz ist.
   recordings: [],
   repertoire: [],
+  // Eigene Griffe je notierter MIDI-Zahl. Bewusst in den Nutzerdaten und
+  // nicht im Code: Altissimo-Griffe sind am Instrument verschieden.
+  griffe: {},
   read: [],               // gelesene Wissensartikel
 });
 
@@ -58,6 +61,7 @@ function migrate(raw, fromKey) {
   if (!s.day || s.day.date !== todayISO()) s.day = { date: todayISO(), done: [], spent: {} };
   if (!Array.isArray(s.log)) s.log = [];
   if (!s.drills || typeof s.drills !== "object") s.drills = {};
+  if (!s.griffe || typeof s.griffe !== "object") s.griffe = {};
   return s;
 }
 

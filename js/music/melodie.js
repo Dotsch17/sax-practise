@@ -150,6 +150,38 @@ function naechsterGrundton(idx, maxIdx) {
   return beste;
 }
 
+/**
+ * Eine kurze Phrase aus reinen Tonhöhen, ohne Rhythmus — für das Nachspielen
+ * nach Gehör. Dieselbe Gestaltregel wie beim Blattspiel: überwiegend
+ * Schritte, Sprünge nur in den Dreiklang, nach einem Sprung wird umgekehrt.
+ * Eine Phrase aus Zufallstönen kann man sich nicht merken, und genau das
+ * Merken ist hier die Übung.
+ *
+ * `laenge` ist die Zahl der Töne, `sprung` die Sprungneigung von 0 bis 1.
+ */
+export function generatePhrase({ tonic, laenge = 4, sprung = 0.2, umfang = 8,
+                                 skala = "dur", seed = null } = {}) {
+  const rnd = seed === null ? Math.random : mulberry32(seed);
+  const basis = grundlage(tonic);
+  const leiter = buildScale(basis, skala, 3)
+    .filter(p => toMidi(p) >= RANGE.writtenLow && toMidi(p) <= RANGE.writtenHigh);
+  const maxIdx = Math.min(leiter.length - 1, umfang);
+  const st = { sprung };
+  const istAkkordton = i => [0, 2, 4].includes(i % 7);
+
+  let idx = 0;
+  let letzterSprung = 0;
+  const out = [leiter[0]];
+
+  for (let i = 1; i < laenge; i++) {
+    const vorher = idx;
+    idx = naechsterIndex(idx, letzterSprung, st, maxIdx, rnd, istAkkordton);
+    letzterSprung = idx - vorher;
+    out.push(leiter[idx]);
+  }
+  return out;
+}
+
 /** Spannweite einer Melodie in diatonischen Stufen — für Tests und Anzeige. */
 export function spannweite(noten) {
   const midis = noten.filter(n => n.pitch).map(n => toMidi(n.pitch));
