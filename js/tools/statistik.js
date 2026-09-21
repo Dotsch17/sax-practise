@@ -14,7 +14,7 @@
 
 import { $, el, escapeHtml, humanMinutes, todayISO, parseISO, daysBetween } from "../core/dom.js";
 import { state } from "../core/store.js";
-import { BLOCKS, planForWeek } from "../data/plan.js";
+import { BLOCKS, planFor } from "../data/plan.js";
 
 /* --- Auswerten -------------------------------------------------------------- */
 
@@ -35,7 +35,7 @@ function tage() {
   if (heuteSpent > 0 && !map.has(s.day.date)) {
     map.set(s.day.date, {
       date: s.day.date, minuten: heuteSpent, offen: true,
-      bloecke: new Set(planForWeek(s.week).filter(b => s.day.done.includes(b.id)).map(b => b.name)),
+      bloecke: new Set(planFor(s.kontext, s.week).filter(b => s.day.done.includes(b.id)).map(b => b.name)),
       notiz: [],
     });
   }
@@ -170,7 +170,7 @@ function renderBlockBars(root, zaehler, nTage) {
 function renderPlanReal(root) {
   const host = $("#planreal", root);
   const s = state();
-  const plan = planForWeek(s.week);
+  const plan = planFor(s.kontext, s.week);
 
   // Summe der wirklich verbrachten Sekunden je Block über das Protokoll
   // hinweg lässt sich nicht rekonstruieren — gespeichert wird nur die

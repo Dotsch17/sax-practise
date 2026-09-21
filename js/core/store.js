@@ -20,6 +20,9 @@ const KEY    = "sax.uebeplan.v2";
 export const defaultState = () => ({
   v: 2,
   week: 1,
+  // Wo und womit gerade geübt wird. Bestimmt, welche Bloecke ueberhaupt
+  // sinnvoll sind — siehe KONTEXTE in js/data/plan.js.
+  kontext: "probelokal",
   day: { date: todayISO(), done: [], spent: {} },
   log: [],
   settings: {
@@ -62,6 +65,7 @@ function migrate(raw, fromKey) {
   if (!Array.isArray(s.log)) s.log = [];
   if (!s.drills || typeof s.drills !== "object") s.drills = {};
   if (!s.griffe || typeof s.griffe !== "object") s.griffe = {};
+  if (typeof s.kontext !== "string") s.kontext = "probelokal";
   return s;
 }
 

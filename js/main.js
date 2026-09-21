@@ -132,6 +132,9 @@ function boot() {
   });
   drone.setVolume(state().settings.droneVol / 100);
 
+  // Werkzeuge, die die Kopfzeile beeinflussen, melden sich hier.
+  on("topbar:refresh", renderTopbar);
+
   drone.onChange(renderRunning);
   metro.onStateChange(renderRunning);
   renderRunning();

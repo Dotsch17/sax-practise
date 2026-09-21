@@ -14,7 +14,7 @@
 "use strict";
 
 import { state, markBlockDone, addSpent } from "./store.js";
-import { planForWeek } from "../data/plan.js";
+import { planFor } from "../data/plan.js";
 import { emit } from "./dom.js";
 import { chime } from "../audio/signals.js";
 
@@ -22,7 +22,7 @@ let T = { index: 0, running: false, endAt: 0, remaining: 0, tick: null };
 let lastRecord = Date.now();
 let wakeLock = null;
 
-export const plan = () => planForWeek(state().week);
+export const plan = () => planFor(state().kontext, state().week);
 export const block = () => plan()[T.index] || plan()[0];
 export const status = () => ({ ...T, block: block(), plan: plan() });
 

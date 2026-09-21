@@ -105,6 +105,20 @@ export const QUALITIES = {
     ziel: [4, 9],
     farbe: "Ruhiger Schluss, älter klingend als maj7.",
   },
+  dur: {
+    symbol: "", lang: "Dur-Dreiklang",
+    steps: [0, 4, 7], stufen: [0, 2, 4],
+    skala: [0, 2, 4, 5, 7, 9, 11], skalaName: "Ionisch",
+    ziel: [4, 7],
+    farbe: "Der Akkord der Popmusik. Keine Septime — die würde hier fremd klingen.",
+  },
+  moll: {
+    symbol: "m", lang: "Moll-Dreiklang",
+    steps: [0, 3, 7], stufen: [0, 2, 4],
+    skala: [0, 2, 3, 5, 7, 8, 10], skalaName: "Äolisch",
+    ziel: [3, 7],
+    farbe: "Die kleine Terz ist alles. Über ihr klingt die Mollpentatonik von selbst richtig.",
+  },
   sus7: {
     symbol: "7sus4", lang: "Dominante mit Quarte statt Terz",
     steps: [0, 5, 7, 10], stufen: [0, 3, 4, 6],
@@ -144,7 +158,7 @@ export function scalePitches(root, qualityId) {
     : chromatic(base + s));
 }
 
-/** Akkordsymbol als Text, etwa „B♭7" oder „F♯m7♭5". */
+/** Akkordsymbol als Text, etwa „B♭7“ oder „F♯m7♭5“. */
 export function chordSymbol(root, qualityId, naming = NAMING.DE) {
   return spell(root, naming) + QUALITIES[qualityId].symbol;
 }
@@ -240,6 +254,38 @@ export const PROGRESSIONS = [
       { grad: 0, q: "dom7", takte: 1 }, { grad: 5, q: "dom7", takte: 1 },
       { grad: 10, q: "dom7", takte: 1 }, { grad: 3, q: "dom7", takte: 1 },
       { grad: 8, q: "dom7", takte: 1 }, { grad: 1, q: "dom7", takte: 1 },
+    ],
+  },
+  {
+    id: "vier_akkorde", sigVersatz: 0, name: "Die vier Akkorde", takt: 4, tempo: 120,
+    was: "I–V–vi–IV. Die Folge, über die gefühlt die halbe Popmusik läuft. Wer sie in jeder Tonart kann, kommt auf jedem Fest durch.",
+    akkorde: [
+      { grad: 0, q: "dur", takte: 1 }, { grad: 7, q: "dur", takte: 1 },
+      { grad: 9, q: "moll", takte: 1 }, { grad: 5, q: "dur", takte: 1 },
+    ],
+  },
+  {
+    id: "moll_pop", sigVersatz: -3, name: "Moll-Vierer", takt: 4, tempo: 116,
+    was: "i–VI–III–VII. Die dunkle Schwester der vier Akkorde, von Ballade bis Dancefloor.",
+    akkorde: [
+      { grad: 0, q: "moll", takte: 1 }, { grad: 8, q: "dur", takte: 1 },
+      { grad: 3, q: "dur", takte: 1 }, { grad: 10, q: "dur", takte: 1 },
+    ],
+  },
+  {
+    id: "house_vamp", sigVersatz: -3, name: "House-Vamp", takt: 4, tempo: 124,
+    was: "Zwei Mollakkorde, vier Takte lang. Genau das, was unter einem DJ-Set liegt — und da kommt es nicht auf Akkordtöne an, sondern auf Timing und einen Ton, der trägt.",
+    akkorde: [
+      { grad: 0, q: "m7", takte: 4 }, { grad: 5, q: "m7", takte: 4 },
+    ],
+  },
+  {
+    id: "bossa", sigVersatz: 0, name: "Bossa", takt: 4, tempo: 132,
+    was: "Der Klang jedes Aperitivo. Ruhig, warm, und die Septimen dürfen klingen.",
+    akkorde: [
+      { grad: 0, q: "maj7", takte: 2 }, { grad: 5, q: "maj7", takte: 2 },
+      { grad: 2, q: "m7", takte: 1 }, { grad: 7, q: "dom7", takte: 1 },
+      { grad: 0, q: "maj7", takte: 2 },
     ],
   },
   {

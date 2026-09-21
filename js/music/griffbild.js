@@ -111,7 +111,7 @@ export function renderGriff(gedrueckt = [], opts = {}) {
   </svg>`;
 }
 
-/** Kurzschreibweise für den Export und zum Vergleichen, etwa „okt l1 l2 r1". */
+/** Kurzschreibweise für den Export und zum Vergleichen, etwa „okt l1 l2 r1“. */
 export const alsText = gedrueckt =>
   KLAPPEN_IDS.filter(id => new Set(gedrueckt).has(id)).join(" ");
 

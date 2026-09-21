@@ -2,7 +2,7 @@
    Tonanalyse
 
    Einen langen Ton aufnehmen und danach ansehen, was wirklich passiert ist.
-   Das ist der Block „Lange Töne" mit Rückmeldung — und die Rückmeldung ist
+   Das ist der Block „Lange Töne“ mit Rückmeldung — und die Rückmeldung ist
    eine andere, als man erwartet: interessant ist nicht, ob der Ton *schön*
    war, sondern ob er *ruhig* war.
 

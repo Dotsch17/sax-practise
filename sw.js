@@ -12,7 +12,7 @@
    ========================================================================== */
 "use strict";
 
-const VERSION = "v6";
+const VERSION = "v7";
 const CACHE   = "sax-uebeplan-" + VERSION;
 
 // Relative Pfade, damit derselbe Worker unter jedem Unterverzeichnis läuft
@@ -22,6 +22,7 @@ const ASSETS = [
   "./index.html",
   "./manifest.json",
   "./css/base.css",
+  "./css/responsive.css",
   "./css/shell.css",
   "./css/tools.css",
   "./js/audio/begleitung.js",
@@ -34,6 +35,7 @@ const ASSETS = [
   "./js/core/dom.js",
   "./js/core/session.js",
   "./js/core/store.js",
+  "./js/data/improwissen.js",
   "./js/data/plan.js",
   "./js/data/wissen.js",
   "./js/main.js",
@@ -52,6 +54,7 @@ const ASSETS = [
   "./js/tools/daten.js",
   "./js/tools/gehoer.js",
   "./js/tools/griffe.js",
+  "./js/tools/grundlagen.js",
   "./js/tools/improvisation.js",
   "./js/tools/metronom.js",
   "./js/tools/nachspielen.js",

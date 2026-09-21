@@ -90,7 +90,7 @@ export function playChord(midis, opts = {}) {
 /**
  * Spielt Töne zu festen Zeitpunkten der Audio-Uhr. Für alles, was mit einer
  * laufenden Begleitung zusammenpassen muss: `playMelody` rechnet relativ zu
- * „jetzt" und liefe dadurch gegen die Band aus dem Takt.
+ * „jetzt“ und liefe dadurch gegen die Band aus dem Takt.
  *
  * noten: [{ midi, zeit, dauer }] — zeit und dauer in Sekunden.
  */

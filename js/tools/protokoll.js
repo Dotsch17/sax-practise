@@ -10,11 +10,11 @@
 
 import { $, el, escapeHtml, toast, humanMinutes } from "../core/dom.js";
 import { state, save } from "../core/store.js";
-import { planForWeek } from "../data/plan.js";
+import { planFor } from "../data/plan.js";
 
 function todaySummary() {
   const s = state();
-  const plan = planForWeek(s.week);
+  const plan = planFor(s.kontext, s.week);
   const done = plan.filter(x => s.day.done.includes(x.id));
   const geplant = done.reduce((a, x) => a + x.min, 0);
   const wirklich = Math.round(

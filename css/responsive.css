@@ -1,0 +1,196 @@
+/* ==========================================================================
+   Grösze
+
+   Die App war für das iPhone am Notenständer gebaut — eine Spalte, 480 px,
+   Reiterleiste unten in Daumenreichweite. Das bleibt die Grundform, weil es
+   der Ort ist, an dem wirklich geübt wird.
+
+   Auf iPad und Laptop war dieselbe 480er-Spalte aber falsch: eine schmale
+   Säule in der Mitte eines breiten Bildschirms, mit der Reiterleiste ganz
+   unten auszerhalb jeder Reichweite. Deshalb drei Stufen:
+
+   - bis 599 px: Telefon. Unverändert.
+   - ab 600 px: breitere Spalte, mehr Spalten in den Rastern, gröszere
+     Notenzeilen. Immer noch Reiterleiste unten — am iPad hält man das Gerät
+     oft quer auf dem Ständer, und der Daumen bleibt unten.
+   - ab 960 px: die Reiterleiste wandert an die linke Seite. Auf einem
+     Laptop ist der untere Bildschirmrand der unbequemste Ort überhaupt, und
+     der Platz ist da.
+
+   Alles hier sind Überschreibungen. Wer die Telefonansicht ändern will,
+   ändert shell.css und tools.css, nicht diese Datei.
+   ========================================================================== */
+
+/* ==========================================================================
+   Ab 600 px — Tablet hochkant, groszes Telefon quer
+   ========================================================================== */
+@media (min-width: 600px) {
+  :root{ --pad: 28px; }
+
+  #app{ max-width: 700px; }
+  nav .inner{ max-width: 700px; }
+
+  main{ padding-bottom: 140px; }
+
+  /* Der Countdown darf gröszer werden — aus zwei Metern liest man ihn dann
+     wirklich. */
+  .clock{ font-size: 124px; }
+  .now h1{ font-size: 42px; }
+
+  .keys{ grid-template-columns: repeat(6, 1fr); }
+  .key{ min-height: 70px; }
+  .key b{ font-size: 21px; }
+
+  .grid3{ grid-template-columns: repeat(3, 1fr); }
+  .row2{ gap: 14px; }
+
+  svg.staff{ height: 160px; }
+  svg.staff.compact{ height: 124px; }
+
+  .tuner-note{ font-size: 110px; }
+  .jetzt-akkord{ font-size: 86px; }
+  .cr-akkord{ font-size: 72px; }
+  .ob-gross{ font-size: 50px; }
+
+  .stat b{ font-size: 40px; }
+  .answers{ grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+  .griffbild-wrap.klein .griffbild{ height: 240px; }
+  .kurve{ height: 120px; }
+  .kurve-achse{ height: 120px; }
+  .daybars{ height: 140px; }
+}
+
+/* ==========================================================================
+   Ab 960 px — Laptop und iPad quer: Navigation an die Seite
+   ========================================================================== */
+@media (min-width: 960px) {
+  #app{
+    max-width: 1180px;
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    grid-template-areas:
+      "nav kopf"
+      "nav fokus"
+      "nav leiste"
+      "nav inhalt";
+    align-content: start;
+    column-gap: 24px;
+    padding-inline: 20px;
+  }
+
+  .topbar{ grid-area: kopf; padding-inline: 0; }
+  .focus-line{ grid-area: fokus; padding-inline: 0; }
+  #toolbar{ grid-area: leiste; padding-inline: 0; }
+  main{ grid-area: inhalt; padding: 8px 0 60px; }
+
+  /* Die Reiterleiste wird zur Seitenleiste. Sie bleibt beim Scrollen
+     stehen, damit der Bereichswechsel überall einen Klick entfernt ist. */
+  nav{
+    grid-area: nav;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    background: none;
+    backdrop-filter: none;
+    border-top: 0;
+    border-right: 1px solid var(--line);
+    padding: 18px 0 18px;
+    height: auto;
+    z-index: 1;
+  }
+  nav .inner{
+    flex-direction: column;
+    gap: 2px;
+    max-width: none;
+    padding-right: 16px;
+  }
+  nav button{
+    flex: none;
+    text-align: left;
+    padding: 12px 14px;
+    font-size: 15px;
+    border-top: 0;
+    border-left: 2px solid transparent;
+    border-radius: 0 8px 8px 0;
+    margin-top: 0;
+  }
+  nav button[aria-selected="true"]{
+    border-top-color: transparent;
+    border-left-color: var(--brass);
+    background: var(--surface);
+  }
+  nav button:hover{ background: var(--surface); }
+
+  /* „Läuft gerade" und Hinweise gehören jetzt in die untere rechte Ecke,
+     nicht über eine Reiterleiste, die es hier nicht mehr gibt. */
+  #running{
+    left: auto; right: 24px; bottom: 24px;
+    margin-bottom: 0;
+    justify-content: flex-end;
+    padding: 0;
+  }
+  .toast{
+    left: auto; right: 24px; bottom: 88px;
+    margin-inline: 0;
+    max-width: 420px;
+  }
+
+  /* Zweispaltig, wo der Inhalt es hergibt. Der Notentext bleibt einspaltig:
+     er ist breit und verträgt keine halbe Spalte. */
+  .zwei-spalten{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 28px;
+    align-items: start;
+  }
+
+  .keys{ grid-template-columns: repeat(6, 1fr); }
+  .grid3{ grid-template-columns: repeat(4, 1fr); }
+  svg.staff{ height: 180px; }
+  svg.staff.compact{ height: 140px; }
+  .clock{ font-size: 140px; }
+
+  .griffreihe{ grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+  .grifftabelle{ grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+  .artikel-liste{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+
+/* ==========================================================================
+   Ab 1280 px — genug Platz für eine echte zweite Spalte
+   ========================================================================== */
+@media (min-width: 1280px) {
+  #app{ grid-template-columns: 230px minmax(0, 1fr); max-width: 1320px; }
+  svg.staff{ height: 200px; }
+}
+
+/* ==========================================================================
+   Quer auf einem flachen Telefon: Höhe ist knapp, also alles flacher
+   ========================================================================== */
+@media (max-height: 520px) and (orientation: landscape) {
+  .clock{ font-size: 64px; }
+  .now h1{ font-size: 26px; }
+  .now{ margin-top: 6px; }
+  .cues{ margin-bottom: 14px; }
+  .controls button{ min-height: 52px; }
+  svg.staff{ height: 100px; }
+  .jetzt-akkord{ font-size: 44px; }
+  .tuner-note{ font-size: 56px; }
+  .tuner-scale{ height: 40px; }
+  main{ padding-bottom: 96px; }
+}
+
+/* ==========================================================================
+   Zeigegeräte mit Hover: dezente Rückmeldung. Auf Touch würde sie hängen
+   bleiben, deshalb hinter der Medienabfrage.
+   ========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover:not(.on){ background: var(--surface-hi); color: var(--cane); }
+  .wide:hover:not(.primary):not(.on){ background: var(--surface-hi); }
+  .row2 button:hover{ background: var(--surface-hi); }
+  .plan-row:hover{ background: var(--surface); }
+  .artikel-karte:hover, .rp-karte:hover, .griffkachel:hover,
+  .keycell:hover, .answer:hover:not(:disabled), .ta-zeile:hover{
+    background: var(--surface-hi);
+  }
+  .controls .primary:hover{ background: color-mix(in srgb, var(--brass) 88%, white); }
+}

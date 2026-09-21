@@ -12,7 +12,7 @@
    und man würde monatelang gegen sie üben. Was du hier einträgst, hast du
    selbst ausprobiert; das ist der einzige Griff, der zählt.
 
-   Deshalb auch das Feld „spricht an": ein Griff, der nur an guten Tagen
+   Deshalb auch das Feld „spricht an“: ein Griff, der nur an guten Tagen
    kommt, ist etwas anderes als einer, auf den du dich verlassen kannst.
    ========================================================================== */
 

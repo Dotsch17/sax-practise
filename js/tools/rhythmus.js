@@ -1,7 +1,7 @@
 /* ==========================================================================
    Rhythmus
 
-   Der Unterschied zu „Metronom an und mitspielen": hier wird gemessen. Nach
+   Der Unterschied zu „Metronom an und mitspielen“: hier wird gemessen. Nach
    dem Durchgang steht da, um wie viele Millisekunden du daneben warst und
    ob du gleichmäszig streust oder durchgehend schleppst. Das sind zwei ganz
    verschiedene Probleme mit zwei ganz verschiedenen Lösungen, und ohne

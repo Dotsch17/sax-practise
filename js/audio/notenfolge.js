@@ -2,7 +2,7 @@
    Aus dem Tonhöhenstrom einzelne Noten machen
 
    Die Tonhöhenerkennung liefert dreißigmal je Sekunde einen Messwert. Zum
-   Nachspielen braucht man aber Noten: „A, dann H, dann C". Dazwischen liegt
+   Nachspielen braucht man aber Noten: „A, dann H, dann C“. Dazwischen liegt
    die eigentliche Arbeit, und sie ist beim Saxophon besonders heikel:
 
    - Der Anblasvorgang ist nicht sauber. Die ersten 50 bis 100 ms eines Tons

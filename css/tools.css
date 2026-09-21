@@ -839,3 +839,45 @@ svg.staff.compact{ height: 96px; }
 .ob-match-feld b{ display:block; font-family: var(--serif); font-weight:400; font-size: 20px; }
 .ob-match-feld.voll b{ color: var(--brass); }
 .ob-match-feld span{ display:block; font-size: 12px; color: var(--cane-dim); margin-top: 2px; }
+
+/* --- Kontextwahl und eingehängtes Werkzeug ---------------------------------- */
+.chip small{ opacity: .65; font-size: .82em; margin-left: 3px; }
+.chip.on small{ opacity: .7; }
+
+.warnung{
+  border-left: 3px solid var(--brass);
+  background: color-mix(in srgb, var(--brass) 8%, transparent);
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px; color: var(--cane-dim);
+  margin: 0 0 14px;
+}
+
+/* Das Werkzeug des Blocks sitzt im Block. Abgesetzt, damit klar ist: das
+   gehört dazu, ist aber nicht der Block selbst. */
+.werkzeug{
+  margin: 24px 0 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 45%, transparent);
+  padding: 4px 14px 14px;
+}
+.werkzeug-kopf{
+  margin: 14px 0 10px;
+  font-size: 12px; letter-spacing: .06em;
+}
+.werkzeug-kopf b{
+  color: var(--brass); font-weight: 500;
+  text-transform: none; letter-spacing: 0; font-size: 14px;
+}
+/* Das eingehängte Werkzeug soll nicht wie eine eigene Seite wirken. */
+.werkzeug h2:first-child{ margin-top: 4px; }
+.werkzeug .chips.scroll{ margin-inline: -14px; padding-inline: 14px; }
+
+/* --- Grundlagen ------------------------------------------------------------- */
+.gl-feld{
+  display:flex; flex-direction:column; gap:5px;
+  font-size: 13px; color: var(--cane-dim);
+  margin-bottom: 14px;
+}
+.diag summary em{ font-style: normal; color: var(--cane-dim); font-size: .9em; }

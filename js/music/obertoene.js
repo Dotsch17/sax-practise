@@ -77,7 +77,7 @@ export const grundFrequenz = (writtenMidi, a4 = 440) =>
 
 /**
  * Wie gut passen Teilton und gegriffener Ton zusammen? Das ist das
- * „Matching" aus dem Übungsplan: derselbe Ton einmal über das Voicing und
+ * „Matching“ aus dem Übungsplan: derselbe Ton einmal über das Voicing und
  * einmal über den Griff, und beide sollen gleich klingen.
  *
  * Zurück kommt der Unterschied in Cent und in der Klangfarbe. Der

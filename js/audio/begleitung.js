@@ -5,7 +5,7 @@
    25 ms legt die nächsten 200 ms exakt auf die Audio-Uhr. Gehört wird die
    Audio-Uhr; Ruckler im Hauptthread sind unhörbar.
 
-   Swing ist kein Schalter, sondern ein Verhältnis: das „und" liegt bei
+   Swing ist kein Schalter, sondern ein Verhältnis: das „und“ liegt bei
    geradem Spiel auf 0,5 und bei vollem Swing auf 0,667 der Zählzeit.
    Dazwischen ist alles erlaubt, und genau das braucht man beim Üben —
    ein Blues bei 200 swingt weniger als einer bei 100.
@@ -208,7 +208,7 @@ function voicing(akkord) {
 let startZeit = 0;              // Audio-Uhr-Zeit von Schritt 0
 let bassLinie = [40, 40, 40, 40];
 
-/** Absolute Zeit eines Achtelschritts. Das „und" rutscht nach hinten, wenn
+/** Absolute Zeit eines Achtelschritts. Das „und“ rutscht nach hinten, wenn
     geswingt wird — bei 0,5 gerade, bei 0,667 voller Swing. */
 function zeitVon(schritt) {
   const spb = 60 / bpm;
