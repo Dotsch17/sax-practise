@@ -131,6 +131,7 @@ ok = run(["tools/test-harmonie.mjs"], "Harmonielehre") && ok;
 ok = run(["tools/test-notenfolge.mjs"], "Notenerkennung") && ok;
 ok = run(["tools/test-lick.mjs"], "Licks") && ok;
 ok = run(["tools/test-obertoene.mjs"], "Teiltoene") && ok;
+ok = run(["tools/test-koennen.mjs"], "Koennen-Profil") && ok;
 ok = run(["tools/test-pitch.mjs"], "Tonhoehenerkennung") && ok;
 ok = run(["tools/sync-precache.mjs"], "Precache-Liste") && ok;
 

@@ -107,6 +107,18 @@ Der Travel-Sax-Kontext trägt eine Warnung: Ansatz, Voicing, Obertöne und
 Klangfarbe lassen sich dort nicht üben, und das muss dastehen, sonst hält man
 das digitale Blasrohr für ein Saxophon.
 
+**Die App sagt, woran heute zu arbeiten ist.** `js/core/koennen.js` liest
+den gesamten Messbestand — Trefferquoten, Intonationskarte, höchster
+Teilton, nie geübte Tonarten, Zeit bis zur gefundenen Tonart — und macht
+daraus sortierte Befunde. Der oberste steht als Karte über dem Plan, mit
+einem Knopf, der direkt ins passende Werkzeug springt. Bewusst **ein**
+Vorschlag und nicht fünf: eine Liste von Schwächen liest man einmal und nie
+wieder. Zwei Regeln halten das Ergebnis brauchbar: unter sechs Versuchen
+wird nichts beurteilt, und ein leerer Eintrag zählt nicht als geübt — den
+legt schon das Öffnen eines Werkzeugs an. Der Übe-Kontext filtert mit;
+Obertöne am Travel Sax vorzuschlagen wäre schlechter als gar kein Vorschlag.
+Das Modul ist DOM-frei und mit 61 Prüfungen getestet.
+
 **Das Werkzeug steht im Block.** Jeder Block nennt das Werkzeug, mit dem man
 ihn übt, und der Session-Runner lädt es per `import()` direkt unter den
 Countdown. Ein Block, dessen Werkzeug in einem anderen Reiter liegt, wird
@@ -120,7 +132,7 @@ Laufzeit-Abhängigkeiten. Aufteilung:
 
 | Ordner | Inhalt |
 |---|---|
-| `js/core/` | DOM-Helfer, Zustand und Speicherung, Session-Timer und Wake Lock |
+| `js/core/` | DOM-Helfer, Zustand und Speicherung, Session-Timer und Wake Lock, Können-Profil |
 | `js/audio/` | AudioContext, Bordun, Metronom, Signale, Tonhöhenerkennung, Notenerkennung, Begleitung |
 | `js/music/` | Theorie, Harmonielehre, Notensatz, Notenzeichen, Griffbild, Rhythmus- und Melodiegenerator |
 | `js/data/` | Übungsplan, Übe-Kontexte, Wissenstexte, Improvisations-Grundlagen — alles Inhaltliche |

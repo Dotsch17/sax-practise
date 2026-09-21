@@ -26,6 +26,7 @@ import { $, $$, el, mmss, escapeHtml, toast, on, emit } from "../core/dom.js";
 import { state, resetDay, save } from "../core/store.js";
 import * as S from "../core/session.js";
 import { WEEKS, KONTEXTE, kontextOf } from "../data/plan.js";
+import { befunde } from "../core/koennen.js";
 
 // Das eingehängte Werkzeug, damit es beim Blockwechsel abgeräumt wird.
 let werkzeug = null;
@@ -107,6 +108,8 @@ function render(root) {
       <div id="werkzeug-inhalt"></div>
     </section>
 
+    <div id="rat"></div>
+
     <div class="plan" id="plan"></div>
     <div class="total">
       <span>${doneMin} von ${total} Minuten erledigt</span>
@@ -114,6 +117,7 @@ function render(root) {
     </div>`;
 
   renderKontextChips(root);
+  renderRat(root);
   renderPlan(root);
   paint(root);
   haengeWerkzeugEin(root, b.werkzeug || null);
@@ -129,6 +133,48 @@ function render(root) {
     S.select(0);
     toast("Tag zurückgesetzt");
   });
+}
+
+/**
+ * Was heute zählt — aus allem, was die App über den Spieler gemessen hat.
+ *
+ * Bewusst **ein** Vorschlag, nicht fünf. Eine Liste von Schwächen liest man
+ * einmal und nie wieder; ein einzelner Satz mit einem Knopf daneben wird
+ * befolgt. Der Rest steht aufgeklappt darunter, für die Tage, an denen man
+ * selbst entscheiden will.
+ */
+function renderRat(root) {
+  const host = $("#rat", root);
+  if (!host) return;
+  const liste = befunde(state(), state().kontext);
+  if (!liste.length) {
+    host.innerHTML = `<p class="hint spaced">Nichts fällt auf. Die App hat
+      entweder noch zu wenig von dir gemessen, oder es steht gerade alles.</p>`;
+    return;
+  }
+  const [erst, ...rest] = liste;
+  host.innerHTML = `
+    <div class="rat">
+      <div class="rat-kopf">Was heute zählt · ${escapeHtml(erst.bereich)}</div>
+      <b class="rat-titel">${escapeHtml(erst.titel)}</b>
+      <p class="rat-grund">${escapeHtml(erst.grund)}</p>
+      <button class="rat-hin" data-ziel="${erst.ziel.tab}/${erst.ziel.tool}">
+        ${escapeHtml(erst.ziel.name)} öffnen
+      </button>
+      ${rest.length ? `<details class="rat-mehr">
+        <summary>${rest.length} weitere${rest.length === 1 ? "r Punkt" : " Punkte"}</summary>
+        ${rest.slice(0, 4).map(b => `<div class="rat-zeile">
+          <button class="rat-hin klein" data-ziel="${b.ziel.tab}/${b.ziel.tool}">
+            ${escapeHtml(b.titel)}
+          </button>
+          <span>${escapeHtml(b.grund)}</span>
+        </div>`).join("")}
+      </details>` : ""}
+    </div>`;
+
+  for (const btn of $$(".rat-hin", host)) {
+    btn.addEventListener("click", () => { location.hash = "#" + btn.dataset.ziel; });
+  }
 }
 
 function renderKontextChips(root) {

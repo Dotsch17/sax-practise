@@ -1007,3 +1007,33 @@ svg.staff.compact{ height: 96px; }
 .sm-danach li{ font-size: 14px; margin-bottom: 6px; color: var(--cane-dim); }
 .sm-notiz{ display:block; margin-top: 16px; font-size: 13.5px; color: var(--cane-dim); }
 .sm-notiz textarea{ width:100%; margin-top: 6px; }
+
+/* --- Was heute zählt ------------------------------------------------------ */
+.rat{
+  border: 1px solid var(--brass-dim); border-radius: 14px;
+  background: var(--surface); padding: 16px; margin: 16px 0;
+}
+.rat-kopf{
+  font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--brass);
+}
+.rat-titel{
+  display:block; font-family: var(--serif); font-size: 21px;
+  font-weight: 400; margin: 6px 0 6px;
+}
+.rat-grund{ font-size: 14.5px; line-height: 1.45; color: var(--cane-dim); }
+.rat-hin{
+  width: 100%; margin-top: 12px; min-height: 52px;
+  border: 1px solid var(--brass); border-radius: 10px;
+  background: none; color: var(--brass); font-size: 15px;
+}
+.rat-hin:active{ background: var(--surface-hi); }
+.rat-hin.klein{
+  width: auto; min-height: 44px; margin: 0; padding: 0 12px;
+  font-size: 14px; text-align: left; border-color: var(--line); color: var(--cane);
+}
+.rat-mehr{ margin-top: 14px; border-top: 1px solid var(--line); padding-top: 10px; }
+.rat-mehr summary{ font-size: 14px; color: var(--cane-dim); cursor: pointer; padding: 6px 0; }
+.rat-zeile{ padding: 8px 0; border-bottom: 1px solid var(--line); }
+.rat-zeile:last-child{ border-bottom: none; }
+.rat-zeile span{ display:block; font-size: 13.5px; color: var(--cane-dim); margin-top: 4px; }

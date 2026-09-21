@@ -34,6 +34,13 @@ Ein paar Dinge, die es anderswo so nicht gibt:
   mit zwei verschiedenen Lösungen.
 - **Die Auswertung zeigt, welchen Block du systematisch auslässt.** Meistens
   ist es der, den du am nötigsten hättest.
+- **Über dem Plan steht, was heute zählt.** Die App wertet alles aus, was sie
+  je von dir gemessen hat — welche Tonart nie dran war, welcher Griff
+  systematisch zu tief liegt, wie weit die Naturtonreihe steht, wie lange du
+  für eine Tonart brauchst — und nennt den einen Punkt, der gerade am
+  meisten bringt. Mit Begründung und einem Knopf, der direkt hinführt. Unter
+  sechs Versuchen urteilt sie nicht, und am Travel Sax schlägt sie nichts
+  vor, was dort gar nicht geht.
 - **Nachspielen prüft mit dem Mikrofon.** Die App spielt eine Phrase, du
   spielst sie nach, und sie sagt dir Ton für Ton, ob du getroffen hast. Das
   ist die Übung, die man sonst nur zu zweit machen kann.
