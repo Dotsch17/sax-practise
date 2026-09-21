@@ -25,7 +25,7 @@
 import { $, $$, el, mmss, escapeHtml, toast, on, emit } from "../core/dom.js";
 import { state, resetDay, save } from "../core/store.js";
 import * as S from "../core/session.js";
-import { WEEKS, KONTEXTE, kontextOf } from "../data/plan.js";
+import { ZEITEN, KONTEXTE, kontextOf, blockFuerWerkzeug, planFor } from "../data/plan.js";
 import { befunde } from "../core/koennen.js";
 
 // Das eingehängte Werkzeug, damit es beim Blockwechsel abgeräumt wird.
@@ -88,6 +88,7 @@ function render(root) {
 
   root.innerHTML = `
     <div class="chips scroll" id="kontext-chips" role="group" aria-label="Wo übst du"></div>
+    <div class="chips scroll" id="zeit-chips" role="group" aria-label="Wie viel Zeit hast du"></div>
     <p class="hint" id="kontext-was">${escapeHtml(k.was)}</p>
     ${k.warnung ? `<p class="warnung">${escapeHtml(k.warnung)}</p>` : ""}
 
@@ -117,6 +118,7 @@ function render(root) {
     </div>`;
 
   renderKontextChips(root);
+  renderZeitChips(root);
   renderRat(root);
   renderPlan(root);
   paint(root);
@@ -152,6 +154,12 @@ function renderRat(root) {
       entweder noch zu wenig von dir gemessen, oder es steht gerade alles.</p>`;
     return;
   }
+  const sp = schwerpunktHeute(liste);
+  const spName = sp
+    ? planFor(state().kontext, { minuten: state().settings.minuten || 0, schwerpunkt: sp })
+        .find(b => b.id === sp)?.name
+    : null;
+
   const [erst, ...rest] = liste;
   host.innerHTML = `
     <div class="rat">
@@ -161,6 +169,10 @@ function renderRat(root) {
       <button class="rat-hin" data-ziel="${erst.ziel.tab}/${erst.ziel.tool}">
         ${escapeHtml(erst.ziel.name)} öffnen
       </button>
+      ${spName ? `<p class="rat-schwerpunkt">
+        Der Block <b>${escapeHtml(spName)}</b> bekommt deshalb heute mehr Zeit.
+        <button class="linkish" id="rat-weg">gleichmäßig verteilen</button>
+      </p>` : ""}
       ${rest.length ? `<details class="rat-mehr">
         <summary>${rest.length} weitere${rest.length === 1 ? "r Punkt" : " Punkte"}</summary>
         ${rest.slice(0, 4).map(b => `<div class="rat-zeile">
@@ -175,6 +187,58 @@ function renderRat(root) {
   for (const btn of $$(".rat-hin", host)) {
     btn.addEventListener("click", () => { location.hash = "#" + btn.dataset.ziel; });
   }
+  $("#rat-weg", host)?.addEventListener("click", () => {
+    state().day.schwerpunkt = null;
+    save();
+    raeumeWerkzeug();
+    S.select(0);
+    render(root);
+    emit("topbar:refresh");
+  });
+}
+
+/**
+ * Wie viel Zeit hast du heute? Das ist die Frage, die man beim Auspacken
+ * tatsächlich beantworten kann — anders als „in welcher Woche bin ich“.
+ */
+function renderZeitChips(root) {
+  const host = $("#zeit-chips", root);
+  if (!host) return;
+  const jetzt = state().settings.minuten || 0;
+  host.innerHTML = "";
+  for (const z of ZEITEN) {
+    host.append(el("button", {
+      class: "chip" + (z.id === jetzt ? " on" : ""),
+      text: z.label, title: z.was,
+      on: { click: () => {
+        if ((state().settings.minuten || 0) === z.id) return;
+        state().settings.minuten = z.id;
+        save();
+        raeumeWerkzeug();
+        S.select(0);
+        render(root);
+        emit("topbar:refresh");
+      } },
+    }));
+  }
+}
+
+/**
+ * Der Schwerpunkt für heute kommt aus der Auswertung, nicht aus der Laune.
+ * Er wird einmal pro Tag festgelegt und bleibt dann stehen — ein
+ * Schwerpunkt, der sich bei jedem Neuzeichnen ändert, ist keiner.
+ */
+function schwerpunktHeute(liste) {
+  const day = state().day;
+  if (day.schwerpunkt !== undefined) return day.schwerpunkt;
+  const kontext = state().kontext;
+  for (const b of liste) {
+    const block = blockFuerWerkzeug(kontext, b.ziel.tool);
+    if (block) { day.schwerpunkt = block; save(); return block; }
+  }
+  day.schwerpunkt = null;
+  save();
+  return null;
 }
 
 function renderKontextChips(root) {
@@ -254,20 +318,16 @@ export default {
     this._off = () => { offTick(); offChange(); };
   },
   unmount() { this._off?.(); raeumeWerkzeug(); },
-  // Die Wochenwahl gehört in die Kopfzeile, nicht in eine Werkzeugliste.
-  topbar: () => {
-    // Nur der Probelokal-Plan wechselt wochenweise; die anderen Kontexte
-    // haben feste Blöcke.
-    if (kontextOf(state().kontext).bloecke) return null;
-    const sel = el("select", { id: "week-select", "aria-label": "Woche" },
-      [1, 2, 3, 4].map(w => el("option", { value: w, selected: state().week === w }, `Woche ${w}`)));
-    sel.addEventListener("change", e => {
-      state().week = Number(e.target.value);
-      save();
-      S.select(0);
-    });
-    return sel;
+  // Wie lang und worauf — das steht in der Kopfzeile, die Wahl in den Chips.
+  topbar: () => null,
+  focusLine: () => {
+    const S_ = state();
+    const min = S_.settings.minuten || 0;
+    const zeit = min ? `${min} Minuten` : "voller Plan";
+    const sp = S_.day.schwerpunkt;
+    if (!sp) return zeit;
+    const name = planFor(S_.kontext, { minuten: min, schwerpunkt: sp })
+      .find(b => b.id === sp)?.name;
+    return name ? `${zeit} · Schwerpunkt ${name}` : zeit;
   },
-  focusLine: () => kontextOf(state().kontext).bloecke
-    ? "" : (WEEKS[state().week]?.focus || ""),
 };

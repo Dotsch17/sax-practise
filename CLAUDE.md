@@ -90,7 +90,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 
 | Bereich | Werkzeuge |
 |---|---|
-| Üben | Session-Runner: Übe-Kontext wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block |
+| Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block |
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Tonanalyse, Bordun |
 | Technik | Tonleitern, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Nachspielen mit Mikrofonkontrolle, Intervalle/Akkorde/Skalen |
@@ -106,6 +106,19 @@ nur um eine Werkzeugzuordnung ergänzt — `BLOCKS` selbst wird nicht angefasst.
 Der Travel-Sax-Kontext trägt eine Warnung: Ansatz, Voicing, Obertöne und
 Klangfarbe lassen sich dort nicht üben, und das muss dastehen, sonst hält man
 das digitale Blasrohr für ein Saxophon.
+
+**Die Session richtet sich nach der Zeit, nicht nach dem Kalender.** Der
+Vier-Wochen-Plan war als Konzept richtig und als Steuergröße falsch: man
+nimmt das Instrument in die Hand, wenn man Lust und Zeit hat, und eine
+Wochennummer weiß darüber nichts. Stattdessen wählt man, wie lange man Zeit
+hat; `baueSession()` in `js/data/plan.js` schneidet den Plan darauf zu. Drei
+Regeln halten das musikalisch heil: die Reihenfolge wird nie umgestellt, der
+erste Block bleibt immer drin, und statt gegen die Mindestlänge wird gegen
+eine **Ziellänge** von zehn Minuten gerechnet — sonst passen in zwanzig
+Minuten sechs Blöcke, und man übt sechsmal drei Minuten statt zweimal zehn.
+Kurz üben heißt weniger Sachen, nicht dieselben Sachen in Häppchen.
+`BLOCKS` und `WEEKS` bleiben unverändert; `state.day.schwerpunkt` hält den
+Block, der heute mehr Zeit bekommt, und wird mit dem Tag verworfen.
 
 **Die App sagt, woran heute zu arbeiten ist.** `js/core/koennen.js` liest
 den gesamten Messbestand — Trefferquoten, Intonationskarte, höchster
@@ -299,7 +312,9 @@ Vorversion schreiben — der Nutzer hat dann echte Übungsdaten drin.
   und dann zeigt der Balken genau das nicht mehr, wofür er da ist. Steht in
   `autoBeam()` und ist mit Synkopen, Pausen und Taktstrichen getestet.
 - **Teiltöne werden mit ihrer echten Frequenz vorgespielt**, nicht über die
-  nächste MIDI-Nummer: `playFreqs()` in `signals.js`. Der siebte Teilton
+  nächste MIDI-Nummer: `playFreqs()` und `halteFreq()` in `signals.js`.
+  Voreingestellt ist der Dauerton, nicht das kurze Vorspiel: wer ein Voicing
+  sucht, braucht das Ziel währenddessen im Ohr und nicht eine Sekunde vorher. Der siebte Teilton
   läge sonst 31 Cent daneben — ausgerechnet der, der ohnehin am
   schwersten kommt.
 - Tonleitern und Blattspiel bleiben im notierten Umfang B3 bis Fis6

@@ -1037,3 +1037,10 @@ svg.staff.compact{ height: 96px; }
 .rat-zeile{ padding: 8px 0; border-bottom: 1px solid var(--line); }
 .rat-zeile:last-child{ border-bottom: none; }
 .rat-zeile span{ display:block; font-size: 13.5px; color: var(--cane-dim); margin-top: 4px; }
+.ob-stufe.klingt{ background: color-mix(in srgb, var(--brass) 16%, transparent); }
+.ob-stufe.klingt .ob-k,
+.ob-stufe.klingt .ob-play{ color: var(--brass); }
+.rat-schwerpunkt{
+  margin-top: 10px; font-size: 13.5px; color: var(--cane-dim); line-height: 1.5;
+}
+.rat-schwerpunkt b{ color: var(--cane); font-weight: 500; }

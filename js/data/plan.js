@@ -213,15 +213,118 @@ const BLOCK_WERKZEUG = {
   etuede:       "repertoire",
 };
 
+/* ==========================================================================
+   Die Session für heute
+
+   Der Plan oben ist ein Vier-Wochen-Konzept, und als solches ist er richtig.
+   Nur wird er so nicht benutzt: man nimmt das Instrument in die Hand, wenn
+   man Lust und Zeit hat, und das sind mal achtzig Minuten und mal zwanzig.
+   Eine Kalenderwoche als Steuergröße hilft dabei nicht — sie zählt etwas,
+   das mit dem heutigen Abend nichts zu tun hat, und sie wird falsch, sobald
+   man drei Tage aussetzt.
+
+   Was stattdessen zählt, sind zwei Dinge, die man tatsächlich weiß, wenn man
+   auspackt: **wie lange** man Zeit hat, und **woran** heute zu arbeiten ist.
+   Daraus wird der Plan gebaut.
+
+   Drei Regeln, damit dabei kein Unsinn herauskommt:
+
+   - **Die Reihenfolge bleibt.** Sie ist fachlich begründet: Mundstück vor
+     langen Tönen, Ton vor Technik, Etüde zuletzt. Gekürzt wird, nicht
+     umsortiert.
+   - **Der erste Block bleibt immer.** Das ist das Einspielen, und ohne das
+     ist der Rest der Session schlechter, nicht kürzer.
+   - **Kein Block unter drei Minuten.** Ein Zwei-Minuten-Block ist Theater:
+     bis man eingerichtet ist, klingelt es schon wieder. Lieber ein Block
+     weniger und die übrigen lang genug.
+   ========================================================================== */
+
+/** Kürzer als das lohnt kein eigener Block. */
+export const MINDEST = 3;
+
+/* Wie lang ein Block im Schnitt sein soll. Das ist die eigentliche
+   Steuergröße, nicht die Mindestlänge: rechnet man nur gegen das Minimum,
+   passen in zwanzig Minuten sechs Blöcke, und dann hat man sechsmal drei
+   Minuten statt zweimal zehn. Kurz üben heißt weniger Sachen, nicht dieselben
+   Sachen in Häppchen. */
+const ZIEL_LAENGE = 10;
+
+export const ZEITEN = [
+  { id: 20, label: "20 min", was: "Einspielen und eine Sache. Mehr geht nicht, und mehr muss auch nicht." },
+  { id: 40, label: "40 min", was: "Die Hälfte des Plans, aber jeder Block lang genug, um etwas zu bewegen." },
+  { id: 60, label: "60 min", was: "Fast alles. Nur die Ränder werden knapper." },
+  { id: 0,  label: "so lang es geht", was: "Der ganze Plan, in voller Länge." },
+];
+
 /**
- * Der Plan für einen Kontext und eine Woche. Beim Probelokal ist das der
- * Wochenplan oben; die anderen Kontexte haben feste Blöcke, weil ihre
- * Aufgaben nicht wochenweise wechseln.
+ * Baut aus einer Blockliste die Session für heute.
+ *
+ * `minuten` 0 heißt: alles, unverändert. `schwerpunkt` ist die id eines
+ * Blocks, der bevorzugt Zeit bekommt und als vorletzter gestrichen wird —
+ * er kommt aus der Auswertung, nicht aus der Laune.
  */
-export function planFor(kontextId, week) {
-  const k = kontextOf(kontextId);
-  if (!k.bloecke) {
-    return planForWeek(week).map(b => ({ ...b, werkzeug: BLOCK_WERKZEUG[b.id] || null }));
+export function baueSession(bloecke, minuten = 0, schwerpunkt = null) {
+  const alle = bloecke.map(b => ({ ...b }));
+  if (!alle.length) return [];
+  const voll = alle.reduce((s, b) => s + b.min, 0);
+  if (!minuten || minuten >= voll) return alle;
+
+  // Wer überlebt, wenn die Zeit knapp wird: das Einspielen, dann der
+  // Schwerpunkt, dann der Rest in Planreihenfolge.
+  const rang = new Map(alle.map((b, i) => [b.id, i + 10]));
+  rang.set(alle[0].id, 0);
+  if (schwerpunkt && rang.has(schwerpunkt)) rang.set(schwerpunkt, 1);
+
+  const nachRang = [...alle].sort((a, b) => rang.get(a.id) - rang.get(b.id));
+  const passen = Math.max(1, Math.floor(minuten / MINDEST));
+  const wieViele = Math.max(1, Math.min(
+    alle.length, passen, Math.round(minuten / ZIEL_LAENGE) || 1));
+  const drin = new Set(nachRang.slice(0, wieViele).map(b => b.id));
+  const gewaehlt = alle.filter(b => drin.has(b.id));
+
+  // Verteilt wird nach den Minuten des vollen Plans, der Schwerpunkt bekommt
+  // das Anderthalbfache. Danach auf ganze Minuten runden und die Differenz
+  // dort abladen, wo am meisten Luft ist.
+  const gewicht = b => b.min * (b.id === schwerpunkt ? 1.5 : 1);
+  const summe = gewaehlt.reduce((s, b) => s + gewicht(b), 0);
+  let rest = minuten;
+  for (const b of gewaehlt) {
+    b.min = Math.max(MINDEST, Math.round(minuten * gewicht(b) / summe));
+    rest -= b.min;
   }
-  return k.bloecke.map(b => ({ ...b }));
+  // Rundung und Mindestlänge gehen selten genau auf. Die Differenz wandert
+  // in den größten Block — beim Zugeben bevorzugt in den Schwerpunkt, beim
+  // Abziehen zuletzt aus ihm. Ohne diese Unterscheidung nimmt man dem
+  // Schwerpunkt genau die Minuten wieder weg, die man ihm gerade gegeben hat.
+  while (rest !== 0) {
+    const zugeben = rest > 0;
+    const kandidaten = zugeben ? gewaehlt : gewaehlt.filter(b => b.min > MINDEST);
+    if (!kandidaten.length) break;
+    const wert = b => b.min + (b.id === schwerpunkt ? (zugeben ? 0.5 : -0.5) : 0);
+    const ziel = kandidaten.reduce((a, b) => (wert(b) > wert(a) ? b : a));
+    ziel.min += zugeben ? 1 : -1;
+    rest += zugeben ? -1 : 1;
+  }
+  return gewaehlt;
+}
+
+/**
+ * Der Plan für einen Kontext, zugeschnitten auf die heutige Session.
+ * `opts` ist `{ minuten, schwerpunkt }`; ohne beides kommt der volle Plan.
+ */
+export function planFor(kontextId, opts = {}) {
+  const { minuten = 0, schwerpunkt = null } = typeof opts === "object" && opts ? opts : {};
+  const k = kontextOf(kontextId);
+  const voll = k.bloecke
+    ? k.bloecke.map(b => ({ ...b }))
+    : BLOCKS.map(b => ({ ...b, werkzeug: BLOCK_WERKZEUG[b.id] || null }));
+  return baueSession(voll, minuten, schwerpunkt);
+}
+
+/** Zu welchem Block gehört ein Werkzeug? Für Vorschläge aus der Auswertung. */
+export function blockFuerWerkzeug(kontextId, werkzeug) {
+  if (!werkzeug) return null;
+  const k = kontextOf(kontextId);
+  const liste = k.bloecke || BLOCKS.map(b => ({ ...b, werkzeug: BLOCK_WERKZEUG[b.id] || null }));
+  return liste.find(b => b.werkzeug === werkzeug)?.id || null;
 }

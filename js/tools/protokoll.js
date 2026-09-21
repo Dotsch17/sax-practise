@@ -14,7 +14,7 @@ import { planFor } from "../data/plan.js";
 
 function todaySummary() {
   const s = state();
-  const plan = planFor(s.kontext, s.week);
+  const plan = planFor(s.kontext, { minuten: s.settings.minuten || 0, schwerpunkt: s.day.schwerpunkt || null });
   const done = plan.filter(x => s.day.done.includes(x.id));
   const geplant = done.reduce((a, x) => a + x.min, 0);
   const wirklich = Math.round(
@@ -48,7 +48,7 @@ function render(root) {
     const { done, geplant, wirklich } = todaySummary();
     s.log.push({
       date: s.day.date,
-      week: s.week,
+      week: s.week,   // bleibt für alte Einträge im Protokoll stehen
       blocks: done.map(x => x.name),
       minutes: geplant,
       spent: wirklich,
@@ -66,7 +66,7 @@ function entryHtml(e) {
     : humanMinutes(e.minutes);
   return `<div class="entry">
     <div class="head"><b>${escapeHtml(e.date)}</b><span>${escapeHtml(minuten)}</span></div>
-    <div class="meta">Woche ${e.week} · ${e.blocks.map(escapeHtml).join(", ") || "keine Blöcke"}</div>
+    <div class="meta">${e.blocks.map(escapeHtml).join(", ") || "keine Blöcke"}</div>
     ${e.note ? `<div class="note">${escapeHtml(e.note)}</div>` : ""}
   </div>`;
 }

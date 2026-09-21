@@ -14,7 +14,7 @@ bleiben auf dem Gerät.
 
 | Bereich | Werkzeuge |
 |---|---|
-| **Üben** | Session-Runner für drei Übe-Kontexte: Probelokal, zuhause leise, Travel Sax — mit Countdown, Merkpunkten und dem passenden Werkzeug direkt im Block |
+| **Üben** | Session-Runner für drei Übe-Kontexte und vier Längen: sag, wie viel Zeit du hast, und der Plan wird darauf zugeschnitten — mit Countdown, Merkpunkten und dem passenden Werkzeug direkt im Block |
 | **Ton** | Stimmgerät mit Intonationskarte · Obertonübung mit Rückmeldung · Tonanalyse · Bordun |
 | **Technik** | Tonleitern in allen Tonarten · Rhythmus mit Messung · Blattspiel · Griffe · Metronom |
 | **Gehör** | Nachspielen mit Mikrofonkontrolle · Intervalle · Akkorde · Skalen |
@@ -47,6 +47,11 @@ Ein paar Dinge, die es anderswo so nicht gibt:
 - **Die Begleitband zeigt gegriffene Akkorde.** Über einem klingenden C7
   steht groß „A7" — das, was du liest und spielst. Dazu wahlweise die Skala,
   die Zieltöne, die Akkordtöne oder ein Muster.
+- **Die Session weiß, wie lange du kannst.** Zwanzig Minuten heißen nicht
+  derselbe Plan in Häppchen, sondern Einspielen und eine Sache — dafür lang
+  genug, dass sich etwas bewegt. Die Reihenfolge bleibt dabei immer die
+  gleiche, und der Block, den deine Auswertung gerade anmahnt, bekommt die
+  meiste Zeit.
 - **Die Session weiß, wo du bist.** Zuhause leise heißt nicht dieselbe
   Session leiser, sondern andere Blöcke: Atem, Ansatz ohne Instrument,
   pp-Töne, Griffe still. Am Travel Sax steht dabei, was dort *nicht* geht —
@@ -61,10 +66,11 @@ Ein paar Dinge, die es anderswo so nicht gibt:
   Frequenzverhältnis, nicht über die nächste Klaviertaste. Der fünfte
   Teilton liegt 14 Cent tiefer als die Klaviertaste und ist trotzdem
   richtig; ein Stimmgerät würde dir hier das Falsche sagen.
-- **Und sie spielt dir den Teilton vor.** Jede Stufe der Naturtonreihe ist
-  antippbar und klingt mit ihrer echten Frequenz, davor der Grundton als
-  Bezug. Einen Ton, den man im Ohr hat, trifft man; einen, den man sucht,
-  nicht.
+- **Und sie hält dir den Teilton hin.** Jede Stufe der Naturtonreihe ist
+  antippbar und bleibt dann stehen, bis du sie wieder antippst — mit ihrer
+  echten Frequenz, nicht über die nächste Klaviertaste. Einen Ton, den man
+  im Ohr hat, trifft man; einen, den man sucht, nicht. Wer nur prüfen will,
+  stellt auf „kurz" um.
 - **Die Tonanalyse zeigt, ob der Ton steht.** Tonhöhe in Cent, Lautstärke und
   Klangfarbe über die ganze Dauer. Ein flackernder Verlauf heißt, dass Luft
   oder Ansatz wackeln — sichtbar, bevor man es hört.

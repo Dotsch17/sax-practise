@@ -35,7 +35,8 @@ function tage() {
   if (heuteSpent > 0 && !map.has(s.day.date)) {
     map.set(s.day.date, {
       date: s.day.date, minuten: heuteSpent, offen: true,
-      bloecke: new Set(planFor(s.kontext, s.week).filter(b => s.day.done.includes(b.id)).map(b => b.name)),
+      bloecke: new Set(planFor(s.kontext, { minuten: s.settings.minuten || 0, schwerpunkt: s.day.schwerpunkt || null })
+        .filter(b => s.day.done.includes(b.id)).map(b => b.name)),
       notiz: [],
     });
   }

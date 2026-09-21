@@ -23,10 +23,13 @@ export const defaultState = () => ({
   // Wo und womit gerade geübt wird. Bestimmt, welche Bloecke ueberhaupt
   // sinnvoll sind — siehe KONTEXTE in js/data/plan.js.
   kontext: "probelokal",
-  day: { date: todayISO(), done: [], spent: {} },
+  // schwerpunkt wird einmal am Tag aus der Auswertung gesetzt und mit dem
+  // Tag wieder verworfen — deshalb steht er hier und nicht in settings.
+  day: { date: todayISO(), done: [], spent: {}, schwerpunkt: undefined },
   log: [],
   settings: {
     droneVol: 45,
+    minuten: 0,           // 0 heißt: der volle Plan
     bpm: 60,
     beats: 4,
     a4: 440,              // Stimmton, manche Orchester spielen 442

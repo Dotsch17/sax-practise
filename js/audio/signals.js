@@ -78,6 +78,8 @@ export function stopPlayback() {
 
 // Ein Klang mit wenigen Teiltönen. Ein reiner Sinus ist zum Intervallhören
 // zu körperlos; ein Sägezahn zu scharf, um Terzen sauber zu unterscheiden.
+const MISCHUNG = [[1, 1], [2, 0.3], [3, 0.12], [4, 0.06]];
+
 function voice(ctx, freq, t, dur, amp) {
   const g = ctx.createGain();
   g.gain.setValueAtTime(0.0001, t);
@@ -87,7 +89,7 @@ function voice(ctx, freq, t, dur, amp) {
   g.connect(ctx.destination);
 
   const stimmen = [];
-  for (const [mult, a] of [[1, 1], [2, 0.3], [3, 0.12], [4, 0.06]]) {
+  for (const [mult, a] of MISCHUNG) {
     const o = ctx.createOscillator(), og = ctx.createGain();
     o.type = "sine";
     o.frequency.value = freq * mult;
@@ -182,3 +184,61 @@ export function playFreqs(freqs, opts = {}) {
 
 /** Eine einzelne Frequenz, lang genug zum Mitsingen. */
 export const playFreq = (freq, opts = {}) => playFreqs([freq], { noteDur: 1.4, ...opts });
+
+/**
+ * Ein Ton, der stehen bleibt, bis man ihn abschaltet.
+ *
+ * Für die Obertonübung ist das der eigentlich nützliche Fall: man sucht ein
+ * Voicing und braucht das Ziel dabei im Ohr, nicht vorher. Eine Sekunde
+ * Vorspiel ist zum Prüfen gut und zum Finden zu kurz — wer den Ton noch
+ * sucht, hat ihn längst wieder vergessen, bis er die Klappe gegriffen hat.
+ *
+ * Gibt einen Griff zurück, der ihn wieder ausmacht. Er hängt in derselben
+ * Liste wie jedes andere Vorspiel und geht deshalb auch über den Streifen
+ * „läuft gerade“ und über `stopPlayback()` aus.
+ */
+export function halteFreq(freq, opts = {}) {
+  const { amp = 0.16 } = opts;
+  if (!(freq > 0)) return { stop() {} };
+  const ctx = audio();
+  const t = ctx.currentTime + 0.02;
+
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(amp, t + 0.08);
+  g.connect(ctx.destination);
+
+  const stimmen = [];
+  for (const [mult, a] of MISCHUNG) {
+    const o = ctx.createOscillator(), og = ctx.createGain();
+    o.type = "sine";
+    o.frequency.value = freq * mult;
+    og.gain.value = a;
+    o.connect(og); og.connect(g);
+    o.start(t);              // ohne Ende: er läuft, bis stop() kommt
+    stimmen.push(o);
+  }
+
+  let aus = false;
+  const stimme = {
+    frequenz: freq,
+    stop() {
+      if (aus) return;
+      aus = true;
+      const jetzt = ctx.currentTime;
+      try {
+        g.gain.cancelScheduledValues(jetzt);
+        g.gain.setValueAtTime(Math.max(0.0001, g.gain.value), jetzt);
+        g.gain.exponentialRampToValueAtTime(0.0001, jetzt + 0.06);
+        for (const o of stimmen) o.stop(jetzt + 0.1);
+      } catch (e) { /* schon gestoppt */ }
+      if (aktiv.delete(stimme)) melde();
+    },
+  };
+  stimmen[0].addEventListener("ended", () => {
+    if (aktiv.delete(stimme)) melde();
+  });
+  aktiv.add(stimme);
+  melde();
+  return stimme;
+}

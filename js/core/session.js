@@ -22,7 +22,14 @@ let T = { index: 0, running: false, endAt: 0, remaining: 0, tick: null };
 let lastRecord = Date.now();
 let wakeLock = null;
 
-export const plan = () => planFor(state().kontext, state().week);
+/* Die Session von heute: wie viel Zeit, und worauf der Schwerpunkt liegt.
+   Beides steht im Zustand, damit Protokoll und Auswertung denselben Plan
+   sehen wie der Runner. */
+export const sessionOpts = () => {
+  const S = state();
+  return { minuten: S.settings.minuten || 0, schwerpunkt: S.day.schwerpunkt || null };
+};
+export const plan = () => planFor(state().kontext, sessionOpts());
 export const block = () => plan()[T.index] || plan()[0];
 export const status = () => ({ ...T, block: block(), plan: plan() });
 

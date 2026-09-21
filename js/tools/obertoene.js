@@ -30,7 +30,9 @@ import {
 } from "../music/obertoene.js";
 import { chromatic, spell, toWritten, freqToMidi, midiToFreq } from "../music/theory.js";
 import { holdScreen, releaseScreen } from "../core/session.js";
-import { ok as sigOk, playFreqs, stopPlayback, isPlaying, onPlayback } from "../audio/signals.js";
+import {
+  ok as sigOk, playFreqs, halteFreq, stopPlayback, isPlaying, onPlayback,
+} from "../audio/signals.js";
 
 const MODI = [
   { id: "frei", label: "Frei", was: "Spiel, was kommt — die App sagt dir, welcher Teilton es war." },
@@ -41,10 +43,11 @@ const MODI = [
 const HALTEN_MS = 1000;
 const ANZAHL = 8;
 
-let sel = { griff: 58, modus: "frei" };
+let sel = { griff: 58, modus: "frei", halten: true };
 let mikroAn = false;
 let offPitch = null;
 let offPlayback = null;
+let dauerton = null;      // { stimme, k } — der Ton, der gerade stehen bleibt
 let erkannt = null;          // { k, abweichungCents, sicher, freq }
 let ziel = 2;                // im Reihe-Modus der nächste Teilton
 let halten = { seit: 0, k: 0 };
@@ -74,6 +77,7 @@ function render(root) {
       <div class="ob-klein" id="ob-klein">Mikrofon aus</div>
     </div>
 
+    <div class="chips" id="ob-vorspiel" role="group" aria-label="Wie vorgespielt wird"></div>
     <div class="row2">
       <button id="ob-anhoeren">Reihe anhören</button>
       <button id="ob-ziel-hoeren">Zielton hören</button>
@@ -86,12 +90,15 @@ function render(root) {
 
     <p class="hint spaced" id="ob-hinweis">
       Griff ${escapeHtml(griffName())}, ohne Oktavklappe. Alles andere macht
-      das Voicing — nicht der Ansatz, nicht mehr Druck.
+      das Voicing — nicht der Ansatz, nicht mehr Druck. Tipp auf einen Teilton
+      legt ihn als Dauerton darunter; nochmal tippen macht ihn aus. Bei
+      laufendem Mikrofon hört die App dann allerdings auch sich selbst.
       ${d.hoechster ? `<br>Dein bisher höchster sicherer Teilton auf diesem Griff: ${d.hoechster}.` : ""}
     </p>`;
 
   renderGriffChips(root);
   renderModusChips(root);
+  renderVorspielChips(root);
   renderLeiter(root);
   renderMatching(root);
 
@@ -110,8 +117,9 @@ function render(root) {
     const btn = $("#ob-anhoeren", root);
     if (btn) btn.textContent = laeuft ? "Vorspiel stoppen" : "Reihe anhören";
     if (!laeuft) {
-      const klein = $("#ob-klein", root);
-      if (klein) klein.textContent = mikroAn ? "hört zu" : "Mikrofon aus";
+      // Auch der Streifen „läuft gerade" kann den Dauerton abschalten.
+      if (dauerton) { dauerton = null; renderLeiter(root); }
+      meldeVorspiel(root, null);
     }
   });
 }
@@ -123,7 +131,32 @@ function renderGriffChips(root) {
     host.append(el("button", {
       class: "chip" + (g.written === sel.griff ? " on" : ""),
       text: "Griff " + g.name,
-      on: { click: () => { sel.griff = g.written; ziel = 2; matching = { schritt: 0 }; render(root); } },
+      on: { click: () => {
+        stoppeDauerton(); stopPlayback();
+        sel.griff = g.written; ziel = 2; matching = { schritt: 0 }; render(root);
+      } },
+    }));
+  }
+}
+
+/** Dauerton oder kurz — der Unterschied zwischen Suchen und Prüfen. */
+function renderVorspielChips(root) {
+  const host = $("#ob-vorspiel", root);
+  if (!host) return;
+  host.innerHTML = "";
+  for (const [halten, label, titel] of [
+    [true, "Dauerton", "Der Ton bleibt stehen, bis du ihn wieder antippst"],
+    [false, "kurz", "Eine Sekunde zum Prüfen, wenn der Ton schon steht"],
+  ]) {
+    host.append(el("button", {
+      class: "chip" + (sel.halten === halten ? " on" : ""),
+      text: label, title: titel,
+      on: { click: () => {
+        if (sel.halten === halten) return;
+        sel.halten = halten;
+        stoppeDauerton(); stopPlayback();
+        renderVorspielChips(root); renderLeiter(root); meldeVorspiel(root, null);
+      } },
     }));
   }
 }
@@ -165,17 +198,20 @@ function renderLeiter(root) {
     const aktiv = erkannt && erkannt.sicher && erkannt.k === p.k;
     const istZiel = sel.modus === "reihe" && p.k === ziel;
     const gezielt = sel.modus === "matching" && matching.teilton && matching.teilton.k === p.k;
+    const klingt = dauerton && dauerton.k === p.k;
     const breite = aktiv
       ? Math.max(6, 100 - Math.min(100, Math.abs(erkannt.abweichungCents) * 2)) : 0;
 
     host.append(el("button", {
-      class: "ob-stufe" + (aktiv ? " an" : "") + (istZiel || gezielt ? " ziel" : ""),
-      "aria-label": `Teilton ${p.k}, ${teiltonName(p)}, anhören`,
+      class: "ob-stufe" + (aktiv ? " an" : "") + (istZiel || gezielt ? " ziel" : "") +
+             (klingt ? " klingt" : ""),
+      "aria-pressed": klingt ? "true" : "false",
+      "aria-label": `Teilton ${p.k}, ${teiltonName(p)}, ${klingt ? "ausschalten" : "anhören"}`,
       html: `<span class="ob-k">${p.k}</span>
         <span class="ob-ton">${escapeHtml(teiltonName(p))}</span>
         <span class="ob-cent">${p.cents > 0 ? "+" : ""}${p.cents}</span>
         <span class="ob-bar"><i style="width:${breite}%"></i></span>
-        <span class="ob-play">▶</span>`,
+        <span class="ob-play">${klingt ? "■" : "▶"}</span>`,
       on: { click: () => spieleTeilton(root, p.k) },
     }));
   }
@@ -183,22 +219,50 @@ function renderLeiter(root) {
 
 /* --- Vorspielen ------------------------------------------------------------- */
 
-/** Spielt einen Teilton, davor den Grundton als Bezug. */
+/**
+ * Spielt einen Teilton vor — je nach Einstellung als Dauerton oder kurz.
+ *
+ * Der Dauerton ist die Voreinstellung, weil er der nützlichere Fall ist:
+ * man sucht das Voicing und braucht das Ziel dabei im Ohr. Kurz ist zum
+ * Prüfen gut, wenn der Ton schon steht.
+ *
+ * Nochmal auf denselben Teilton tippen macht ihn wieder aus. Das ist die
+ * einzige Bedienung, die man mit dem Mundstück zwischen den Zähnen trifft.
+ */
 function spieleTeilton(root, k) {
   const reihe = partials(f0(), ANZAHL, state().settings.a4);
   const p = reihe.find(x => x.k === k);
   if (!p) return;
+
+  if (sel.halten) {
+    const lief = dauerton?.k;
+    stoppeDauerton();
+    stopPlayback();
+    if (lief === k) { renderLeiter(root); meldeVorspiel(root, null); return; }
+    dauerton = { k, stimme: halteFreq(p.freq) };
+    renderLeiter(root);
+    meldeVorspiel(root, `Teilton ${k} steht`);
+    return;
+  }
+
+  stoppeDauerton();
   stopPlayback();
   // Grundton zuerst, dann das Ziel: ohne Bezug klingt ein einzelner hoher Ton
   // nach irgendeiner Tonhöhe, mit Bezug nach einem Ziel.
   const folge = k === 1 ? [p.freq] : [reihe[0].freq, p.freq];
   playFreqs(folge, { noteDur: k === 1 ? 1.4 : 1.1, gap: 0.1 });
+  renderLeiter(root);
   meldeVorspiel(root, `Teilton ${k}`);
+}
+
+function stoppeDauerton() {
+  if (dauerton) { dauerton.stimme.stop(); dauerton = null; }
 }
 
 /** Spielt die Reihe von unten nach oben, bis zum höchsten erreichten Teilton. */
 function spieleReihe(root, bis) {
   const reihe = partials(f0(), ANZAHL, state().settings.a4);
+  stoppeDauerton();
   stopPlayback();
   playFreqs(reihe.slice(0, bis).map(p => p.freq), { noteDur: 0.75, gap: 0.06 });
   meldeVorspiel(root, `Teiltöne 1 bis ${bis}`);
@@ -206,9 +270,7 @@ function spieleReihe(root, bis) {
 
 function meldeVorspiel(root, was) {
   const klein = $("#ob-klein", root);
-  if (klein) klein.textContent = `spielt vor: ${was}`;
-  const btn = $("#ob-anhoeren", root);
-  if (btn) btn.textContent = "Vorspiel stoppen";
+  if (klein) klein.textContent = was ? was : (mikroAn ? "hört zu" : "Mikrofon aus");
 }
 
 function renderMatching(root) {
@@ -382,6 +444,7 @@ export default {
     offPitch = pitch.onPitch(p => aufMessung(root, p));
   },
   unmount() {
+    stoppeDauerton();
     stopPlayback();
     if (offPlayback) { offPlayback(); offPlayback = null; }
     offPitch?.();
