@@ -881,3 +881,44 @@ svg.staff.compact{ height: 96px; }
   margin-bottom: 14px;
 }
 .diag summary em{ font-style: normal; color: var(--cane-dim); font-size: .9em; }
+
+/* --- Gig-Training ------------------------------------------------------------
+   Die Auflage muss aus zwei Metern lesbar sein — man spielt dabei und
+   schaut nur kurz hin. */
+.gig-buehne{
+  border: 2px solid var(--line); border-radius: var(--radius);
+  background: var(--surface);
+  padding: 16px; margin: 8px 0 14px;
+  text-align: center;
+  transition: border-color .15s ease;
+}
+.gig-buehne.laeuft{ border-color: var(--brass); }
+.gig-rest{
+  font-family: var(--serif); font-size: 34px; line-height: 1;
+  font-variant-numeric: tabular-nums; color: var(--cane-dim);
+}
+.gig-buehne.laeuft .gig-rest{ color: var(--cane); }
+.gig-auflage{
+  font-family: var(--serif); font-size: 38px; line-height: 1.1;
+  margin-top: 6px;
+}
+.gig-buehne.laeuft .gig-auflage{ color: var(--brass); }
+.gig-lang{ color: var(--cane-dim); font-size: 14px; margin-top: 4px; min-height: 20px; }
+.gig-balken{
+  height: 6px; border-radius: 3px; margin: 12px 0 8px;
+  background: color-mix(in srgb, var(--line) 60%, transparent);
+  overflow: hidden;
+}
+.gig-balken i{ display:block; height:100%; width:0%; background: var(--brass);
+               transition: width .12s linear; }
+.gig-unten{
+  display:flex; justify-content:space-between;
+  font-size: 13px; color: var(--cane-dim);
+}
+.gig-unten span:first-child{ font-family: var(--serif); font-size: 19px; color: var(--brass); }
+
+.gig-zeile{
+  padding: 9px 2px; border-bottom: 1px solid var(--line); font-size: 14px;
+}
+.gig-zeile b{ display:block; font-weight:500; }
+.gig-zeile span{ color: var(--cane-dim); font-size: 13.5px; }

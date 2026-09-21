@@ -79,7 +79,7 @@ Eine installierbare PWA ohne Build-Schritt und ohne Laufzeit-Abhängigkeiten.
 index.html      Gerüst und Einstiegspunkt
 manifest.json   Name, Icons, Vollbildstart
 sw.js           Service Worker, versionierter Precache für den Offlinebetrieb
-css/            base, shell, tools
+css/            base, shell, tools, responsive
 js/             der gesamte Code, siehe Tabelle unten
 icons/          192, 512, maskable 512, apple-touch-icon 180
 fonts/          Instrument Serif und Barlow als woff2, selbst gehostet
@@ -90,12 +90,27 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 
 | Bereich | Werkzeuge |
 |---|---|
-| Üben | Session-Runner: sieben Blöcke, Countdown, Merkpunkte, Wochen 1 bis 4 |
-| Ton | Stimmgerät mit Intonationskarte, Bordun über zwölf klingende Tonhöhen |
+| Üben | Session-Runner: Übe-Kontext wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block |
+| Ton | Stimmgerät mit Intonationskarte, Obertonübung, Tonanalyse, Bordun |
 | Technik | Tonleitern, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Nachspielen mit Mikrofonkontrolle, Intervalle/Akkorde/Skalen |
-| Impro | Begleitung aus Bass, Comping und Becken über neun Akkordfolgen |
+| Impro | Grundlagen, Begleitband, Call and Response, Gig-Training |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
+
+**Drei Übe-Kontexte statt eines Plans.** Der Nutzer übt an drei verschiedenen
+Orten, und das sind drei verschiedene Sessions: im Probelokal mit vollem Ton,
+zuhause leise mit Rücksicht auf die Nachbarn, und am Travel Sax für die
+Technik. Die Kontexte stehen in `KONTEXTE` in `js/data/plan.js`, `planFor()` liefert
+die Blöcke dazu. Der Probelokal-Kontext ist der unveränderte Plan aus `BLOCKS`,
+nur um eine Werkzeugzuordnung ergänzt — `BLOCKS` selbst wird nicht angefasst.
+Der Travel-Sax-Kontext trägt eine Warnung: Ansatz, Voicing, Obertöne und
+Klangfarbe lassen sich dort nicht üben, und das muss dastehen, sonst hält man
+das digitale Blasrohr für ein Saxophon.
+
+**Das Werkzeug steht im Block.** Jeder Block nennt das Werkzeug, mit dem man
+ihn übt, und der Session-Runner lädt es per `import()` direkt unter den
+Countdown. Ein Block, dessen Werkzeug in einem anderen Reiter liegt, wird
+nicht geübt.
 
 Bordun und Metronom laufen über Bereichswechsel hinweg weiter; der Streifen
 „läuft gerade" über der Reiterleiste schaltet sie von überall ab.
@@ -108,11 +123,11 @@ Laufzeit-Abhängigkeiten. Aufteilung:
 | `js/core/` | DOM-Helfer, Zustand und Speicherung, Session-Timer und Wake Lock |
 | `js/audio/` | AudioContext, Bordun, Metronom, Signale, Tonhöhenerkennung, Notenerkennung, Begleitung |
 | `js/music/` | Theorie, Harmonielehre, Notensatz, Notenzeichen, Griffbild, Rhythmus- und Melodiegenerator |
-| `js/data/` | Übungsplan und Wissenstexte — alles Inhaltliche |
+| `js/data/` | Übungsplan, Übe-Kontexte, Wissenstexte, Improvisations-Grundlagen — alles Inhaltliche |
 | `js/tools/` | ein Modul je Werkzeug, alle mit derselben Schnittstelle |
 | `js/views.js` | welches Werkzeug in welchem Bereich steht |
 | `js/main.js` | Navigation, Startsequenz, Service-Worker-Registrierung |
-| `css/` | `base.css` Tokens und Schriften, `shell.css` Gerüst, `tools.css` Bausteine |
+| `css/` | `base.css` Tokens und Schriften, `shell.css` Gerüst, `tools.css` Bausteine, `responsive.css` alles ab 600 px |
 
 **Regeln, die nicht verhandelbar sind:**
 
@@ -175,8 +190,17 @@ Umrisse stammen aus Bravura (SIL OFL 1.1) und wurden einmalig mit
 `tools/extract-glyphs.py` in Pfaddaten übersetzt. Bewusst als Quellcode statt
 als Schriftdatei: so kommt zur Laufzeit nichts dazu.
 
+**Das Telefon ist der Ausgangspunkt, nicht der einzige Fall.** Geübt wird auch
+am iPad auf dem Notenständer und am Laptop. Alles über 600 px steht in
+`css/responsive.css`, in drei Stufen: ab 600 px mehr Luft und größere
+Ziffern, ab 960 px wandert die Reiterleiste vom unteren Rand an die linke
+Seite und wird zur Spalte, ab 1280 px wird der Inhalt breiter. Die
+Grundregeln gelten in jeder Stufe: 58 px Mindesthöhe, ein Blick, ein Tipp.
+Wer eine neue Ansicht baut, prüft sie in allen drei Breiten — am Telefon
+stimmt fast alles von selbst, am Laptop fast nichts.
+
 Weitere Vorgaben: Mindesthöhe 58 px für alle primären Bedienelemente,
-maximale Spaltenbreite 480 px, `prefers-reduced-motion` respektieren,
+maximale Spaltenbreite 480 px am Telefon, `prefers-reduced-motion` respektieren,
 sichtbarer Tastaturfokus, `env(safe-area-inset-*)` beachten. Keine
 Einblend-Animationen beim Seitenaufbau.
 
@@ -294,28 +318,51 @@ sie trägt.
 - Nachspielen: die App spielt eine Phrase, der Nutzer spielt sie nach, das
   Mikrofon prüft. Verglichen wird klingend, angezeigt wird der Griff.
 
+**Phase 7 — Rückmeldung am Instrument, umgesetzt.**
+- `tonanalyse.js`: einen langen Ton aufnehmen, Tonhöhenverlauf in Cent,
+  Hüllkurve und spektralen Schwerpunkt über die Zeit zeigen. Zweck ist nicht
+  die Note, sondern die Stabilität: ein flackernder Schwerpunkt heißt, dass
+  Ansatz oder Luft wackeln, und das sieht man, bevor man es hört.
+- `obertoene.js` plus `music/obertoene.js`: welcher Teilton klingt gerade,
+  und stimmt das Matching gegen den gegriffenen Ton. Erkannt wird über das
+  **Frequenzverhältnis** zum Grundton, nicht über die nächste Klaviertaste —
+  der fünfte Teilton liegt 14 Cent, der siebte 31 Cent unter der
+  gleichstufigen Tonhöhe und ist trotzdem richtig. Wer hier ein Stimmgerät
+  anlegt, korrigiert einen Ton kaputt, der stimmt.
+- `callresponse.js`: die App spielt zwei Takte über die Begleitung, der
+  Nutzer antwortet zwei Takte, das Mikrofon zählt mit. Die Phasen werden
+  **absolut** gezählt (`durchgang * taktzahl + takt`), nicht innerhalb der
+  Form — sonst kippt es an jeder Formgrenze, deren Taktzahl kein Vielfaches
+  der Phasenlänge ist. Bei zwölf Takten und vier Takten Phase heißt das:
+  nach dem Formende acht Takte Vorspiel am Stück.
+
+**Phase 8 — Vom Übezimmer auf die Bühne, umgesetzt.** Das erklärte Ziel ist
+nicht nur die Aufnahmeprüfung, sondern auf Events, Aperitivi und Hochzeiten
+mit DJ zu spielen. Das ist eine andere Disziplin als klassischer Ton und
+braucht eigene Werkzeuge.
+- `data/improwissen.js` und `grundlagen.js`: was eine Moll-Pentatonik *ist*,
+  wofür sie taugt, wann sie schiefgeht, was der erste Schritt damit ist. Eine
+  Skala, die man nur greifen kann, hilft beim Improvisieren nicht. Dazu der
+  Griffrechner: der Nutzer hört eine Tonart auf Spotify, wählt sie klingend
+  aus und bekommt den Griff dazu.
+- `gigtraining.js`: Auflagen über die laufende Begleitband, taktweise
+  wechselnd — nur Zieltöne, zwei Takte spielen und zwei schweigen, ein
+  einziges Motiv, nur die mittlere Oktave. Einschränkung erzeugt Ideen;
+  freies Spielen über ein Playback erzeugt Gewohnheiten.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Aufnahme und Tonanalyse.** Einen langen Ton aufnehmen, Tonhöhenverlauf
-   in Cent, Hüllkurve, Spektrum und spektralen Schwerpunkt über die Zeit
-   zeigen. Zweck: sichtbar machen, ob das Spektrum stabil bleibt — Flackern
-   heißt, dass Ansatz oder Luft wackeln. Audio gehört in IndexedDB, nicht in
-   localStorage.
-2. **Referenzaufnahmen vergleichen**, Tag 1 gegen Tag 30, identische
-   Aufnahmekette. Baut auf 1 auf.
-3. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent aus dem
-   Tonhöhenverlauf. Baut auf 1 auf.
-4. **Melodiediktat** in der Gehörbildung: Melodie hören, Töne eingeben.
+1. **Referenzaufnahmen vergleichen**, Tag 1 gegen Tag 30, identische
+   Aufnahmekette. Baut auf der Tonanalyse auf; Audio gehört dann in
+   IndexedDB, nicht in localStorage.
+2. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent aus dem
+   Tonhöhenverlauf.
+3. **Melodiediktat** in der Gehörbildung: Melodie hören, Töne eingeben.
    Der Notensatz und der Melodiegenerator stehen bereits.
-5. **Call and Response über die Begleitung**: die App spielt zwei Takte
-   vor, der Nutzer antwortet zwei Takte. Begleitung und Notenerkennung
-   stehen beide schon; es fehlt die Taktsynchronisation zwischen beiden.
-6. **Obertonübung mit Rückmeldung**: erkennen, welcher Teilton gerade
-   klingt, und ob das Matching gegen den gegriffenen Ton stimmt. Das ist die
-   fachlich wertvollste offene Idee, weil sie genau den Block unterstützt,
-   der laut Auswertung am häufigsten ausgelassen wird.
-7. **Prüfungssimulation**: Ablauf mit Zeitdruck, zufällige Tonart, Blattspiel
+4. **Prüfungssimulation**: Ablauf mit Zeitdruck, zufällige Tonart, Blattspiel
    ohne zweiten Versuch.
+5. **Setlist für Gigs**: die Stücke, die bei Hochzeiten wirklich drankommen,
+   mit Tonart, Form und der Stelle, an der das Solo steht.
 
 ## 9. Arbeitsweise
 
@@ -340,8 +387,9 @@ sie trägt.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-die vier Testsuiten — Theorie, Notensatz, Rhythmus, Melodien,
-Tonhöhenerkennung. Rund 12 500 Prüfungen.
+alle Testsuiten — Theorie, Notensatz, Rhythmus, Melodien,
+Tonhöhenerkennung, Notenerkennung, Harmonielehre, Licks, Obertöne und den
+Übungsplan. Rund 26 600 Prüfungen.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`
   mit dem Repo im Gleichstand. Eine neue Datei, die nicht drinsteht, fehlt im

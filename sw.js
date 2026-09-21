@@ -12,7 +12,7 @@
    ========================================================================== */
 "use strict";
 
-const VERSION = "v7";
+const VERSION = "v8";
 const CACHE   = "sax-uebeplan-" + VERSION;
 
 // Relative Pfade, damit derselbe Worker unter jedem Unterverzeichnis läuft
@@ -53,6 +53,7 @@ const ASSETS = [
   "./js/tools/callresponse.js",
   "./js/tools/daten.js",
   "./js/tools/gehoer.js",
+  "./js/tools/gigtraining.js",
   "./js/tools/griffe.js",
   "./js/tools/grundlagen.js",
   "./js/tools/improvisation.js",

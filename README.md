@@ -14,11 +14,11 @@ bleiben auf dem Gerät.
 
 | Bereich | Werkzeuge |
 |---|---|
-| **Üben** | Session-Runner: sieben Blöcke, Countdown, Merkpunkte, vier Wochenpläne |
-| **Ton** | Stimmgerät mit Intonationskarte · Bordun über zwölf klingende Tonhöhen |
+| **Üben** | Session-Runner für drei Übe-Kontexte: Probelokal, zuhause leise, Travel Sax — mit Countdown, Merkpunkten und dem passenden Werkzeug direkt im Block |
+| **Ton** | Stimmgerät mit Intonationskarte · Obertonübung mit Rückmeldung · Tonanalyse · Bordun |
 | **Technik** | Tonleitern in allen Tonarten · Rhythmus mit Messung · Blattspiel · Griffe · Metronom |
 | **Gehör** | Nachspielen mit Mikrofonkontrolle · Intervalle · Akkorde · Skalen |
-| **Impro** | Begleitband über neun Akkordfolgen, mit Zieltönen und Skalen |
+| **Impro** | Grundlagen mit Griffrechner · Begleitband über zwölf Akkordfolgen · Call and Response · Gig-Training |
 | **Journal** | Protokoll · Auswertung · Repertoire · Wissen · Daten |
 
 Ein paar Dinge, die es anderswo so nicht gibt:
@@ -40,6 +40,31 @@ Ein paar Dinge, die es anderswo so nicht gibt:
 - **Die Begleitband zeigt gegriffene Akkorde.** Über einem klingenden C7
   steht groß „A7" — das, was du liest und spielst. Dazu wahlweise die Skala,
   die Zieltöne, die Akkordtöne oder ein Muster.
+- **Die Session weiß, wo du bist.** Zuhause leise heißt nicht dieselbe
+  Session leiser, sondern andere Blöcke: Atem, Ansatz ohne Instrument,
+  pp-Töne, Griffe still. Am Travel Sax steht dabei, was dort *nicht* geht —
+  Ansatz, Voicing, Obertöne, Klangfarbe.
+- **Das Werkzeug steht im Block.** Kein Wechsel in einen anderen Reiter
+  mitten in der Übung: Stimmgerät, Bordun oder Tonanalyse laden direkt unter
+  dem Countdown.
+- **Call and Response läuft über die Begleitband.** Die App spielt zwei
+  Takte, du antwortest zwei Takte, das Mikrofon zählt mit. Im Tempo, ohne
+  anzuhalten.
+- **Die Obertonübung erkennt, welcher Teilton klingt** — über das
+  Frequenzverhältnis, nicht über die nächste Klaviertaste. Der fünfte
+  Teilton liegt 14 Cent tiefer als die Klaviertaste und ist trotzdem
+  richtig; ein Stimmgerät würde dir hier das Falsche sagen.
+- **Die Tonanalyse zeigt, ob der Ton steht.** Tonhöhe in Cent, Lautstärke und
+  Klangfarbe über die ganze Dauer. Ein flackernder Verlauf heißt, dass Luft
+  oder Ansatz wackeln — sichtbar, bevor man es hört.
+- **Die Improvisations-Grundlagen erklären erst, dann üben sie.** Was eine
+  Moll-Pentatonik ist, wofür sie taugt, wann sie schiefgeht. Dazu der
+  Griffrechner: Tonart auf Spotify gehört, klingend eingegeben, Griff kommt
+  heraus.
+- **Das Gig-Training gibt Auflagen statt Freiheit.** Nur Zieltöne. Zwei Takte
+  spielen, zwei schweigen. Ein einziges Motiv. Taktweise wechselnd über die
+  laufende Band — genau die Beschränkungen, die aus Tonleiterläufen Musik
+  machen.
 - **Der Wissensteil geht vom Symptom aus.** Beim Üben hat man ein Problem,
   keine Frage.
 
@@ -75,9 +100,9 @@ node tools/check.mjs
 ```
 
 Das prüft Syntax und Ladbarkeit aller Module, das Manifest, die
-Precache-Liste und rund 17 100 Einzelprüfungen in sieben Testsuiten
+Precache-Liste und rund 26 600 Einzelprüfungen in zehn Testsuiten
 (Musiktheorie, Notensatz, Tonhöhenerkennung, Notenerkennung, Harmonielehre,
-Rhythmus- und Melodiegenerator).
+Licks, Obertöne, Übungsplan, Rhythmus- und Melodiegenerator).
 Was dort grün ist, kann trotzdem am Gerät scheitern — Audio, Mikrofon, Wake
 Lock und Service Worker lassen sich nur dort testen. Was rot ist, ist am
 Gerät sicher kaputt.
