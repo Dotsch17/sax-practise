@@ -94,7 +94,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Tonanalyse, Bordun |
 | Technik | Tonleitern, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Nachspielen mit Mikrofonkontrolle, Intervalle/Akkorde/Skalen |
-| Impro | Grundlagen, Begleitband, Tonart finden, Call and Response, Gig-Training |
+| Impro | Grundlagen, Begleitband, Tonart finden, Zum Song spielen, Call and Response, Gig-Training |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
 
 **Drei Übe-Kontexte statt eines Plans.** Der Nutzer übt an drei verschiedenen
@@ -354,6 +354,14 @@ braucht eigene Werkzeuge.
   Die Rückmeldung benennt den Irrtum, statt ihn nur zu markieren: Quinte,
   Quarte, Terz und vor allem die Paralleltonart, bei der alle Töne stimmen
   und trotzdem jede Phrase auf der falschen Eins landet.
+- `data/songwissen.js` und `songmitspielen.js`: sieben Schritte, um ein
+  unbekanntes Stück aufzumachen — Grundton, Geschlecht, Form, Time, Farbe,
+  Hook, Lücken. Jeder Schritt hat ein Abbruchkriterium, denn ohne
+  „fertig, wenn …“ übt man jeden entweder zu kurz oder endlos. Gefundene
+  Songs bleiben mit Tonart, Form und Notiz gespeichert, damit man beim
+  zweiten Mal bei Schritt vier anfängt. Gespeichert wird unter `drills`,
+  nicht in einem eigenen Feld — das Schema bleibt damit bei v2 und braucht
+  keine Migration.
 - `gigtraining.js`: Auflagen über die laufende Begleitband, taktweise
   wechselnd — nur Zieltöne, zwei Takte spielen und zwei schweigen, ein
   einziges Motiv, nur die mittlere Oktave. Einschränkung erzeugt Ideen;

@@ -18,7 +18,7 @@ bleiben auf dem Gerät.
 | **Ton** | Stimmgerät mit Intonationskarte · Obertonübung mit Rückmeldung · Tonanalyse · Bordun |
 | **Technik** | Tonleitern in allen Tonarten · Rhythmus mit Messung · Blattspiel · Griffe · Metronom |
 | **Gehör** | Nachspielen mit Mikrofonkontrolle · Intervalle · Akkorde · Skalen |
-| **Impro** | Grundlagen mit Griffrechner · Begleitband über zwölf Akkordfolgen · Tonart finden · Call and Response · Gig-Training |
+| **Impro** | Grundlagen mit Griffrechner · Begleitband über zwölf Akkordfolgen · Tonart finden · Zum Song spielen · Call and Response · Gig-Training |
 | **Journal** | Protokoll · Auswertung · Repertoire · Wissen · Daten |
 
 Ein paar Dinge, die es anderswo so nicht gibt:
@@ -67,6 +67,12 @@ Ein paar Dinge, die es anderswo so nicht gibt:
   bekommt nicht „falsch", sondern gesagt, *was* er gehört hat: die Quinte,
   die Quarte oder die Paralleltonart, bei der alle Töne stimmen und trotzdem
   jede Phrase auf der falschen Eins landet.
+- **„Zum Song spielen" macht aus Mitspielen eine Methode.** Song an, und
+  dann sieben Schritte der Reihe nach: Grundton, Dur oder Moll, Form, eine
+  ganze Strophe nur Grundtöne, Terz und Septime dazu, der Hook, und zuletzt
+  nur noch in die Lücken. Jeder Schritt sagt, woran du merkst, dass er
+  fertig ist. Was du gefunden hast, bleibt gespeichert — beim zweiten Mal
+  fängst du bei Schritt vier an.
 - **Das Gig-Training gibt Auflagen statt Freiheit.** Nur Zieltöne. Zwei Takte
   spielen, zwei schweigen. Ein einziges Motiv. Taktweise wechselnd über die
   laufende Band — genau die Beschränkungen, die aus Tonleiterläufen Musik

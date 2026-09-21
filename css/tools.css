@@ -949,3 +949,57 @@ svg.staff.compact{ height: 96px; }
 }
 .tf-zeile b{ display:block; font-weight:500; font-size: 17px; }
 .tf-zeile span{ color: var(--cane-dim); font-size: 13.5px; }
+
+/* --- Zum Song spielen ----------------------------------------------------- */
+.sm-neu{ display:flex; gap: 8px; margin-bottom: 12px; }
+.sm-neu input{ flex:1; min-width:0; }
+.sm-neu button{ flex:none; padding: 0 18px; }
+.sm-eintrag{ display:flex; gap: 8px; align-items:stretch; margin-bottom: 8px; }
+.sm-oeffnen{
+  flex:1; text-align:left; padding: 12px 14px; min-height: 58px;
+  border:1px solid var(--line); border-radius: 10px; background: var(--surface);
+}
+.sm-oeffnen b{ display:block; font-weight:500; font-size: 16px; }
+.sm-oeffnen span{ font-size: 13px; color: var(--cane-dim); }
+.sm-weg{
+  flex:none; width: 52px; border:1px solid var(--line); border-radius: 10px;
+  background: var(--surface); color: var(--cane-dim); font-size: 17px;
+}
+.sm-kopf{ margin-bottom: 12px; }
+.sm-kopf b{ display:block; font-family: var(--serif); font-size: 22px; }
+.sm-kopf span{ font-size: 13px; color: var(--cane-dim); }
+.sm-zurueck{
+  background:none; border:none; color: var(--cane-dim); font-size: 14px;
+  padding: 6px 0; min-height: 0; margin-bottom: 4px;
+}
+.sm-punkt{
+  flex:none; width: 40px; height: 40px; border-radius: 999px; min-height:0;
+  border:1px solid var(--line); background: var(--surface);
+  color: var(--cane-dim); font-size: 14px;
+}
+.sm-punkt.fertig{ border-color: var(--brass-dim); color: var(--brass-dim); }
+.sm-punkt.jetzt{ background: var(--brass); border-color: var(--brass); color: #12242A; }
+.sm-schritt{
+  border:1px solid var(--line); border-radius: 14px; background: var(--surface);
+  padding: 16px; margin: 14px 0;
+}
+.sm-nummer{ font-size: 12.5px; color: var(--cane-dim); letter-spacing:.05em; }
+.sm-schritt h3{ font-family: var(--serif); font-size: 21px; margin: 2px 0 8px; font-weight:400; }
+.sm-schritt p{ font-size: 15px; line-height:1.45; }
+.sm-fertig{
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line);
+  font-size: 14px; color: var(--cane-dim);
+}
+.sm-fertig b{ color: var(--brass); font-weight:500; }
+.sm-mehr{ margin-top: 10px; }
+.sm-mehr summary{ font-size: 14px; color: var(--cane-dim); cursor:pointer; padding: 6px 0; }
+.sm-mehr p{ font-size: 14px; margin-top: 6px; }
+.sm-danach{
+  border:1px solid var(--brass-dim); border-radius: 12px; padding: 14px;
+  margin-top: 14px;
+}
+.sm-danach b{ color: var(--brass); font-weight:500; }
+.sm-danach ul{ margin: 8px 0 0 18px; }
+.sm-danach li{ font-size: 14px; margin-bottom: 6px; color: var(--cane-dim); }
+.sm-notiz{ display:block; margin-top: 16px; font-size: 13.5px; color: var(--cane-dim); }
+.sm-notiz textarea{ width:100%; margin-top: 6px; }
