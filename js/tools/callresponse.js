@@ -112,7 +112,7 @@ function render(root) {
 
     <p class="hint spaced">
       Antworte im Tempo, auch wenn es daneben geht. Wer wartet, bis er
-      etwas Gutes weisz, lernt nie zu antworten. Die Akkorde stehen
+      etwas Gutes weiß, lernt nie zu antworten. Die Akkorde stehen
       gegriffen, die Band klingt klingend.
     </p>`;
 

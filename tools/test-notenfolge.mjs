@@ -12,7 +12,7 @@ const ok = (c, m) => { n++; if (!c) { console.log("  FAIL " + m); fail++; } };
 const eq = (a, b, m) => ok(JSON.stringify(a) === JSON.stringify(b),
   `${m}\n         erwartet ${JSON.stringify(b)}\n         bekommen ${JSON.stringify(a)}`);
 
-const RATE = 1 / 30;      // dreiszig Messungen je Sekunde, wie in pitch.js
+const RATE = 1 / 30;      // dreißig Messungen je Sekunde, wie in pitch.js
 
 /**
  * Spielt einen Strom ab. `folge` ist eine Liste aus

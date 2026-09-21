@@ -168,7 +168,7 @@ export const KONZEPTE = [
       "Gegenmittel: immer die Eins mitzählen, und zwar körperlich. Fuß, Kopf, irgendetwas. Und beim Üben die Formleiste in der App anschauen, bis der Takt im Körper ist und nicht im Kopf.",
       "Zweites Gegenmittel: auf der Eins jedes neuen Abschnitts einen Ton spielen, der dorthin gehört. Wer die Eins trifft, hat die Form.",
     ],
-    uebung: "Über einen Blues nur auf jeder Eins einen einzigen Ton spielen, sonst nichts. Zwei Chorusse. Danach weiszt du, ob du die Form wirklich hast.",
+    uebung: "Über einen Blues nur auf jeder Eins einen einzigen Ton spielen, sonst nichts. Zwei Chorusse. Danach weißt du, ob du die Form wirklich hast.",
   },
 ];
 

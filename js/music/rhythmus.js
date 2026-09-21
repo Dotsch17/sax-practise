@@ -47,7 +47,7 @@ const laengeVon = t => t.dur * (t.dots ? 1.5 : 1);
 
 /**
  * Baut einen Takt, der exakt aufgeht. `beats` ist die Zahl der Viertel.
- * Gefüllt wird von vorn; passt nichts mehr, wird mit dem gröszten passenden
+ * Gefüllt wird von vorn; passt nichts mehr, wird mit dem größten passenden
  * Wert aufgefüllt, damit der Takt nie krumm endet.
  */
 function bau(beats, stufe, rnd) {
@@ -147,7 +147,7 @@ export function bewerte(taps, einsaetze, startZeit, sekundenJeViertel, toleranz 
     mittlereAbweichungMs: getroffen.length
       ? Math.round(1000 * abweichungen.reduce((a, b) => a + b, 0) / getroffen.length)
       : null,
-    // Ein durchgehender Versatz in eine Richtung heiszt: du schleppst oder
+    // Ein durchgehender Versatz in eine Richtung heißt: du schleppst oder
     // eilst. Das ist etwas anderes als ungenau zu sein.
     versatzMs: getroffen.length
       ? Math.round(1000 * getroffen.reduce((a, b) => a + b, 0) / getroffen.length)

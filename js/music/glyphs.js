@@ -9,14 +9,14 @@
    Lizenztext liegt in fonts/OFL.txt. Sie stehen hier als Pfaddaten und nicht
    als Schriftdatei, damit zur Laufzeit nichts nachgeladen werden muss.
 
-   Maszstab: ein Notenlinienabstand ist 10 Einheiten, der Ursprung jedes
+   Maßstab: ein Notenlinienabstand ist 10 Einheiten, der Ursprung jedes
    Zeichens ist sein Setzpunkt auf der Grundlinie. Die y-Achse zeigt nach
    unten, passend zu SVG.
    ========================================================================== */
 
 "use strict";
 
-/** Vorschubbreite je Zeichen, im selben Maszstab. */
+/** Vorschubbreite je Zeichen, im selben Maßstab. */
 export const ADVANCE = {
   gClef: 26.84,
   fClef: 27.36,

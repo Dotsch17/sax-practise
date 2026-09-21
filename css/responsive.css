@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Grösze
+   Größe
 
    Die App war für das iPhone am Notenständer gebaut — eine Spalte, 480 px,
    Reiterleiste unten in Daumenreichweite. Das bleibt die Grundform, weil es
@@ -7,10 +7,10 @@
 
    Auf iPad und Laptop war dieselbe 480er-Spalte aber falsch: eine schmale
    Säule in der Mitte eines breiten Bildschirms, mit der Reiterleiste ganz
-   unten auszerhalb jeder Reichweite. Deshalb drei Stufen:
+   unten außerhalb jeder Reichweite. Deshalb drei Stufen:
 
    - bis 599 px: Telefon. Unverändert.
-   - ab 600 px: breitere Spalte, mehr Spalten in den Rastern, gröszere
+   - ab 600 px: breitere Spalte, mehr Spalten in den Rastern, größere
      Notenzeilen. Immer noch Reiterleiste unten — am iPad hält man das Gerät
      oft quer auf dem Ständer, und der Daumen bleibt unten.
    - ab 960 px: die Reiterleiste wandert an die linke Seite. Auf einem
@@ -22,7 +22,7 @@
    ========================================================================== */
 
 /* ==========================================================================
-   Ab 600 px — Tablet hochkant, groszes Telefon quer
+   Ab 600 px — Tablet hochkant, großes Telefon quer
    ========================================================================== */
 @media (min-width: 600px) {
   :root{ --pad: 28px; }
@@ -32,7 +32,7 @@
 
   main{ padding-bottom: 140px; }
 
-  /* Der Countdown darf gröszer werden — aus zwei Metern liest man ihn dann
+  /* Der Countdown darf größer werden — aus zwei Metern liest man ihn dann
      wirklich. */
   .clock{ font-size: 124px; }
   .now h1{ font-size: 42px; }

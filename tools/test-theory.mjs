@@ -60,7 +60,7 @@ eq(T.spell(T.chromatic(70)), "B", "70 ist B, nicht Ais");
 eq(T.spell(T.chromatic(71)), "H", "71 ist H");
 eq(T.spell(T.chromatic(60)), "C", "60 ist C");
 for (let m = 36; m <= 96; m++) ok(T.toMidi(T.chromatic(m)) === m, "chromatic rechnet zurueck bei " + m);
-// Die zwoelf Bordun-Tasten muessen genau so heiszen wie in der ersten Fassung.
+// Die zwoelf Bordun-Tasten muessen genau so heißen wie in der ersten Fassung.
 eq(Array.from({length:12},(_,i)=>T.spell(T.chromatic(48+i))),
    ["C","Des","D","Es","E","F","Fis","G","As","A","B","H"],
    "die zwoelf Bordun-Tasten");
@@ -68,25 +68,25 @@ eq(Array.from({length:12},(_,i)=>T.spell(T.chromatic(48+i))),
 eq(T.spell(T.chromatic(T.toWritten(58))), "G", "klingend B wird zu Griff G");
 
 console.log("\nIntervallkuerzel sind deutsch");
-eq(T.INTERVALS.find(i=>i.semitones===7).short, "r5", "reine Quinte heiszt r5, nicht P5");
-eq(T.INTERVALS.find(i=>i.semitones===0).short, "r1", "reine Prime heiszt r1");
-eq(T.INTERVALS.find(i=>i.semitones===12).short, "r8", "reine Oktave heiszt r8");
+eq(T.INTERVALS.find(i=>i.semitones===7).short, "r5", "reine Quinte heißt r5, nicht P5");
+eq(T.INTERVALS.find(i=>i.semitones===0).short, "r1", "reine Prime heißt r1");
+eq(T.INTERVALS.find(i=>i.semitones===12).short, "r8", "reine Oktave heißt r8");
 ok(T.INTERVALS.every(i=>!/^P/.test(i.short)), "kein englisches P mehr");
 eq(T.INTERVALS.length, 13, "dreizehn Intervalle von Prime bis Oktave");
 
 console.log("\nIntervalle werden ueber die Stufenzahl buchstabiert");
-// Eine grosze Terz ueber Fis ist Ais, nicht B -- gleich klingend, falsch
+// Eine große Terz ueber Fis ist Ais, nicht B -- gleich klingend, falsch
 // geschrieben. Genau das ist im Gehoertraining der haeufigste Lesefehler.
 const iv = (m, st, dir = 1) => T.spell(T.intervalFrom(T.chromatic(m), st, dir));
-eq(iv(66, 4), "Ais", "grosze Terz ueber Fis ist Ais, nicht B");
+eq(iv(66, 4), "Ais", "große Terz ueber Fis ist Ais, nicht B");
 eq(iv(66, 3), "A", "kleine Terz ueber Fis ist A");
-eq(iv(61, 4), "F", "grosze Terz ueber Des ist F");
-eq(iv(70, 4), "D", "grosze Terz ueber B ist D");
+eq(iv(61, 4), "F", "große Terz ueber Des ist F");
+eq(iv(70, 4), "D", "große Terz ueber B ist D");
 eq(iv(68, 7), "Es", "reine Quinte ueber As ist Es");
-eq(iv(63, 11), "D", "grosze Septime ueber Es ist D");
+eq(iv(63, 11), "D", "große Septime ueber Es ist D");
 eq(iv(60, 6), "Fis", "Tritonus ueber C ist Fis");
 eq(iv(60, 5, -1), "G", "reine Quarte unter C ist G");
-eq(iv(60, 4, -1), "As", "grosze Terz unter C ist As");
+eq(iv(60, 4, -1), "As", "große Terz unter C ist As");
 eq(iv(60, 0), "C", "die Prime bleibt der Grundton");
 eq(iv(60, 12), "C", "die Oktave bleibt der Buchstabe");
 // Ueber alle Grundtoene und Intervalle: Klang und Buchstabe muessen passen.

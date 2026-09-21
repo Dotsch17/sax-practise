@@ -106,7 +106,7 @@ export function sammler(emit, opts = {}) {
       }
     },
 
-    /** Am Ende einer Aufnahme den letzten Ton noch abschlieszen. */
+    /** Am Ende einer Aufnahme den letzten Ton noch abschließen. */
     beende(zeit) { schliesse(zeit); kandidat = null; },
   };
 }
@@ -118,7 +118,7 @@ let aktiverSammler = null;
 
 /**
  * Hört zu und ruft `onNote` für jede erkannte Note. Gibt eine Funktion
- * zurück, die das Zuhören beendet und den letzten Ton abschlieszt.
+ * zurück, die das Zuhören beendet und den letzten Ton abschließt.
  */
 export function hoereZu(onNote, opts = {}) {
   stopp();

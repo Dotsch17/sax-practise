@@ -77,7 +77,7 @@ function render(root) {
 
     <h2>Deine Intonation</h2>
     <p class="hint">
-      Mittlere Abweichung je Ton, über alle Messungen. Nach rechts heiszt zu
+      Mittlere Abweichung je Ton, über alle Messungen. Nach rechts heißt zu
       hoch, nach links zu tief. Was hier nicht steht, hast du noch nicht lange
       genug gehalten.
     </p>
@@ -176,7 +176,7 @@ function onPitch(root, p) {
   freqEl.textContent = p.freq.toFixed(1) + " Hz · Ziel " + midiToFreq(soundingMidi, a4).toFixed(1);
   stabEl.textContent = "± " + Math.round(p.spreadCents) + " Cent";
 
-  // „Rein“ heiszt hier unter 5 Cent. Enger ist beim Blasinstrument
+  // „Rein“ heißt hier unter 5 Cent. Enger ist beim Blasinstrument
   // Selbstbetrug: allein das Anblasen bewegt die Tonhöhe um mehr.
   tuner.classList.toggle("in-tune", Math.abs(cents) <= 5);
 

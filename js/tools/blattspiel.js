@@ -2,7 +2,7 @@
    Blattspiel
 
    Vom-Blatt-Spiel ist eine Prüfungsdisziplin und eine eigene Fähigkeit. Sie
-   wird nicht besser, indem man Stücke übt, sondern indem man regelmäszig
+   wird nicht besser, indem man Stücke übt, sondern indem man regelmäßig
    Unbekanntes einmal durchspielt — ohne anzuhalten, ohne zu korrigieren.
 
    Deshalb ist der Ablauf hier bewusst streng: ansehen, Tempo wählen,
@@ -71,7 +71,7 @@ function render(root) {
     <p class="hint spaced">
       ${d.gespielt ? `${d.sauber} von ${d.gespielt} Durchläufen ohne Anhalten.` : ""}
       Das Stück steht im Griff, nicht klingend — so, wie du es liest.
-      Beim Vergleichen klingt es eine grosze Sexte tiefer, das ist richtig so.
+      Beim Vergleichen klingt es eine große Sexte tiefer, das ist richtig so.
     </p>`;
 
   renderStufen(root);
@@ -190,7 +190,7 @@ function vergleiche(root) {
     if (nt.barline) continue;
     const laenge = nt.dur * (nt.dots ? 1.5 : 1) * spv;
     if (nt.pitch) {
-      // Klingend abspielen: eine grosze Sexte unter dem Griff.
+      // Klingend abspielen: eine große Sexte unter dem Griff.
       playMelody([toSounding(toMidi(nt.pitch))], {
         noteDur: Math.max(0.12, laenge * 0.85), gap: 0, a4,
         startIn: t - ctx.currentTime,

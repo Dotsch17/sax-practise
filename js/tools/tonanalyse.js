@@ -11,7 +11,7 @@
    - **Tonhöhe in Cent.** Läuft sie weg, arbeitet der Ansatz. Zittert sie,
      ist es unbewusstes Vibrato. Fällt sie am Ende, geht die Luft aus.
    - **Lautstärke.** Für Messa di voce das eigentliche Bild: wird die
-     Kurve wirklich gleichmäszig, oder springt sie an den Rändern?
+     Kurve wirklich gleichmäßig, oder springt sie an den Rändern?
    - **Spektraler Schwerpunkt.** Wie hell der Klang ist. Sein Wert ist
      ziemlich egal — seine Ruhe ist alles. Flackert er, wackeln Ansatz oder
      Luft, und zwar bevor man es hört.
@@ -92,7 +92,7 @@ function beende(root) {
 
 /**
  * Macht aus den Rohbildern einen gespeicherten Satz. Die Kurven werden auf
- * feste Stützstellen heruntergerechnet, damit die Grösze nicht von der
+ * feste Stützstellen heruntergerechnet, damit die Größe nicht von der
  * Aufnahmedauer abhängt.
  */
 function auswerten(frames) {
@@ -244,7 +244,7 @@ function ergebnisHtml(a, liste) {
     : a.streuung <= 25 ? "Die Tonhöhe arbeitet noch."
     : "Die Tonhöhe läuft deutlich.";
   const urteilDrift = Math.abs(a.drift) < 6 ? ""
-    : a.drift > 0 ? ` Der Ton steigt im Verlauf um ${a.drift} Cent — meist beiszt der Ansatz nach.`
+    : a.drift > 0 ? ` Der Ton steigt im Verlauf um ${a.drift} Cent — meist beißt der Ansatz nach.`
     : ` Der Ton fällt im Verlauf um ${-a.drift} Cent — meist geht die Luft aus.`;
   const urteilFarbe = a.schwerpunkt === 0 ? ""
     : a.schwerpunktStreuung / Math.max(1, a.schwerpunkt) < 0.08

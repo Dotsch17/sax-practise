@@ -190,6 +190,14 @@ Umrisse stammen aus Bravura (SIL OFL 1.1) und wurden einmalig mit
 `tools/extract-glyphs.py` in Pfaddaten übersetzt. Bewusst als Quellcode statt
 als Schriftdatei: so kommt zur Laufzeit nichts dazu.
 
+**Was klingt, steht im Streifen „läuft gerade".** Bordun, Metronom,
+Begleitband und jedes Vorspiel melden sich dort an und gehen mit einem
+Fingertipp wieder aus — das ist die einzige Stelle, an der man nicht wissen
+muss, welches Werkzeug den Ton angemacht hat. Wer eine neue Klangquelle baut,
+meldet sie dort an; wer ein Werkzeug baut, das die Band startet, hört auf
+`band.onStateChange` und richtet seine Anzeige danach, sonst steht der eigene
+Knopf auf „Abbrechen", während längst nichts mehr läuft.
+
 **Das Telefon ist der Ausgangspunkt, nicht der einzige Fall.** Geübt wird auch
 am iPad auf dem Notenständer und am Laptop. Alles über 600 px steht in
 `css/responsive.css`, in drei Stufen: ab 600 px mehr Luft und größere
@@ -272,6 +280,16 @@ Vorversion schreiben — der Nutzer hat dann echte Übungsdaten drin.
   Instrument; eine abgeschriebene Tabelle wäre für genau dieses Alt
   vermutlich falsch. `griffbild.js` kennt nur die Klappenanordnung, die
   Griffe selbst liegen in den Nutzerdaten und werden in der App eingetragen.
+- **Balken folgen der Zählzeit, in der eine Note beginnt** — nicht der
+  Summe der Dauern. Ragt eine Note über die Zählzeit hinaus, fängt die
+  nächste Gruppe trotzdem erst beim nächsten Schlag an. Wer nach jedem
+  Überlauf von vorn zählt, verschiebt alle folgenden Balken um den Überhang,
+  und dann zeigt der Balken genau das nicht mehr, wofür er da ist. Steht in
+  `autoBeam()` und ist mit Synkopen, Pausen und Taktstrichen getestet.
+- **Teiltöne werden mit ihrer echten Frequenz vorgespielt**, nicht über die
+  nächste MIDI-Nummer: `playFreqs()` in `signals.js`. Der siebte Teilton
+  läge sonst 31 Cent daneben — ausgerechnet der, der ohnehin am
+  schwersten kommt.
 - Tonleitern und Blattspiel bleiben im notierten Umfang B3 bis Fis6
   (`RANGE` in `theory.js`). Eine Übung, die darüber hinausläuft, ist
   unbrauchbar.
@@ -347,7 +365,7 @@ braucht eigene Werkzeuge.
   aus und bekommt den Griff dazu.
 - `tonartfinden.js`: die Band spielt in einer zufälligen Tonart, der Nutzer
   sucht den Grundton am Instrument und tippt den **Griff**. Gemessen wird die
-  Zeit, nicht nur richtig oder falsch — wer die Tonart nach dreiszig Sekunden
+  Zeit, nicht nur richtig oder falsch — wer die Tonart nach dreißig Sekunden
   findet, findet sie auf dem Gig nicht. Kein Mikrofon, aus demselben Grund
   wie bei Call and Response: die Band kommt aus dem Lautsprecher, den das
   Mikrofon hört. Das ist zugleich der Grund, warum es am Travel Sax geht.
@@ -396,6 +414,10 @@ braucht eigene Werkzeuge.
   die im Browser nur zufällig aufgefallen wären.
 - Kommentare auf Deutsch, knapp, und nur dort, wo das *Warum* nicht offensichtlich
   ist. Was der Code tut, steht im Code.
+- **ß wird ausgeschrieben, auch im Code.** Früher stand überall s-z als
+  Ersatz; das liest der Nutzer in der Oberfläche und es ist schlicht falsch.
+  `node tools/check.mjs` prüft es mit einer kleinen Ausnahmeliste für
+  Wörter, in denen s und z wirklich aufeinandertreffen.
 - Wenn du auf eine Plattformgrenze stößt, die in Abschnitt 3 nicht steht:
   recherchieren, hier dokumentieren, dann erst umsetzen.
 
@@ -421,7 +443,7 @@ Tonhöhenerkennung, Notenerkennung, Harmonielehre, Licks, Obertöne und den
   Desktop-Safari verhalten sich bei Audio-Unlock und Wake Lock anders.
 - Nach dem Anfassen der Navigation: einmal jedes Werkzeug in jedem Bereich
   öffnen. Ein Werkzeug, dessen `mount()` wirft, zeigt eine Fehlermeldung
-  statt die App abzuschieszen — aber gesehen werden muss es trotzdem.
+  statt die App abzuschießen — aber gesehen werden muss es trotzdem.
 - Der Service Worker lässt sich nicht in jedem Testbrowser registrieren. Seine
   Handler sind aber ohne Browser prüfbar: `sw.js` in einem Node-Kontext mit
   nachgebauten `caches`- und Event-Globals laden und Install, Activate, Fetch

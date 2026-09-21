@@ -8,16 +8,16 @@
 
    Die Band spielt in einer zufälligen Tonart. Du suchst den Grundton auf dem
    Instrument und tippst dann den **Griff**, nicht die klingende Tonhöhe —
-   denn das ist, was du wirklich weiszt, wenn du ihn gefunden hast. Die
+   denn das ist, was du wirklich weißt, wenn du ihn gefunden hast. Die
    Umrechnung macht die App, und genau dadurch übt man sie mit.
 
    Kein Mikrofon, und das ist Absicht: die Band kommt aus demselben
    Lautsprecher, den das Mikrofon hört. Eine Tonhöhenerkennung würde den Bass
-   verfolgen statt dich. Auszerdem geht es so auch mit dem Travel Sax, der
+   verfolgen statt dich. Außerdem geht es so auch mit dem Travel Sax, der
    akustisch gar nichts von sich gibt.
 
    Gemessen wird die Zeit bis zur Antwort, nicht nur richtig oder falsch. Wer
-   die Tonart nach dreiszig Sekunden findet, findet sie auf dem Gig nicht.
+   die Tonart nach dreißig Sekunden findet, findet sie auf dem Gig nicht.
    ========================================================================== */
 
 "use strict";
@@ -76,6 +76,7 @@ const STUFEN = [
 let sel = { stufe: "mittel", tempo: 104 };
 let runde = null;      // { tonikaPc, geschlecht, prog, akkorde, start, antwortPc }
 let offBar = null;
+let offState = null;
 let uhr = null;
 let absTakt = -1;
 
@@ -117,6 +118,11 @@ function starte(root) {
     a4: state().settings.a4, taktlaenge: 4,
   });
   if (!offBar) offBar = band.onBar(info => aufTakt(root, info));
+  // Wird die Band von außen gestoppt, bleibt die Frage offen — nur die
+  // Anzeige muss es mitbekommen.
+  if (!offState) offState = band.onStateChange(({ running }) => {
+    if (!running && runde && runde.antwortPc == null) { runde.hoerenVorbei = true; zeichne(root); }
+  });
   band.start();
   holdScreen();
   runde.start = performance.now();
@@ -138,6 +144,7 @@ function halt(root) {
   stoppeUhr();
   releaseScreen();
   if (offBar) { offBar(); offBar = null; }
+  if (offState) { offState(); offState = null; }
   zeichne(root);
 }
 
@@ -166,7 +173,7 @@ function antworte(root, griffPc) {
   const sekunden = (performance.now() - runde.start) / 1000;
   runde.sekunden = sekunden;
 
-  const richtigGriff = (runde.tonikaPc + 9) % 12;      // Griff = klingend + grosze Sexte
+  const richtigGriff = (runde.tonikaPc + 9) % 12;      // Griff = klingend + große Sexte
   const richtig = griffPc === richtigGriff;
 
   band.stop();
@@ -213,7 +220,7 @@ function urteil(griffPc) {
   if (leiter.includes(abstand)) {
     return "Ein Ton aus der richtigen Tonart, nur nicht der Grundton. Das ist der häufigste Fehler und der harmloseste.";
   }
-  return "Auszerhalb der Tonart. Fang beim Bass an: was er auf der Eins des ersten Takts spielt, ist fast immer der Grundton.";
+  return "Außerhalb der Tonart. Fang beim Bass an: was er auf der Eins des ersten Takts spielt, ist fast immer der Grundton.";
 }
 
 /* --- Ansicht ---------------------------------------------------------------- */
@@ -390,6 +397,7 @@ export default {
     band.stop();
     stoppeUhr();
     if (offBar) { offBar(); offBar = null; }
+    if (offState) { offState(); offState = null; }
     releaseScreen();
     runde = null; absTakt = -1;
   },

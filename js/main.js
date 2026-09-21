@@ -10,6 +10,8 @@ import * as session from "./core/session.js";
 import { installUnlock } from "./audio/context.js";
 import * as drone from "./audio/drone.js";
 import * as metro from "./audio/metronome.js";
+import * as band from "./audio/begleitung.js";
+import { isPlaying, stopPlayback, onPlayback } from "./audio/signals.js";
 import { TABS, findTab, findTool } from "./views.js";
 
 /* --- Navigation ----------------------------------------------------------- */
@@ -88,14 +90,20 @@ function renderTopbar() {
 
 /* --- Streifen „läuft gerade“ ---------------------------------------------- */
 
-/* Bordun und Metronom laufen weiter, wenn man den Reiter wechselt. Ohne
-   diesen Streifen müsste man zurücknavigieren, um sie auszuschalten — und
-   das mit dem Instrument in der Hand. */
+/* Bordun, Metronom und Begleitband laufen weiter, wenn man den Reiter
+   wechselt. Ohne diesen Streifen müsste man zurücknavigieren, um sie
+   auszuschalten — und das mit dem Instrument in der Hand.
+
+   Hier steht alles, was gerade klingt, und jedes davon geht mit einem
+   Fingertipp aus. Das ist die einzige Stelle in der App, an der man nicht
+   wissen muss, welches Werkzeug den Ton angemacht hat. */
 function renderRunning() {
   const bar = $("#running");
   const bits = [];
   if (drone.current() !== null) bits.push({ what: "Bordun", stop: () => drone.stop() });
   if (metro.isRunning()) bits.push({ what: metro.getBpm() + " bpm", stop: () => metro.stop() });
+  if (band.isRunning()) bits.push({ what: "Band", stop: () => band.stop() });
+  if (isPlaying()) bits.push({ what: "Vorspiel", stop: () => stopPlayback() });
 
   bar.hidden = bits.length === 0;
   bar.innerHTML = "";
@@ -137,6 +145,8 @@ function boot() {
 
   drone.onChange(renderRunning);
   metro.onStateChange(renderRunning);
+  band.onStateChange(renderRunning);
+  onPlayback(renderRunning);
   renderRunning();
 
   session.selectFirstOpen();

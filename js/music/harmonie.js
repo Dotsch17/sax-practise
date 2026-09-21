@@ -21,7 +21,7 @@ import { spellOnStep, toMidi, chromatic, spell, NAMING } from "./theory.js";
 
 /* --- Akkordarten -----------------------------------------------------------
    `steps` sind die Halbtöne über dem Grundton.
-   `stufen` sind die Stufenschritte für die Schreibweise: 0,2,4,6 heiszt
+   `stufen` sind die Stufenschritte für die Schreibweise: 0,2,4,6 heißt
    Grundton, Terz, Quinte, Septime — daraus folgt, ob ein Ton als Es oder als
    Dis geschrieben wird.
    `skala` ist die naheliegende Tonleiter, `farbe` die kurze Ansage, was den
@@ -54,7 +54,7 @@ export const QUALITIES = {
     steps: [0, 4, 8, 10], stufen: [0, 2, 4, 6],
     skala: [0, 1, 3, 4, 6, 8, 10], skalaName: "Alteriert",
     ziel: [4, 10],
-    farbe: "Maximale Spannung vor der Auflösung. Alles auszer Grundton, Terz und Septime ist verbogen.",
+    farbe: "Maximale Spannung vor der Auflösung. Alles außer Grundton, Terz und Septime ist verbogen.",
   },
   dom7_11: {
     symbol: "7♯11", lang: "Dominantseptakkord mit erhöhter Quarte",

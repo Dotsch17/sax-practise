@@ -2,7 +2,7 @@
    Tonhöhenerkennung vom Mikrofon, nach YIN
 
    Warum YIN und nicht einfache Autokorrelation: Autokorrelation verwechselt
-   regelmäszig den Grundton mit der Oktave darüber oder darunter. Beim
+   regelmäßig den Grundton mit der Oktave darüber oder darunter. Beim
    Saxophon ist das fatal — der zweite Teilton ist oft lauter als der erste,
    besonders im pp und in der Tiefe. YIN normiert die Differenzfunktion
    kumulativ und wählt die erste, nicht die tiefste Senke; genau das
@@ -24,7 +24,7 @@ import { audio } from "./context.js";
 import { freqToMidi } from "../music/theory.js";
 
 const BUFFER = 2048;
-const THRESHOLD = 0.12;      // YIN-Schwelle; kleiner heiszt strenger
+const THRESHOLD = 0.12;      // YIN-Schwelle; kleiner heißt strenger
 const MIN_HZ = 70;           // unter dem tiefsten klingenden Ton
 const MAX_HZ = 1800;         // über dem höchsten Altissimo
 const SILENCE_RMS = 0.006;   // darunter wird gar nicht erst gerechnet
@@ -191,7 +191,7 @@ function loop() {
   const freq = ctx.sampleRate / tau;
 
   // Median über die letzten Messungen. Ein Mittelwert würde von einem
-  // einzelnen Ausreiszer mitgezogen, der Median nicht.
+  // einzelnen Ausreißer mitgezogen, der Median nicht.
   history.push(freq);
   if (history.length > 5) history.shift();
   const sorted = [...history].sort((a, b) => a - b);

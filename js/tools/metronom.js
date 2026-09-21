@@ -123,7 +123,7 @@ function render(root) {
 
   $("#tap", root).addEventListener("click", () => {
     const now = performance.now();
-    // Länger als zwei Sekunden Pause heiszt: neue Messung.
+    // Länger als zwei Sekunden Pause heißt: neue Messung.
     tapTimes = tapTimes.filter(t => now - t < 2000);
     tapTimes.push(now);
     if (tapTimes.length >= 2) {

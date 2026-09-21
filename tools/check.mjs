@@ -46,7 +46,7 @@ if (ok) console.log("  alle heil");
 
 // 2. Jedes Modul muss sich auch wirklich laden lassen — das findet kaputte
 //    Importpfade, die --check nicht sieht. Module, die ein DOM brauchen,
-//    scheitern dabei erwartungsgemäsz und werden nicht gewertet.
+//    scheitern dabei erwartungsgemäß und werden nicht gewertet.
 process.stdout.write(`\n=== Importierbarkeit ===\n`);
 let importFails = 0;
 // main.js startet die App beim Laden und braucht deshalb zwingend ein DOM.
@@ -74,7 +74,55 @@ try {
   if (missing.length) ok = false;
 } catch (e) { console.log("\n=== manifest.json ===\n  FAIL: " + e.message); ok = false; }
 
-// 4. Die restlichen Suiten.
+// 4. Rechtschreibung: kein s-z als Ersatz für ß.
+//
+//    Im Code stand das lange überall — eine Gewohnheit aus Zeiten
+//    ohne Umlaute im Editor. Die Oberfläche ist deutsch, der Nutzer liest
+//    sie, und dort gehört ß hin. Weil sich das beim Schreiben unbemerkt
+//    wieder einschleicht, prüft es die Testsuite.
+{
+  // Wörter, in denen s und z wirklich aufeinandertreffen.
+  const ERLAUBT = new Set([
+    "Disziplin", "Disziplinen", "Prüfungsdisziplin", "Prüfungsdisziplinen",
+    "Minuszeichen", "Auflösungszeichen", "Adresszeile", "Kreuzsymbol",
+    "herauszufinden", "auszuschalten", "auszuwerten", "auszugeben",
+    "loszulegen", "auszulesen", "anzuzeigen", "auszublenden",
+  ]);
+  // Zusammengesetzt, damit die Prüfung nicht über ihr eigenes Muster stolpert.
+  const WORT = "[A-Za-zÄÖÜäöüß]*";
+  const MUSTER = new RegExp(WORT + "s" + "z" + WORT, "g");
+
+  const dateien = [];
+  (function sammle(dir) {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (e.name === ".git" || e.name === "node_modules") continue;
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) sammle(p);
+      else if (/\.(js|mjs|md|html|css)$/.test(e.name)) dateien.push(p);
+    }
+  })(ROOT);
+
+  const treffer = [];
+  for (const f of dateien) {
+    const zeilen = fs.readFileSync(f, "utf8").split(/\r?\n/);
+    zeilen.forEach((zeile, i) => {
+      for (const w of zeile.match(MUSTER) || []) {
+        if (ERLAUBT.has(w)) continue;
+        treffer.push(`${path.relative(ROOT, f)}:${i + 1}  ${w}`);
+      }
+    });
+  }
+  process.stdout.write(`\n=== Rechtschreibung ===\n`);
+  if (treffer.length) {
+    for (const z of treffer.slice(0, 20)) console.log("  " + z + "  -> hier gehört ß hin");
+    if (treffer.length > 20) console.log(`  … und ${treffer.length - 20} weitere`);
+    ok = false;
+  } else {
+    console.log(`  ß wird überall ausgeschrieben, ${dateien.length} Dateien geprüft`);
+  }
+}
+
+// 5. Die restlichen Suiten.
 ok = run(["tools/test-theory.mjs"], "Musiktheorie") && ok;
 ok = run(["tools/test-notation.mjs"], "Notensatz") && ok;
 ok = run(["tools/test-rhythmus.mjs"], "Rhythmus") && ok;

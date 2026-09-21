@@ -7,20 +7,20 @@
      Zahl, gegen die gerechnet wird; alles andere ist Darstellung.
    - Eine geschriebene Tonhöhe ist ein Tripel {step, alter, octave}. step ist
      0..6 für C D E F G A H, alter ist die Vorzeichenstufe. Ohne dieses Tripel
-     liesze sich Fis nicht von Ges unterscheiden, und genau das braucht der
+     ließe sich Fis nicht von Ges unterscheiden, und genau das braucht der
      Notensatz.
    - Deutsche Tonnamen sind der Standard, weil die Aufnahmeprüfung deutsch
      geprüft wird: H ist der Ton unter C, B ist H erniedrigt. Wer international
      lesen will, stellt in den Einstellungen um.
    - Das Altsaxophon ist in Es. Der Griff ist die klingende Tonhöhe plus neun
-     Halbtöne. Hier heiszt das durchgehend `written` und `sounding`, nie „Ton“
+     Halbtöne. Hier heißt das durchgehend `written` und `sounding`, nie „Ton“
      ohne Zusatz — diese Verwechslung ist die häufigste Fehlerquelle.
    ========================================================================== */
 
 "use strict";
 
 export const A4 = 69;          // MIDI-Nummer des Kammertons
-export const TRANSPOSE_ALTO = 9;   // Griff = klingend + grosze Sexte
+export const TRANSPOSE_ALTO = 9;   // Griff = klingend + große Sexte
 
 /* --- Tonnamen ---------------------------------------------------------- */
 
@@ -105,7 +105,7 @@ export function fromMidi(midi, prefer = "sharp") {
 /**
  * Die übliche Schreibweise eines Tons ohne Tonartzusammenhang: Des, Es, As
  * und B mit Be, nur Fis mit Kreuz. So sagen es Bläser, so steht es auf
- * Griffbildern, und so hiesz es schon in der ersten Fassung der App.
+ * Griffbildern, und so hieß es schon in der ersten Fassung der App.
  * Ohne diese Festlegung stünde in der Gehörbildung "Dis – Ais" statt
  * "Es – B", und das liest sich falsch.
  */
@@ -210,9 +210,9 @@ export const CHORDS = {
 
 // `steps` ist die Stufenzahl, also um wieviele Buchstaben es weitergeht.
 // Sie und nicht die Halbtonzahl entscheidet, wie der zweite Ton geschrieben
-// wird: eine grosze Terz über Fis ist Ais und nicht B, auch wenn beides
+// wird: eine große Terz über Fis ist Ais und nicht B, auch wenn beides
 // gleich klingt. Der Tritonus ist von Natur aus zweideutig; hier gilt er als
-// übermäszige Quarte, also drei Stufen.
+// übermäßige Quarte, also drei Stufen.
 export const INTERVALS = [
   { semitones: 0,  steps: 0, short: "r1",  name: "Reine Prime" },
   { semitones: 1,  steps: 1, short: "kl2", name: "Kleine Sekunde" },

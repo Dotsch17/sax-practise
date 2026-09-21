@@ -271,7 +271,7 @@ export function renderStaff(opts = {}) {
     if (members.length < 2) continue;
     const up = groupUp.get(id);
     const ys = members.map(m => noteY(m.nt.pitch, clef));
-    // Waagrechter Balken am äuszersten Hals, damit kein Hals zu kurz wird.
+    // Waagrechter Balken am äußersten Hals, damit kein Hals zu kurz wird.
     const by = up ? Math.min(...ys) - STEM_LEN : Math.max(...ys) + STEM_LEN;
     const xs = members.map(m => m.x + (up ? ADVANCE[HEAD_GLYPH(m.nt.dur)] - STEM_W / 2 : STEM_W / 2));
 
@@ -346,18 +346,30 @@ export function renderSingle(pitch, opts = {}) {
   });
 }
 
-/** Setzt Achtel und Sechzehntel taktweise zu Balkengruppen zusammen. */
+/**
+ * Setzt Achtel und Sechzehntel taktweise zu Balkengruppen zusammen.
+ *
+ * Gruppiert wird nach der Zählzeit, in der eine Note **beginnt** — nicht
+ * danach, wann die Summe der Dauern eine Zählzeit voll macht. Der
+ * Unterschied zeigt sich bei jeder Synkope: ragt eine Note über die
+ * Zählzeit hinaus, fängt die nächste Gruppe trotzdem erst beim nächsten
+ * Schlag an. Wer stattdessen nach jedem Überlauf von vorn zählt,
+ * verschiebt alle folgenden Balken um den Überhang, und dann zeigt der
+ * Balken genau das nicht mehr, wofür er da ist: wo die Zählzeit liegt.
+ */
 export function autoBeam(notes, beatsPerGroup = 1) {
-  let id = 0, acc = 0, group = [];
+  const schritt = beatsPerGroup > 0 ? beatsPerGroup : 1;
+  let id = 0, pos = 0, grenze = schritt, group = [];
   const flush = () => {
     if (group.length > 1) group.forEach(n => { n.beam = id; });
     id++; group = [];
   };
   for (const n of notes) {
-    if (n.barline) { flush(); acc = 0; continue; }
+    if (n.barline) { flush(); pos = 0; grenze = schritt; continue; }
+    // Beginnt die Note in einer neuen Zählzeit, endet die alte Gruppe hier.
+    while (pos >= grenze) { flush(); grenze += schritt; }
     if (n.pitch && n.dur <= DUR.achtel) group.push(n); else flush();
-    acc += n.dur * (n.dots ? 1.5 : 1);
-    if (acc >= beatsPerGroup) { flush(); acc = 0; }
+    pos += n.dur * (n.dots ? 1.5 : 1);
   }
   flush();
   return notes;

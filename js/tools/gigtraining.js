@@ -308,7 +308,12 @@ export default {
   mount(root) {
     render(root);
     offBar = band.onBar(info => aufTakt(root, info));
-    offState = band.onStateChange(() => {});
+    // Die Band lässt sich auch über den Streifen „läuft gerade" abschalten.
+    // Ohne diesen Rückruf liefe die Auflagenuhr weiter, während nichts mehr
+    // klingt — und der Knopf stünde immer noch auf „Abbrechen".
+    offState = band.onStateChange(({ running }) => {
+      if (!running && lauf) halt(root);
+    });
   },
   unmount() {
     offBar?.(); offState?.();

@@ -2,7 +2,7 @@
    Üben — der Session-Runner
 
    Die Hauptansicht und der Grund, warum es die App gibt. Das Gerät steht am
-   Notenständer, beide Hände sind am Instrument: grosze Ziffern, grosze
+   Notenständer, beide Hände sind am Instrument: große Ziffern, große
    Flächen, kein Scrollen für die Hauptaktion.
 
    Zwei Dinge, die diese Ansicht von einer Checkliste unterscheiden:

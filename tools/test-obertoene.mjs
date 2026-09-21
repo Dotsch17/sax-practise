@@ -2,7 +2,7 @@
 
    Der Fehler, den diese Datei vermeiden soll: Teiltöne über die
    nächstgelegene Klaviertaste zu bestimmen. Der fünfte Teilton liegt rund
-   14 Cent unter der gleichstufigen groszen Terz, der siebte rund 31 Cent
+   14 Cent unter der gleichstufigen großen Terz, der siebte rund 31 Cent
    unter der kleinen Septime. Wer das nicht berücksichtigt, meldet einen
    perfekt geblasenen fünften Teilton als „zu tief". */
 
@@ -43,7 +43,7 @@ console.log("\nDie Abweichungen von der Klaviertastatur stimmen");
   nah(p[1].cents, 0, 1, "Teilton 2: Oktave, 0 Cent");
   nah(p[2].cents, 2, 2, "Teilton 3: Quinte, rund +2 Cent");
   nah(p[3].cents, 0, 1, "Teilton 4: Doppeloktave, 0 Cent");
-  nah(p[4].cents, -14, 2, "Teilton 5: grosze Terz, rund -14 Cent");
+  nah(p[4].cents, -14, 2, "Teilton 5: große Terz, rund -14 Cent");
   nah(p[5].cents, 2, 2, "Teilton 6: Quinte, rund +2 Cent");
   nah(p[6].cents, -31, 2, "Teilton 7: kleine Septime, rund -31 Cent");
   nah(p[7].cents, 0, 1, "Teilton 8: Dreifachoktave, 0 Cent");

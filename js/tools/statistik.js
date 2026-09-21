@@ -2,7 +2,7 @@
    Auswertung
 
    Die Abnahme aus der Roadmap lautet: nach zwei Wochen muss erkennbar sein,
-   welcher Block regelmäszig ausgelassen wird. Genau darauf ist diese Ansicht
+   welcher Block regelmäßig ausgelassen wird. Genau darauf ist diese Ansicht
    gebaut — nicht auf hübsche Gesamtsummen.
 
    Gerechnet wird mit `spent`, also der tatsächlich am Instrument verbrachten
@@ -53,7 +53,7 @@ function serie(liste) {
   }
   const letzter = liste[liste.length - 1].date;
   const abstand = daysBetween(letzter, heute);
-  // Gestern zählt noch als laufend — sonst reiszt die Serie jeden Morgen.
+  // Gestern zählt noch als laufend — sonst reißt die Serie jeden Morgen.
   const aktuell = abstand <= 1 ? lauf : 0;
   return { aktuell, beste };
 }

@@ -27,7 +27,7 @@ import { renderStaff, DUR } from "../music/notation.js";
 import { playNote } from "../audio/signals.js";
 
 /* Die Klappen nach Griffhand gruppiert. Eingetippt wird über Chips und nicht
-   über das Griffbild: eine Klappe im Bild ist 16 px grosz, und 16 px trifft
+   über das Griffbild: eine Klappe im Bild ist 16 px groß, und 16 px trifft
    auf einem Telefon niemand. Das Bild bleibt daneben als Kontrolle. */
 const GRUPPEN = [
   { name: "Daumen und Palm", ids: ["okt", "palmD", "palmEs", "palmF", "frontF"] },

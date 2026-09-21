@@ -7,7 +7,7 @@
    geht.
 
    Der Wake Lock hält das Display wach, solange ein Timer läuft. Das ist die
-   Gegenmasznahme dagegen, dass iOS Web Audio im Hintergrund abschaltet:
+   Gegenmaßnahme dagegen, dass iOS Web Audio im Hintergrund abschaltet:
    bleibt der Bildschirm an, bleibt der Bordun an.
    ========================================================================== */
 
@@ -110,7 +110,7 @@ document.addEventListener("visibilitychange", () => {
 });
 
 /**
- * Hält den Bildschirm auch auszerhalb des Session-Timers wach, etwa während
+ * Hält den Bildschirm auch außerhalb des Session-Timers wach, etwa während
  * einer Aufnahme oder eines Tonleiter-Durchgangs.
  */
 export async function holdScreen() { await requestWakeLock(); }

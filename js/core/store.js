@@ -39,7 +39,7 @@ export const defaultState = () => ({
   // damit eine neue Übung keine Migration braucht.
   drills: {},
   // Aufnahmen: hier stehen nur die Messwerte. Das Audio selbst liegt in
-  // IndexedDB, weil es für localStorage um Gröszenordnungen zu grosz ist.
+  // IndexedDB, weil es für localStorage um Größenordnungen zu groß ist.
   recordings: [],
   repertoire: [],
   // Eigene Griffe je notierter MIDI-Zahl. Bewusst in den Nutzerdaten und

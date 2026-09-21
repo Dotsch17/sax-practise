@@ -28,7 +28,7 @@ export const STUFEN = [
 
 /**
  * Sucht die Lage, in der die Übung bequem liegt: so tief wie möglich, ohne
- * an die Untergrenze zu stoszen, damit nach oben Platz bleibt.
+ * an die Untergrenze zu stoßen, damit nach oben Platz bleibt.
  */
 function grundlage(tonic) {
   for (const oct of [4, 3, 5]) {

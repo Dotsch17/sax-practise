@@ -262,12 +262,12 @@ function zeichneEingabe(root, schritt) {
       host.innerHTML = `<p class="hint">Erst den Grundton, sonst gibt es keine Terz.</p>`;
       return;
     }
-    const grosz = spell(chromatic(toWritten(60 + soundingPc(s)) + 4));
+    const groß = spell(chromatic(toWritten(60 + soundingPc(s)) + 4));
     const klein = spell(chromatic(toWritten(60 + soundingPc(s)) + 3));
     const reihe = el("div", { class: "chips" });
     reihe.append(el("button", {
       class: "chip" + (s.geschlecht === "dur" ? " on" : ""),
-      text: `Dur — grosze Terz ${grosz}`,
+      text: `Dur — große Terz ${groß}`,
       on: { click: () => { s.geschlecht = "dur"; speichere(s); zeichneArbeit(root); } },
     }));
     reihe.append(el("button", {

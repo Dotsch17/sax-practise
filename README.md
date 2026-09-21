@@ -54,6 +54,10 @@ Ein paar Dinge, die es anderswo so nicht gibt:
   Frequenzverhältnis, nicht über die nächste Klaviertaste. Der fünfte
   Teilton liegt 14 Cent tiefer als die Klaviertaste und ist trotzdem
   richtig; ein Stimmgerät würde dir hier das Falsche sagen.
+- **Und sie spielt dir den Teilton vor.** Jede Stufe der Naturtonreihe ist
+  antippbar und klingt mit ihrer echten Frequenz, davor der Grundton als
+  Bezug. Einen Ton, den man im Ohr hat, trifft man; einen, den man sucht,
+  nicht.
 - **Die Tonanalyse zeigt, ob der Ton steht.** Tonhöhe in Cent, Lautstärke und
   Klangfarbe über die ganze Dauer. Ein flackernder Verlauf heißt, dass Luft
   oder Ansatz wackeln — sichtbar, bevor man es hört.

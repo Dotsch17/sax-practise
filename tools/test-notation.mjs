@@ -105,6 +105,57 @@ console.log("\nBalkengruppen");
   ok(notes[1].beam !== notes[2].beam, "die zweite Zählzeit beginnt eine neue Gruppe");
   const viertel = N.autoBeam([{ pitch: P(0,0,5), dur: 1 }, { pitch: P(1,0,5), dur: 1 }]);
   ok(viertel.every(x => x.beam == null), "Viertel werden nicht gebalkt");
+
+  // Synkope: Achtel, Viertel, Achtel, Achtel. Der dritte Ton beginnt auf
+  // Zählzeit 2,5, der vierte auf 3 — sie gehören zu verschiedenen
+  // Zählzeiten und dürfen deshalb nicht zusammengebalkt werden.
+  const synk = N.autoBeam([
+    { pitch: P(0,0,5), dur: .5 }, { pitch: P(1,0,5), dur: 1 },
+    { pitch: P(2,0,5), dur: .5 }, { pitch: P(3,0,5), dur: .5 },
+  ], 1);
+  ok(synk[2].beam == null && synk[3].beam == null,
+     "nach einer Synkope wird nicht über die Zählzeit hinweg gebalkt");
+
+  // Derselbe Überhang, aber danach vier Sechzehntel: die ersten zwei liegen
+  // noch in Zählzeit 3, die letzten zwei schon in Zählzeit 4.
+  const nach = N.autoBeam([
+    { pitch: P(0,0,5), dur: .5 }, { pitch: P(1,0,5), dur: 1 },
+    { pitch: P(2,0,5), dur: .25 }, { pitch: P(3,0,5), dur: .25 },
+    { pitch: P(4,0,5), dur: .25 }, { pitch: P(5,0,5), dur: .25 },
+  ], 1);
+  eq(nach[2].beam, nach[3].beam, "die zwei Sechzehntel vor dem Schlag hängen zusammen");
+  ok(nach[3].beam !== nach[4].beam, "auf der Zählzeit beginnt eine neue Balkengruppe");
+  eq(nach[4].beam, nach[5].beam, "und die zwei danach hängen wieder zusammen");
+
+  // Der Taktstrich setzt die Zählung zurück, auch wenn der Takt nicht aufgeht.
+  const takt = N.autoBeam([
+    { pitch: P(0,0,5), dur: .5 }, { barline: true },
+    { pitch: P(1,0,5), dur: .5 }, { pitch: P(2,0,5), dur: .5 },
+  ], 1);
+  eq(takt[2].beam, takt[3].beam, "nach dem Taktstrich wird wieder von der Eins gezählt");
+
+  // Pausen trennen, zählen aber mit.
+  const pause = N.autoBeam([
+    { pitch: P(0,0,5), dur: .5 }, { dur: .5 },
+    { pitch: P(1,0,5), dur: .5 }, { pitch: P(2,0,5), dur: .5 },
+  ], 1);
+  ok(pause[0].beam == null, "ein einzelnes Achtel vor einer Pause bleibt ohne Balken");
+  eq(pause[2].beam, pause[3].beam, "die zweite Zählzeit wird wieder gebalkt");
+
+  // Zwei Zählzeiten je Gruppe, wie es im Zweiertakt üblich ist.
+  const zwei = N.autoBeam([
+    { pitch: P(0,0,5), dur: .5 }, { pitch: P(1,0,5), dur: .5 },
+    { pitch: P(2,0,5), dur: .5 }, { pitch: P(3,0,5), dur: .5 },
+  ], 2);
+  eq(zwei[0].beam, zwei[3].beam, "bei zwei Zählzeiten je Gruppe hängen alle vier zusammen");
+
+  // Punktierte Achtel plus Sechzehntel füllen die Zählzeit genau.
+  const punkt = N.autoBeam([
+    { pitch: P(0,0,5), dur: .5, dots: 1 }, { pitch: P(1,0,5), dur: .25 },
+    { pitch: P(2,0,5), dur: .5 }, { pitch: P(3,0,5), dur: .5 },
+  ], 1);
+  eq(punkt[0].beam, punkt[1].beam, "punktiertes Achtel und Sechzehntel bilden eine Gruppe");
+  ok(punkt[1].beam !== punkt[2].beam, "danach beginnt die nächste Zählzeit");
 }
 
 console.log("\nAbstand wächst mit dem Notenwert");

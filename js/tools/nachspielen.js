@@ -14,7 +14,7 @@
    Zwei Dinge, die den Unterschied machen:
 
    - Der erste Ton kann vorgegeben werden. Am Anfang ist die Aufgabe „finde
-     den Anfang und dann die Abstände“ zu grosz; mit gegebenem Anfang übt man
+     den Anfang und dann die Abstände“ zu groß; mit gegebenem Anfang übt man
      nur die Abstände, und das ist der Teil, der zählt.
    - Die Phrase wird nicht angezeigt, bevor du gespielt hast. Wer mitliest,
      übt Blattspiel, nicht Gehör.

@@ -8,7 +8,7 @@
 
    Der Fortschritt wird je Tonart und Art getrennt geführt. Das ist der
    eigentliche Zweck: nach zwei Wochen sieht man auf einen Blick, welche
-   Tonarten man immer wieder auslässt — und das sind erfahrungsgemäsz genau
+   Tonarten man immer wieder auslässt — und das sind erfahrungsgemäß genau
    die, die in der Prüfung drankommen.
    ========================================================================== */
 
@@ -128,8 +128,8 @@ function render(root) {
     <div class="panel">
       <h3 style="margin-top:0">Geschafft?</h3>
       <p class="hint">
-        Erst abhaken, wenn sie zweimal hintereinander sauber und gleichmäszig
-        kam. Das Tempo wird mitgeschrieben — nächstes Mal weiszt du, wo du
+        Erst abhaken, wenn sie zweimal hintereinander sauber und gleichmäßig
+        kam. Das Tempo wird mitgeschrieben — nächstes Mal weißt du, wo du
         warst.
       </p>
       <div class="row2">

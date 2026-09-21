@@ -42,7 +42,7 @@ function render(root) {
     </div>
     <p class="hint">
       Der Griff ist, was du liest und greifst. Klingend ist, was im Raum
-      ankommt — eine grosze Sexte tiefer. Im Zusammenspiel zählt klingend.
+      ankommt — eine große Sexte tiefer. Im Zusammenspiel zählt klingend.
     </p>
 
     <h2>Deine Daten</h2>
@@ -58,7 +58,7 @@ function render(root) {
     <p class="hint spaced">
       Safari löscht lokal gespeicherte Daten, wenn eine Seite länger nicht
       benutzt wird. Exportiere die Datei deshalb ab und zu — sie ist die
-      einzige Kopie, die das überlebt. Jede Adresse hat auszerdem ihren
+      einzige Kopie, die das überlebt. Jede Adresse hat außerdem ihren
       eigenen Speicher: rufst du die App unter einer anderen Adresse auf,
       ist sie leer, und du liest die Datei wieder ein.
     </p>`;

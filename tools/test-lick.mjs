@@ -109,7 +109,7 @@ console.log("\nRegel 3: überwiegend Schritte, nach Sprüngen Umkehr");
   eq(weit, 0, "kein Sprung über eine Oktave");
   if (nachSprung > 10) {
     ok(umkehr / nachSprung > 0.55,
-       `nach groszen Spruengen wird meist umgekehrt (${(umkehr / nachSprung * 100).toFixed(0)} %)`);
+       `nach großen Spruengen wird meist umgekehrt (${(umkehr / nachSprung * 100).toFixed(0)} %)`);
   }
 }
 

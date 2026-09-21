@@ -3,13 +3,13 @@
 
    Die Naturtonreihe über einem Griff. Wichtig und leicht falsch gemacht:
    die Teiltöne liegen **nicht** auf gleichstufigen Halbtönen. Der fünfte
-   Teilton ist rund 14 Cent tiefer als die gleichstufige grosze Terz, der
+   Teilton ist rund 14 Cent tiefer als die gleichstufige große Terz, der
    siebte rund 31 Cent tiefer als die kleine Septime. Wer die Teiltöne über
    die nächstgelegene Klaviertaste bestimmt, hält den fünften für zu tief
    gespielt, obwohl er genau richtig ist.
 
    Deshalb wird hier über das **Frequenzverhältnis** zum Grundton erkannt,
-   nicht über die Tonhöhe: Teilton k heiszt f = k · f0, und daran gibt es
+   nicht über die Tonhöhe: Teilton k heißt f = k · f0, und daran gibt es
    nichts zu deuteln.
 
    Reine Rechnung, kein DOM, kein Audio.

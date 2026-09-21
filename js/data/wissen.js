@@ -34,7 +34,7 @@ export const ARTIKEL = [
         "Das Vibrato kommt aus dem Kiefer statt aus der Lippe und klingt eckig.",
       ]},
       { h: "Die Probe", p: [
-        "Spiel das Mundstück allein und halte den Ton zehn Sekunden absolut stabil. Wandert die Tonhöhe nach oben, beiszt du nach. Biege den Ton dann bewusst nach unten und langsam zurück, ohne dass er abreiszt — das ist der Bewegungsumfang, den du brauchst, um im Zusammenspiel korrigieren zu können.",
+        "Spiel das Mundstück allein und halte den Ton zehn Sekunden absolut stabil. Wandert die Tonhöhe nach oben, beißt du nach. Biege den Ton dann bewusst nach unten und langsam zurück, ohne dass er abreißt — das ist der Bewegungsumfang, den du brauchst, um im Zusammenspiel korrigieren zu können.",
         "Welche Tonhöhe das Mundstück allein ergibt, hängt von Bahn, Blatt und Ansatz ab; für das Altsaxophon wird meist eine Lage um das klingende A herum genannt. Verlass dich nicht auf die Zahl, sondern darauf, dass sie bei dir jeden Tag dieselbe ist. Wandert sie über Wochen nach oben, wird dein Ansatz enger.",
       ]},
     ],
@@ -48,11 +48,11 @@ export const ARTIKEL = [
     block: "langetoene",
     abschnitte: [
       { h: "Einatmen", p: [
-        "Durch den Mundwinkel, tief, ohne die Schultern zu heben. Der Bauch geht nach auszen, die Rippen weiten sich seitlich. Wer die Schultern hebt, füllt nur die Spitzen der Lungen und hat nach vier Takten nichts mehr.",
+        "Durch den Mundwinkel, tief, ohne die Schultern zu heben. Der Bauch geht nach außen, die Rippen weiten sich seitlich. Wer die Schultern hebt, füllt nur die Spitzen der Lungen und hat nach vier Takten nichts mehr.",
         "Atme so tief ein, wie die Stelle es braucht — nicht immer maximal. Eine volle Lunge unter Druck macht den Ton genauso unruhig wie zu wenig Luft.",
       ]},
       { h: "Ausatmen", p: [
-        "Der Luftstrom ist gleichmäszig und warm, so als würdest du eine Scheibe anhauchen. Er beginnt vor dem Ton und endet nach ihm. Der Ton endet mit der Luft, nie mit der Zunge — die Zunge beendet nur dann einen Ton, wenn es ausdrücklich so gewollt ist.",
+        "Der Luftstrom ist gleichmäßig und warm, so als würdest du eine Scheibe anhauchen. Er beginnt vor dem Ton und endet nach ihm. Der Ton endet mit der Luft, nie mit der Zunge — die Zunge beendet nur dann einen Ton, wenn es ausdrücklich so gewollt ist.",
       ]},
       { h: "Die Probe", liste: [
         "Halte einen mittleren Ton acht bis zwölf Sekunden. Bleibt Lautstärke und Farbe gleich?",
@@ -95,7 +95,7 @@ export const ARTIKEL = [
     abschnitte: [
       { h: "Zuerst das Instrument einstimmen", p: [
         "Spiel dich fünf Minuten warm, bevor du stimmst. Ein kaltes Saxophon steht deutlich tiefer, und was du kalt einstellst, ist zehn Minuten später falsch.",
-        "Das Mundstück weiter auf den S-Bogen schieben macht höher, weiter herunter macht tiefer. Steht das Mundstück sehr weit auszen oder sehr weit innen, stimmt etwas anderes nicht — meist der Ansatz oder das Blatt.",
+        "Das Mundstück weiter auf den S-Bogen schieben macht höher, weiter herunter macht tiefer. Steht das Mundstück sehr weit außen oder sehr weit innen, stimmt etwas anderes nicht — meist der Ansatz oder das Blatt.",
       ]},
       { h: "Was typischerweise abweicht", p: [
         "An fast jedem Saxophon gibt es Töne, die von Haus aus höher oder tiefer liegen als der Rest, und die Abweichungen unterscheiden sich von Instrument zu Instrument und von Setup zu Setup. Deshalb lohnt es sich nicht, eine fremde Liste auswendig zu lernen — deine eigene ist die richtige.",
@@ -114,14 +114,14 @@ export const ARTIKEL = [
     id: "artikulation",
     titel: "Artikulation",
     thema: "Technik",
-    lead: "Die Zunge unterbricht die Luft, sie startet sie nicht. Wer mit der Zunge anstöszt statt mit der Luft, bekommt einen Knall statt eines Tonanfangs.",
+    lead: "Die Zunge unterbricht die Luft, sie startet sie nicht. Wer mit der Zunge anstößt statt mit der Luft, bekommt einen Knall statt eines Tonanfangs.",
     block: "artikulation",
     abschnitte: [
       { h: "Der Bewegungsablauf", p: [
         "Die Luft ist schon da, bevor der Ton kommt. Die Zungenspitze liegt leicht an der Blattspitze und gibt sie frei. Das ist die ganze Bewegung: freigeben, nicht schlagen.",
         "Denk „da“ statt „ta“. Das Erste ist ein weicher Anfang, das Zweite ein Aufprall. Für harte Akzente gibt es „ta“ auch, aber als Ausnahme.",
       ]},
-      { h: "Der Maszstab", p: [
+      { h: "Der Maßstab", p: [
         "Kurze Töne klingen wie lange, nur kürzer. Ein Staccato hat denselben Kern und dieselbe Farbe wie ein gehaltener Ton — es hört nur früher auf. Wenn deine kurzen Töne dünner klingen als deine langen, artikulierst du mit dem Ansatz mit.",
         "Prüf das im pp gegen. Im Lauten verzeiht die Luft viel; im Leisen hörst du sofort, ob die Zunge zu viel tut.",
       ]},
@@ -143,7 +143,7 @@ export const ARTIKEL = [
         "Achte darauf, dass die Tonhöhe dabei stehen bleibt. Steigt sie beim Lauterwerden, arbeitet der Kiefer mit. Fällt sie, lässt der Ansatz los, statt ruhig zu bleiben.",
       ]},
       { h: "Die beiden Enden", liste: [
-        "ff ohne Härte: mehr Luft, gleicher Ansatz, offener Mundraum. Härte heiszt Lippendruck.",
+        "ff ohne Härte: mehr Luft, gleicher Ansatz, offener Mundraum. Härte heißt Lippendruck.",
         "pp ohne Abriss: die Luft bleibt in Bewegung, auch wenn wenig kommt. Besonders in der Tiefe braucht das ein tiefes Voicing.",
         "Beides braucht Zeit. Die Ränder der Dynamik wachsen über Wochen, nicht über Tage.",
       ]},
@@ -157,11 +157,11 @@ export const ARTIKEL = [
     lead: "Im klassischen Saxophonspiel kommt das Vibrato aus der Unterlippe, nicht aus dem Kiefer und nicht aus dem Zwerchfell. Es ist ein Ausdrucksmittel und kein Dauerzustand.",
     abschnitte: [
       { h: "Wie es entsteht", p: [
-        "Die Unterlippe macht eine kleine, regelmäszige Bewegung, als würdest du „wa-wa-wa“ oder „ja-ja-ja“ formen. Der Ton wird dabei leicht nach unten gebogen und kehrt zur Ausgangshöhe zurück — das Vibrato liegt also unter der Tonhöhe, nicht darum herum.",
+        "Die Unterlippe macht eine kleine, regelmäßige Bewegung, als würdest du „wa-wa-wa“ oder „ja-ja-ja“ formen. Der Ton wird dabei leicht nach unten gebogen und kehrt zur Ausgangshöhe zurück — das Vibrato liegt also unter der Tonhöhe, nicht darum herum.",
         "Der Ton selbst muss ohne Vibrato stehen, bevor du eines darauflegst. Vibrato auf einem wackligen Ton macht den Wackler nur unsichtbar, nicht besser.",
       ]},
       { h: "Üben mit dem Metronom", p: [
-        "Stell das Metronom auf ein ruhiges Tempo, etwa 60, und spiel zuerst zwei Bewegungen je Schlag, dann drei, dann vier. Gleichmäszigkeit vor Geschwindigkeit. Übliche Vibratogeschwindigkeiten im klassischen Spiel liegen ungefähr bei fünf bis sieben Bewegungen je Sekunde, aber das ist ein Rahmen und keine Vorschrift: Tempo, Charakter und Lage des Stücks entscheiden.",
+        "Stell das Metronom auf ein ruhiges Tempo, etwa 60, und spiel zuerst zwei Bewegungen je Schlag, dann drei, dann vier. Gleichmäßigkeit vor Geschwindigkeit. Übliche Vibratogeschwindigkeiten im klassischen Spiel liegen ungefähr bei fünf bis sieben Bewegungen je Sekunde, aber das ist ein Rahmen und keine Vorschrift: Tempo, Charakter und Lage des Stücks entscheiden.",
         "Übe es bewusst auch mit dem Ausschalten. Ein langer Ton, dessen Vibrato am Ende ruhig ausläuft, ist ein Ausdrucksmittel. Eines, das nie aufhört, ist ein Tick.",
       ]},
     ],
@@ -178,7 +178,7 @@ export const ARTIKEL = [
         "Wenn dir G, Gis und A schon teilweise gelingen, ist der nächste Schritt nicht ein neuer Ton, sondern Verlässlichkeit: derselbe Ton zehnmal hintereinander, aus dem Nichts, ohne Anlauf über einen anderen. Erst wenn er zehnmal kommt, ist er deiner.",
       ]},
       { h: "Was Altissimo nicht ist", liste: [
-        "Kein Kraftakt. Mehr Druck schlieszt das Blatt und der Ton stirbt.",
+        "Kein Kraftakt. Mehr Druck schließt das Blatt und der Ton stirbt.",
         "Kein Griff-Auswendiglernen. Die Griffe unterscheiden sich je nach Instrument und Setup; welcher bei dir trägt, findest du selbst heraus.",
         "Kein Tagesprojekt. Das ist Monatsarbeit, und sie geht schneller, wenn du täglich fünf Minuten statt wöchentlich eine Stunde investierst.",
       ]},
@@ -192,7 +192,7 @@ export const ARTIKEL = [
     id: "blaetter",
     titel: "Blätter",
     thema: "Material",
-    lead: "Blätter sind Naturprodukt und schwanken stark. Der gröszte Teil der Tage, an denen „der Ton nicht da ist“, sind Blatt-Tage — und die meisten davon sind vermeidbar.",
+    lead: "Blätter sind Naturprodukt und schwanken stark. Der größte Teil der Tage, an denen „der Ton nicht da ist“, sind Blatt-Tage — und die meisten davon sind vermeidbar.",
     abschnitte: [
       { h: "Einspielen und rotieren", p: [
         "Nimm ein neues Blatt in den ersten Tagen nur wenige Minuten und spiel es nicht sofort in der vollen Session ein. Rohr braucht ein paar Zyklen aus Anfeuchten und Trocknen, bis es stabil wird.",
@@ -207,7 +207,7 @@ export const ARTIKEL = [
         "Bevor du die Stärke änderst, prüf den Ansatz. Sehr oft ist ein „zu hartes“ Blatt nur zu wenig Luft.",
       ]},
       { h: "Im Übemonat nicht wechseln", p: [
-        "Solange du am Ton arbeitest, bleibt das Setup gleich. Mundstück, Blattmarke und Stärke sind Konstanten, sonst weiszt du nie, ob eine Veränderung von dir oder vom Material kommt.",
+        "Solange du am Ton arbeitest, bleibt das Setup gleich. Mundstück, Blattmarke und Stärke sind Konstanten, sonst weißt du nie, ob eine Veränderung von dir oder vom Material kommt.",
       ]},
     ],
   },
@@ -218,7 +218,7 @@ export const ARTIKEL = [
     thema: "Methode",
     lead: "Die Frage ist nicht, wie lange du übst, sondern wie viele bewusste Wiederholungen du machst. Alles andere ist Zeit am Instrument, nicht Übung.",
     abschnitte: [
-      { h: "Langsam heiszt langsam genug", p: [
+      { h: "Langsam heißt langsam genug", p: [
         "Das richtige Tempo ist das, in dem du fehlerfrei und ohne Anspannung spielst — nicht das, in dem du gerade noch durchkommst. Wer schnell übt, übt vor allem seine Fehler ein.",
         "Nach oben geht es in kleinen Schritten, mit der Tempo-Rampe im Metronom. Geht eine Stufe nicht sauber, gehst du eine zurück statt weiter hinauf. Das fühlt sich langsam an und ist die schnellste Methode, die es gibt.",
       ]},
@@ -241,7 +241,7 @@ export const ARTIKEL = [
     lead: "Vorspielen ist eine eigene Fähigkeit und wird eigens geübt. Wer nur allein übt, übt eine Situation, die in der Prüfung nicht vorkommt.",
     abschnitte: [
       { h: "Die Situation üben", liste: [
-        "Spiel regelmäszig Durchläufe ohne Anhalten. Ein Fehler wird nicht korrigiert, es geht weiter — das ist die Fähigkeit, die in der Prüfung zählt.",
+        "Spiel regelmäßig Durchläufe ohne Anhalten. Ein Fehler wird nicht korrigiert, es geht weiter — das ist die Fähigkeit, die in der Prüfung zählt.",
         "Nimm dich auf. Die Aufnahme hört schonungsloser zu als du im Spielen.",
         "Spiel jemandem vor, auch wenn es unangenehm ist. Der Puls unter Beobachtung ist ein anderer, und daran gewöhnt man sich nur durch Wiederholung.",
         "Übe den Anfang öfter als den Rest. Die ersten acht Takte entscheiden über deine Nerven für den Rest.",
@@ -284,7 +284,7 @@ export const DIAGNOSE = [
     problem: "Im pp bricht der Ton ab",
     ursachen: [
       "Die Luft steht still. Auch leise muss sie in Bewegung bleiben.",
-      "Der Ansatz macht die Dynamik statt der Luft — im Leisen schlieszt er dann das Blatt.",
+      "Der Ansatz macht die Dynamik statt der Luft — im Leisen schließt er dann das Blatt.",
       "Blatt zu hart für die Lautstärke.",
       "Fehlende Übung an den Rändern. Messa di voce baut das über Wochen auf.",
     ],
@@ -294,7 +294,7 @@ export const DIAGNOSE = [
     problem: "Im ff wird der Ton hart",
     ursachen: [
       "Lautstärke kommt aus dem Kiefer statt aus der Luft.",
-      "Mundraum schlieszt sich beim Lauterwerden.",
+      "Mundraum schließt sich beim Lauterwerden.",
       "Blatt zu weich, es schlägt zu.",
     ],
     artikel: ["dynamik", "ansatz"],
@@ -313,7 +313,7 @@ export const DIAGNOSE = [
     ursachen: [
       "Instrumenteneigenheit. Schau in die Intonationskarte im Stimmgerät — nach ein paar Sessions steht dort deine eigene Liste.",
       "Korrektur über den Kiefer statt über das Voicing. Das kostet Klangfarbe.",
-      "Mundstück steht zu weit auszen oder innen; die Abweichungen verteilen sich dann ungleich über den Umfang.",
+      "Mundstück steht zu weit außen oder innen; die Abweichungen verteilen sich dann ungleich über den Umfang.",
       "Zu früh gestimmt, das Instrument war noch kalt.",
     ],
     artikel: ["intonation"],
@@ -330,7 +330,7 @@ export const DIAGNOSE = [
   {
     problem: "Der Ton ist da, aber er flackert",
     ursachen: [
-      "Luftstrom ungleichmäszig, oft weil zu viel eingeatmet und dann gedrückt wird.",
+      "Luftstrom ungleichmäßig, oft weil zu viel eingeatmet und dann gedrückt wird.",
       "Unbewusstes Vibrato aus dem Kiefer.",
       "Ansatz noch nicht ausdauernd genug — das gibt sich mit täglichen langen Tönen.",
     ],
@@ -340,7 +340,7 @@ export const DIAGNOSE = [
     problem: "Altissimo spricht nicht oder nur manchmal",
     ursachen: [
       "Obertonarbeit fehlt. Ohne sichere Teiltöne auf tief B ist Altissimo Glückssache.",
-      "Zu viel Druck. Mehr Kraft schlieszt das Blatt.",
+      "Zu viel Druck. Mehr Kraft schließt das Blatt.",
       "Der Zielton wird nicht gedacht. Sing ihn vor dem Spielen.",
       "Griff passt nicht zu deinem Instrument. Probier die Varianten durch.",
     ],

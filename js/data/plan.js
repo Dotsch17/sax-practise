@@ -98,7 +98,7 @@ export const KONTEXTE = [
     name: "Probelokal",
     kurz: "laut",
     was: "Echtes Saxophon, beliebig laut. Der volle Tonplan.",
-    bloecke: null,          // null heiszt: der Plan oben, unverändert
+    bloecke: null,          // null heißt: der Plan oben, unverändert
   },
 
   {
@@ -108,15 +108,15 @@ export const KONTEXTE = [
     was: "Echtes Saxophon, aber die Nachbarn. Alles, was im pp oder ganz ohne Ton geht — und das ist mehr, als man denkt.",
     bloecke: [
       { id: "atem", name: "Atem", min: 5, werkzeug: null, cues: [
-        "Vier Sekunden ein durch den Mundwinkel, acht Sekunden gleichmäszig aus",
-        "Der Bauch geht nach auszen, die Schultern bleiben unten",
+        "Vier Sekunden ein durch den Mundwinkel, acht Sekunden gleichmäßig aus",
+        "Der Bauch geht nach außen, die Schultern bleiben unten",
         "Am Ende der Ausatmung nicht pressen — lieber früher neu einatmen",
         "Das kostet keinen Ton und trägt jeden",
       ]},
       { id: "ansatz_trocken", name: "Ansatz ohne Ton", min: 5, werkzeug: null, cues: [
         "Nur Mundstück im Mund, keine Luft: die Form aufbauen und halten",
         "Unterlippe als Polster, Mundwinkel nach innen, Kiefer locker",
-        "Dreiszig Sekunden halten, lösen, wiederholen",
+        "Dreißig Sekunden halten, lösen, wiederholen",
         "Tut nach zwanzig Sekunden die Lippe weh, ist zu viel Druck drin",
       ]},
       { id: "pp_toene", name: "Lange Töne im pp", min: 15, werkzeug: "stimmgeraet", cues: [
@@ -135,7 +135,7 @@ export const KONTEXTE = [
         "Ohne Blasen, nur die Griffe, mit Metronom",
         "Die Klappen sollen nicht klappern — das ist die halbe Übung",
         "Langsam genug, dass jeder Wechsel gleichzeitig kommt",
-        "Erst wenn es still und gleichmäszig ist, Tempo hinauf",
+        "Erst wenn es still und gleichmäßig ist, Tempo hinauf",
       ]},
       { id: "blatt_still", name: "Blattspiel still", min: 10, werkzeug: "blattspiel", cues: [
         "Lesen und greifen, ohne Ton. Im Tempo, ohne anzuhalten",
@@ -159,7 +159,7 @@ export const KONTEXTE = [
       { id: "ts_warm", name: "Warm werden", min: 5, werkzeug: "tonleitern", cues: [
         "Chromatisch durch den ganzen Umfang, langsam und gebunden",
         "Es geht um die Finger, nicht um den Ton",
-        "Auf gleichmäszige Wechsel achten, besonders über die Registerklappe",
+        "Auf gleichmäßige Wechsel achten, besonders über die Registerklappe",
       ]},
       { id: "ts_tonleitern", name: "Tonleitern", min: 15, werkzeug: "tonleitern", cues: [
         "Zwei Tonarten je Session, dafür in allen Formen: auf, ab, Dreiklang, Dominantsept",
