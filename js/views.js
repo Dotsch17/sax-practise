@@ -29,6 +29,7 @@ import grundlagen from "./tools/grundlagen.js";
 import improvisation from "./tools/improvisation.js";
 import callresponse from "./tools/callresponse.js";
 import gigtraining from "./tools/gigtraining.js";
+import tonartfinden from "./tools/tonartfinden.js";
 import protokoll from "./tools/protokoll.js";
 import statistik from "./tools/statistik.js";
 import wissen    from "./tools/wissen.js";
@@ -40,7 +41,7 @@ export const TABS = [
   { id: "ton",     label: "Ton",     tools: [stimmgeraet, obertoene, tonanalyse, bordun] },
   { id: "technik", label: "Technik", tools: [tonleitern, rhythmus, blattspiel, griffe, metronom] },
   { id: "gehoer",  label: "Gehör",   tools: [nachspielen, gehoer] },
-  { id: "impro",   label: "Impro",   tools: [grundlagen, improvisation, callresponse, gigtraining] },
+  { id: "impro",   label: "Impro",   tools: [grundlagen, improvisation, tonartfinden, callresponse, gigtraining] },
   { id: "journal", label: "Journal", tools: [protokoll, statistik, repertoire, wissen, daten] },
 ];
 

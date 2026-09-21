@@ -922,3 +922,30 @@ svg.staff.compact{ height: 96px; }
 }
 .gig-zeile b{ display:block; font-weight:500; }
 .gig-zeile span{ color: var(--cane-dim); font-size: 13.5px; }
+
+/* --- Tonart finden -------------------------------------------------------- */
+.tf-buehne{
+  border: 1px solid var(--line); border-radius: 14px;
+  background: var(--surface); padding: 18px 16px; text-align:center;
+  margin-bottom: 14px;
+}
+.tf-buehne.laeuft{ border-color: var(--brass); }
+.tf-frage{ font-size: 13.5px; color: var(--cane-dim); letter-spacing:.04em; }
+.tf-uhr{
+  font-family: var(--serif); font-size: 44px; line-height:1.1;
+  color: var(--cane-dim); margin-top: 4px;
+}
+.tf-buehne.laeuft .tf-uhr{ color: var(--brass); }
+.tf-takte{ font-size: 13px; color: var(--cane-dim); min-height: 18px; margin-top: 2px; }
+.tf-ergebnis{
+  display:flex; align-items:baseline; justify-content:space-between; gap: 10px;
+  border-top: 1px solid var(--line); padding-top: 14px; margin-top: 4px;
+}
+.tf-ergebnis b{ font-family: var(--serif); font-size: 21px; color: var(--cane-dim); }
+.tf-ergebnis.gut b{ color: var(--brass); }
+.tf-ergebnis span{ font-size: 13px; color: var(--cane-dim); }
+.tf-zeile{
+  border-bottom: 1px solid var(--line); padding: 10px 0;
+}
+.tf-zeile b{ display:block; font-weight:500; font-size: 17px; }
+.tf-zeile span{ color: var(--cane-dim); font-size: 13.5px; }

@@ -94,7 +94,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Tonanalyse, Bordun |
 | Technik | Tonleitern, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Nachspielen mit Mikrofonkontrolle, Intervalle/Akkorde/Skalen |
-| Impro | Grundlagen, Begleitband, Call and Response, Gig-Training |
+| Impro | Grundlagen, Begleitband, Tonart finden, Call and Response, Gig-Training |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
 
 **Drei Übe-Kontexte statt eines Plans.** Der Nutzer übt an drei verschiedenen
@@ -345,6 +345,15 @@ braucht eigene Werkzeuge.
   Skala, die man nur greifen kann, hilft beim Improvisieren nicht. Dazu der
   Griffrechner: der Nutzer hört eine Tonart auf Spotify, wählt sie klingend
   aus und bekommt den Griff dazu.
+- `tonartfinden.js`: die Band spielt in einer zufälligen Tonart, der Nutzer
+  sucht den Grundton am Instrument und tippt den **Griff**. Gemessen wird die
+  Zeit, nicht nur richtig oder falsch — wer die Tonart nach dreiszig Sekunden
+  findet, findet sie auf dem Gig nicht. Kein Mikrofon, aus demselben Grund
+  wie bei Call and Response: die Band kommt aus dem Lautsprecher, den das
+  Mikrofon hört. Das ist zugleich der Grund, warum es am Travel Sax geht.
+  Die Rückmeldung benennt den Irrtum, statt ihn nur zu markieren: Quinte,
+  Quarte, Terz und vor allem die Paralleltonart, bei der alle Töne stimmen
+  und trotzdem jede Phrase auf der falschen Eins landet.
 - `gigtraining.js`: Auflagen über die laufende Begleitband, taktweise
   wechselnd — nur Zieltöne, zwei Takte spielen und zwei schweigen, ein
   einziges Motiv, nur die mittlere Oktave. Einschränkung erzeugt Ideen;

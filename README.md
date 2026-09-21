@@ -18,7 +18,7 @@ bleiben auf dem Gerät.
 | **Ton** | Stimmgerät mit Intonationskarte · Obertonübung mit Rückmeldung · Tonanalyse · Bordun |
 | **Technik** | Tonleitern in allen Tonarten · Rhythmus mit Messung · Blattspiel · Griffe · Metronom |
 | **Gehör** | Nachspielen mit Mikrofonkontrolle · Intervalle · Akkorde · Skalen |
-| **Impro** | Grundlagen mit Griffrechner · Begleitband über zwölf Akkordfolgen · Call and Response · Gig-Training |
+| **Impro** | Grundlagen mit Griffrechner · Begleitband über zwölf Akkordfolgen · Tonart finden · Call and Response · Gig-Training |
 | **Journal** | Protokoll · Auswertung · Repertoire · Wissen · Daten |
 
 Ein paar Dinge, die es anderswo so nicht gibt:
@@ -61,6 +61,12 @@ Ein paar Dinge, die es anderswo so nicht gibt:
   Moll-Pentatonik ist, wofür sie taugt, wann sie schiefgeht. Dazu der
   Griffrechner: Tonart auf Spotify gehört, klingend eingegeben, Griff kommt
   heraus.
+- **„Tonart finden" übt die Situation vom Gig.** Die Band spielt in einer
+  zufälligen Tonart, du suchst den Grundton am Instrument und tippst den
+  Griff — und die App misst, wie lange du gebraucht hast. Wer daneben liegt,
+  bekommt nicht „falsch", sondern gesagt, *was* er gehört hat: die Quinte,
+  die Quarte oder die Paralleltonart, bei der alle Töne stimmen und trotzdem
+  jede Phrase auf der falschen Eins landet.
 - **Das Gig-Training gibt Auflagen statt Freiheit.** Nur Zieltöne. Zwei Takte
   spielen, zwei schweigen. Ein einziges Motiv. Taktweise wechselnd über die
   laufende Band — genau die Beschränkungen, die aus Tonleiterläufen Musik
