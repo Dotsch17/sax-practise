@@ -163,12 +163,14 @@ export const TEILE = [
     titel: "Hören",
     punkte: [
       { id: "diktat", art: "pruefpunkt", titel: "Melodie- und Rhythmusdiktat",
-        was: "Tonale und freitonale Melodien und Rhythmen vom Klavier aufschreiben. Zur Vorbereitung gibt die mdw das Programm MusicCoach frei." },
+        was: "Tonale und freitonale Melodien und Rhythmen vom Klavier aufschreiben. Zur Vorbereitung gibt die mdw zusätzlich das Programm MusicCoach frei.",
+        werkzeug: { tab: "gehoer", tool: "hoertest", modus: "melodie", name: "Hörtest: Diktat" } },
       { id: "akkorde", art: "pruefpunkt", titel: "Intervalle und Akkorde",
         was: "Intervalle, Dur- und Molldreiklänge, Septakkorde, jeweils mit Umkehrungen.",
-        werkzeug: { tab: "gehoer", tool: "gehoer", name: "Gehörbildung" } },
+        werkzeug: { tab: "gehoer", tool: "hoertest", modus: "akkorde", name: "Hörtest: Akkorde" } },
       { id: "fehler", art: "pruefpunkt", titel: "Fehler erkennen",
-        was: "Einen veränderten Ton im Akkord hören, Gehörtes mit Notiertem vergleichen und zuordnen." },
+        was: "Einen veränderten Ton im Akkord hören, Gehörtes mit Notiertem vergleichen und zuordnen.",
+        werkzeug: { tab: "gehoer", tool: "hoertest", modus: "fehler", name: "Hörtest: Fehler finden" } },
     ],
   },
 ];

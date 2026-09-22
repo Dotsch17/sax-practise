@@ -332,7 +332,7 @@ function aktualisiereScore(root) {
 
 export default {
   id: "gehoerbildung",
-  label: "Hören",
+  label: "Erkennen",
   mount(root) { render(root); },
   unmount() { aufgabe = null; },
 };

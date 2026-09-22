@@ -1133,3 +1133,48 @@ svg.staff.compact{ height: 96px; }
 .stufe.an{ border-color: var(--brass-dim); }
 .stufe.an b::before{ content: "✓ "; color: var(--brass); }
 .stufe:active{ background: var(--surface-hi); }
+
+/* --- Hörtest -----------------------------------------------------------------
+   Die Eingabe muss mit dem Daumen gehen, ohne hinzusehen, wo die Taste ist:
+   sieben Tonnamen in einer Reihe, darüber die Vorzeichen, darunter die
+   Korrekturen. Beim Eintippen klingt nichts — im Prüfungsraum auch nicht. */
+.ht-nebenknoepfe .row2{ align-items: center; margin-top: 10px; }
+.ht-nebenknoepfe .row2 button{ flex: 0 1 auto; padding: 0 18px; }
+.ht-gehoert{ margin-left: auto; font-size: 13px; color: var(--cane-dim); font-variant-numeric: tabular-nums; }
+#ht-aufgabe{ margin-top: 16px; }
+.ht-leer{ padding: 30px 14px; margin: 0; }
+.pad{ margin-top: 12px; }
+.pad-vz{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0; }
+.pad-toene{ display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.pad button{
+  min-height: 58px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--line); font-size: 16px;
+}
+.pad .ton{ font-family: var(--serif); font-size: 24px; padding: 0; }
+.pad .vz{ font-size: 22px; }
+.pad .vz.on{ background: var(--brass); border-color: var(--brass); color: #12242A; }
+.pad button:active{ background: var(--surface-hi); }
+.pad button:disabled{ opacity: .35; }
+.nt-aktiv-blass{ color: var(--brass-dim); }
+.palette{ display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; margin-top: 8px; }
+.zelle{
+  min-height: 64px; border-radius: 10px; padding: 4px;
+  background: var(--surface); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+}
+.zelle:disabled{ opacity: .3; }
+.zelle:active{ background: var(--surface-hi); }
+svg.staff.mini{ height: 60px; }
+.weiter:disabled{ opacity: .4; }
+.answer.gewaehlt{ border-color: var(--brass); }
+.wk{ display: flex; flex-direction: column; gap: 10px; }
+.wk-karte{
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 6px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+}
+.wk-karte b{ font-family: var(--serif); font-size: 28px; font-weight: 400; width: 22px; flex: none; }
+.wk-karte svg{ flex: 1; min-width: 0; }
+.wk-karte:active{ background: var(--surface-hi); }
+.wk-karte.richtig{ border-color: var(--brass); }
+.wk-karte.richtig b{ color: var(--brass); }
+.wk-karte.falsch{ opacity: .5; }

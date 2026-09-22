@@ -144,7 +144,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 | Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block. Prüfung: Countdown, alle Prüfungspunkte mit Stufen, Zeitplan rückwärts. Aufnahme: aufnehmen, nach Titel ablegen, erste gegen letzte hören |
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Tonanalyse, Bordun |
 | Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
-| Gehör | Nachspielen mit Mikrofonkontrolle, Intervalle/Akkorde/Skalen |
+| Gehör | Hörtest (Melodie- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
 | Impro | Grundlagen, Begleitband, Tonart finden, Zum Song spielen, Call and Response, Gig-Training |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
 
@@ -499,23 +499,48 @@ braucht eigene Werkzeuge.
   „erst sagen, dann aufdecken“, Abdeckung über 204 Aufgaben.
 - Neuer Probelokal-Plan und Kontext Klavier, siehe Abschnitt 4.
 
+**Phase 10 — Hörtest als Diktat, umgesetzt (v15).**
+- `music/diktat.js` und `tools/hoertest.js`: der schriftliche Hörtest der
+  Zulassungsprüfung zum Üben. Melodiediktat tonal (Dur und harmonisch Moll,
+  Kadenz vorweg) und freitonal, Rhythmusdiktat aus Bausteinen,
+  Drei- und Septakkorde mit Lage (Sextakkord, Quintsextakkord …),
+  veränderten Ton in Melodie oder Akkord finden, eines von drei notierten
+  Beispielen wiedererkennen. Alles klingend im Violinschlüssel.
+- Beim Eintragen klingt nichts — im Prüfungsraum gibt es kein Klavier zum
+  Nachprüfen. Die Oktave ergibt sich aus dem kleinsten Abstand zum
+  vorigen Ton und lässt sich korrigieren. Im tonalen Diktat zählt die
+  Schreibweise (Gis ist kein As), im freitonalen nicht.
+- Der Rhythmus des Melodiediktats steht blass da; eingetragen werden nur
+  die Tonhöhen. Rhythmus wird im Rhythmusdiktat eigens geübt. Beides in
+  einer Aufgabe zu verlangen wäre prüfungsnäher und ist der nächste
+  Schritt, wenn beides einzeln sitzt.
+- Akkorde stehen gebrochen von unten nach oben, weil der Notensatz keine
+  Akkorde übereinander setzt.
+- Das Werkzeug „Gehörbildung“ heißt in der Oberfläche jetzt „Erkennen“
+  (id weiterhin `gehoerbildung`). Das Können-Profil verwies bisher auf die
+  id `gehoer`, die es nie gab, und landete deshalb im Nachspielen.
+- Das Können-Profil kennt den Hörtest und meldet ihn, solange er nie
+  geübt wurde. Außerdem zählt es Tonleitern jetzt als geübt, wenn sie
+  abgehakt wurden — vorher zählte es nur richtig und falsch, was das
+  Tonleiter-Werkzeug nie schreibt, und meldete deshalb dauerhaft alle
+  dreizehn Tonarten als nie geübt.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Hörtest als Diktat.** Der Hörtest ist schriftlich: Melodie- und
-   Rhythmusdiktat, Septakkorde mit Umkehrungen, veränderten Ton im Akkord
-   finden, Gehörtes dem Notenbild zuordnen. Die Gehörbildung fragt bisher
-   nur Namen per Knopf ab. Notensatz und Melodiegenerator stehen bereit.
-2. **Kadenztrainer am Klavier**: Kadenzen in drei Lagen und II–V–I bis zwei
+1. **Kadenztrainer am Klavier**: Kadenzen in drei Lagen und II–V–I bis zwei
    Vorzeichen, als Notenbild plus Vorspiel.
-3. **Begleitband für die Prüfungsstücke**: eigene Akkordfolgen eingeben,
+2. **Begleitband für die Prüfungsstücke**: eigene Akkordfolgen eingeben,
    damit auch Another You und Miss Jones mit der eingebauten Band laufen.
    Bis dahin iReal Pro.
-4. **Pop-Saxophon-Vokabular** für Ziel 2: Subtone, Growl, Bends, Falls,
+3. **Pop-Saxophon-Vokabular** für Ziel 2: Subtone, Growl, Bends, Falls,
    Ghost Notes; Lick der Woche aus echten Aufnahmen; Gig-Setlist.
-5. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent. Dabei den
+4. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent. Dabei den
    Wissensartikel prüfen — er lehrt Lippen- statt Kiefervibrato, die
    klassische Schule (Mule, Teal, Rousseau) lehrt Kiefervibrato.
-6. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
+5. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
+6. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
+   dazu Zweistimmigkeit, falls die mdw sie verlangt — vorher bei
+   MusicCoach nachsehen, wie die Aufgaben dort aussehen.
 
 ## 9. Arbeitsweise
 
@@ -544,10 +569,10 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute dreizehn Suiten mit zusammen rund 34 900
+alle Testsuiten. Stand heute vierzehn Suiten mit zusammen rund 42 000
 Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
 Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
-Prüfungsstoff Tonleitern, Prüfungsplan, Tonhöhenerkennung. Dazu die
+Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Tonhöhenerkennung. Dazu die
 Rechtschreibprüfung aus Abschnitt 9.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`

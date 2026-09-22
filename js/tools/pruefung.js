@@ -25,6 +25,7 @@ import {
 import { abdeckung } from "../music/skalenarten.js";
 import * as aufnahmen from "../core/aufnahmen.js";
 import { vorwaehlen } from "./aufnahme.js";
+import { vorwaehlen as hoertestModus } from "./hoertest.js";
 
 let offen = null;
 let root = null;
@@ -211,7 +212,10 @@ function renderPunkt(id) {
     vorwaehlen(t);
     gehZu("ueben", "aufnahme");
   });
-  $("#pr-werkzeug", root)?.addEventListener("click", () => gehZu(p.werkzeug.tab, p.werkzeug.tool));
+  $("#pr-werkzeug", root)?.addEventListener("click", () => {
+    if (p.werkzeug.tool === "hoertest" && p.werkzeug.modus) hoertestModus(p.werkzeug.modus);
+    gehZu(p.werkzeug.tab, p.werkzeug.tool);
+  });
 
   if (mitStueck && e.titel) {
     aufnahmen.alle().then(liste => {

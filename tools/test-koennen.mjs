@@ -20,6 +20,7 @@ function satt() {
     d[`skala:dur:${k}`] = q(20, 1);
   }
   d["gehoer:intervalle:leicht"] = q(20, 1);
+  d["hoertest:melodie:tonal:1"] = q(20, 1);
   d["nachspielen:3"] = q(20, 1);
   d["rhythmus:2"] = q(20, 1);
   d["blattspiel:3"] = q(20, 1);
@@ -35,6 +36,32 @@ console.log("Ein satter Zustand meldet nichts");
   const b = K.befunde(S(satt()));
   eq(b.length, 0, "keine Befunde, wenn überall gut und genug geübt wurde");
   eq(K.naechsterSchritt(S(satt())), null, "und damit auch kein nächster Schritt");
+}
+
+console.log("\nHörtest und Tonleitern, wie die Werkzeuge sie speichern");
+{
+  const d = satt();
+  delete d["hoertest:melodie:tonal:1"];
+  d["hoertest:fehler:akkorde"] = { "dur:1": 4 };
+  const b = K.befunde(S(d));
+  ok(hat(b, "hoertest:nie"), "ohne einen einzigen Hörtest meldet sich der Prüfungsteil");
+  eq(b.find(x => x.id === "hoertest:nie").ziel.tool, "hoertest", "und führt in den Hörtest");
+
+  d["hoertest:rhythmus:2"] = q(2, 9);
+  const b2 = K.befunde(S(d));
+  ok(!hat(b2, "hoertest:nie"), "nach dem ersten Versuch nicht mehr");
+  ok(/Rhythmusdiktate/.test(b2.find(x => x.id === "gehoer:schwach")?.titel || ""),
+     "ein schwaches Rhythmusdiktat wird beim Namen genannt");
+
+  // Das Tonleiter-Werkzeug speichert count und bestBpm, nicht richtig und
+  // falsch. Abgehakt heißt geübt.
+  const t = satt();
+  t["skala:dur:Ges-Dur"] = { count: 2, bestBpm: 80 };
+  ok(!hat(K.befunde(S(t)), "skalen:fehlen"), "eine abgehakte Tonleiter gilt als geübt");
+  t["skala:dur:Ges-Dur"] = { count: 0 };
+  ok(hat(K.befunde(S(t)), "skalen:fehlen"), "eine mit null Mal abgehakt nicht");
+  const alle = K.befunde(S({}));
+  ok(alle.every(x => x.ziel.tool !== "gehoer"), "kein Vorschlag führt auf die alte Werkzeug-id");
 }
 
 console.log("\nZu dünne Datenlage ist kein Urteil");

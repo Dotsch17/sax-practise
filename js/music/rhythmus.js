@@ -10,7 +10,7 @@
 
 /** Bausteine, jeweils als Folge von { dur, dots, pause }. Die Summe steht
     daneben, damit das Füllen ohne Nachrechnen geht. */
-const BAUSTEINE = [
+export const BAUSTEINE = [
   // Stufe 1: Viertel, Halbe, Ganze
   { stufe: 1, laenge: 1, teile: [{ dur: 1 }] },
   { stufe: 1, laenge: 2, teile: [{ dur: 2 }] },

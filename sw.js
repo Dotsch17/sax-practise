@@ -12,7 +12,7 @@
    ========================================================================== */
 "use strict";
 
-const VERSION = "v14";
+const VERSION = "v15";
 const CACHE   = "sax-uebeplan-" + VERSION;
 
 // Relative Pfade, damit derselbe Worker unter jedem Unterverzeichnis läuft
@@ -44,6 +44,7 @@ const ASSETS = [
   "./js/data/songwissen.js",
   "./js/data/wissen.js",
   "./js/main.js",
+  "./js/music/diktat.js",
   "./js/music/glyphs.js",
   "./js/music/griffbild.js",
   "./js/music/harmonie.js",
@@ -63,6 +64,7 @@ const ASSETS = [
   "./js/tools/gigtraining.js",
   "./js/tools/griffe.js",
   "./js/tools/grundlagen.js",
+  "./js/tools/hoertest.js",
   "./js/tools/improvisation.js",
   "./js/tools/metronom.js",
   "./js/tools/nachspielen.js",

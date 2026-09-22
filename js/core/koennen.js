@@ -36,7 +36,8 @@ const ZIEL = {
   tonleitern:   { tab: "technik", tool: "tonleitern",   name: "Tonleitern" },
   rhythmus:     { tab: "technik", tool: "rhythmus",     name: "Rhythmus" },
   blattspiel:   { tab: "technik", tool: "blattspiel",   name: "Blattspiel" },
-  gehoer:       { tab: "gehoer",  tool: "gehoer",       name: "Gehörbildung" },
+  gehoer:       { tab: "gehoer",  tool: "gehoerbildung", name: "Gehörbildung" },
+  hoertest:     { tab: "gehoer",  tool: "hoertest",     name: "Hörtest" },
   nachspielen:  { tab: "gehoer",  tool: "nachspielen",  name: "Nachspielen" },
   stimmgeraet:  { tab: "ton",     tool: "stimmgeraet",  name: "Stimmgerät" },
   obertoene:    { tab: "ton",     tool: "obertoene",    name: "Obertöne" },
@@ -98,8 +99,10 @@ function tonleitern(drills) {
   // Werkzeugs legt für jede Tonart einen leeren Eintrag an; wer den als
   // „geübt“ liest, meldet nach dem ersten Blick in die Liste nie wieder
   // eine fehlende Tonart.
+  // Das Tonleiter-Werkzeug zählt Abhaken (`count`), nicht richtig und
+  // falsch. Beides gilt als gespielt.
   const geuebt = new Set(mitPraefix(drills, "skala")
-    .filter(x => versuche(x.d) > 0)
+    .filter(x => versuche(x.d) > 0 || (x.d?.count || 0) > 0)
     .map(x => x.id.split(":")[2]));
   const fehlen = ALLE_DUR.filter(k => !geuebt.has(k));
   const befunde = [];
@@ -209,8 +212,15 @@ function gehoer(drills) {
     ...mitPraefix(drills, "nachspielen").map(x => ({ ...x, ziel: ZIEL.nachspielen,
       was: "nachspielen", stufe: x.id.split(":")[1] })),
   ];
+  // Der Hörtest ist der schriftliche Prüfungsteil. Seine Fehlerzähler
+  // stehen unter hoertest:fehler und sind keine Trefferquote.
+  const hoertest = mitPraefix(drills, "hoertest")
+    .filter(x => x.id.split(":")[1] !== "fehler")
+    .map(x => ({ ...x, ziel: ZIEL.hoertest, was: "ht-" + x.id.split(":")[1], stufe: x.id.split(":")[2] }));
+  teile.push(...hoertest);
   const NAME = { intervalle: "Intervalle", akkorde: "Akkorde", skalen: "Skalen",
-                 nachspielen: "Nachspielen" };
+                 nachspielen: "Nachspielen", "ht-melodie": "Melodiediktate", "ht-rhythmus": "Rhythmusdiktate",
+                 "ht-akkorde": "Akkorde mit Lage", "ht-fehler": "Fehler finden", "ht-wieder": "Wiedererkennen" };
 
   const schwach = teile
     .map(x => ({ ...x, q: quote(x.d), n: versuche(x.d) }))
@@ -224,6 +234,14 @@ function gehoer(drills) {
         ? "Beim Nachspielen zählt nicht Wissen, sondern die Verbindung zwischen Ohr und Griff. Kürzere Phrasen, dafür fehlerfrei."
         : "Unter drei von vier heißt raten. Geh eine Stufe zurück, bis es über neunzig Prozent steht, dann wieder hoch.",
       gewicht: 0.85 - schwach.q, messbar: true,
+    });
+  }
+  if (!hoertest.some(x => versuche(x.d) > 0)) {
+    befunde.push({
+      id: "hoertest:nie", bereich: "Gehör", ziel: ZIEL.hoertest,
+      titel: "Der Hörtest war noch nie dran",
+      grund: "Der schriftliche Hörtest ist ein eigener Prüfungsteil und muss bestanden werden: Melodie- und Rhythmusdiktat, Akkorde mit Umkehrungen, Fehler finden. Aufschreiben ist eine andere Fähigkeit als Benennen.",
+      gewicht: 0.72, messbar: false,
     });
   }
   if (!teile.length) {
