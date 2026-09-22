@@ -3,18 +3,58 @@
 Diese Datei ist der dauerhafte Projektkontext. Lies sie vollständig, bevor du
 Code änderst. Wenn sich eine Entscheidung ändert, aktualisiere sie hier.
 
+**Wenn du neu auf dem Projekt bist:** lies diese Datei ganz, dann
+`js/views.js` (was es überhaupt gibt), dann das Werkzeug, das du anfassen
+willst. Jede Datei beginnt mit einem Kopfkommentar, der das *Warum* erklärt —
+der ist meistens wichtiger als der Code darunter. Danach einmal
+`node tools/check.mjs` laufen lassen, damit du weißt, wie ein grüner Stand
+aussieht.
+
+Der kürzeste Weg in die Irre ist, eine der Festlegungen in Abschnitt 3, 5
+oder 7 für Stilfragen zu halten. Sie sind keine. Jede davon steht dort, weil
+sie einmal falsch war.
+
 ---
 
 ## 1. Was das ist
 
 Eine Übe-App für einen einzelnen Nutzer: Dominik, Visual-Computing-Master an
-der TU Wien, spielt Altsaxophon (Yamaha YAS-480), bereitet sich auf die
-Aufnahmeprüfung IGP Saxophon an der mdw vor. Die App führt durch eine
-strukturierte tägliche Übe-Session für klassischen Ton und deckt daneben die
-Prüfungsdisziplinen ab: Stimmgerät mit Intonationskarte, Bordun, Metronom,
-Tonleitern, Rhythmus, Blattspiel, Gehörbildung, Nachspielen nach Gehör,
-Improvisation mit Begleitband, Auswertung, Repertoire, eigene Griffe und
-einen Wissensteil. Ziel ist, dass zum Üben kein zweites Werkzeug nötig ist.
+der TU Wien, spielt Altsaxophon (Yamaha YAS-480). Die App führt durch die
+Übe-Session, deckt die Prüfungsdisziplinen ab und ist zugleich das Werkzeug
+für das freie Spielen. Ziel ist, dass zum Üben kein zweites Werkzeug nötig
+ist — kein Stimmgerät, kein Metronom, keine zweite App fürs Gehör, kein
+Begleitautomat.
+
+**Zwei Ziele, und beide zählen.** Sie ziehen in verschiedene Richtungen, und
+wer nur eines davon kennt, baut am anderen vorbei:
+
+1. **Aufnahmeprüfung IGP Saxophon an der mdw.** Klassischer Ton, Tonleitern
+   in allen Tonarten, Blattspiel, Gehörbildung, Etüden. Dafür steht der
+   ausgearbeitete Übungsplan in `js/data/plan.js`.
+2. **Auf Events, Aperitivi und Hochzeiten mit DJ spielen.** Das ist eine
+   andere Disziplin: Tonart eines laufenden Stücks nach Gehör finden, über
+   eine Begleitung improvisieren, den Hook treffen, in die Lücken spielen,
+   Time gegen eine Maschine halten. Dafür stehen der Impro-Bereich und das
+   Gig-Training.
+
+**Wie wirklich geübt wird** — das bestimmt mehr Entwurfsentscheidungen als
+jede Technikfrage:
+
+- An drei Orten mit drei verschiedenen Möglichkeiten: Probelokal (echtes
+  Saxophon, beliebig laut), zuhause leise (Rücksicht auf Nachbarn, alles im
+  pp oder ganz ohne Ton), Travel Sax (digitales Blasrohr, akustisch still —
+  Technik ja, Ansatz und Voicing nein). Siehe `KONTEXTE` in `plan.js`.
+- **Nicht nach Kalender, sondern nach Lust und Zeit.** Die App ist kein
+  Vier-Wochen-Kurs, sondern der Helfer für jedes Mal, wenn das Instrument
+  ausgepackt wird. Deshalb wählt man die Länge der Session, nicht eine
+  Wochennummer.
+- Improvisation läuft über den Travel Sax am Handy, mit Spotify im Ohr und
+  zufälligen Stücken zum Mitspielen. Deshalb kann die App beim Improvisieren
+  nicht mithören — das Mikrofon würde den Song verfolgen, nicht den Spieler.
+- Der Stand am Instrument: Altissimo wird gerade erarbeitet, G, G♯ und A
+  gelingen teilweise.
+
+Die Werkzeuge im Einzelnen stehen in Abschnitt 4.
 
 **Primärer Nutzungskontext, der alle UI-Entscheidungen bestimmt:** Das iPhone
 steht am Notenständer im Probelokal. Der Nutzer hat beide Hände am Instrument,
@@ -453,9 +493,10 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten — Theorie, Notensatz, Rhythmus, Melodien,
-Tonhöhenerkennung, Notenerkennung, Harmonielehre, Licks, Obertöne und den
-Übungsplan. Rund 26 600 Prüfungen.
+alle Testsuiten. Stand heute elf Suiten mit zusammen rund 29 800 Prüfungen:
+Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre, Notenerkennung,
+Licks, Teiltöne, Können-Profil, Übungsplan, Tonhöhenerkennung. Dazu die
+Rechtschreibprüfung aus Abschnitt 9.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`
   mit dem Repo im Gleichstand. Eine neue Datei, die nicht drinsteht, fehlt im
@@ -493,3 +534,56 @@ kommt aber nie an. Das ist der Preis für Cache-First ohne Build-Schritt.
 Achtung: Jede Domain hat eigenen localStorage. Wenn der Nutzer die App von
 einer anderen URL neu lädt, sind die Daten leer — dann Export und Import
 verwenden.
+
+## 12. Zusammenarbeit mit dem Nutzer
+
+Das hier ist kein Auftragsprojekt mit Lastenheft. Der Nutzer sagt, was ihm
+beim Üben fehlt, und erwartet, dass daraus etwas Gebautes wird — inklusive
+der Entscheidungen, die er nicht getroffen hat. Was sich dabei bewährt hat:
+
+- **Sobald es kompiliert und die Tests grün sind, wird gepusht** — vor dem
+  nächsten Feature, nicht danach. Er übt mit dem, was auf GitHub Pages
+  liegt; ein fertiges Feature im Arbeitsverzeichnis nützt ihm nichts. Also:
+  `node tools/check.mjs`, `VERSION` in `sw.js` hochzählen, committen,
+  pushen, und dann prüfen, dass die neue Fassung wirklich ausgeliefert wird.
+- **Weiterbauen ist erwünscht.** „Mach coole Features, verbessere
+  bestehende“ ist eine echte Aufgabe, kein Höflichkeitssatz. Vorschläge
+  müssen aber aus seiner Übepraxis kommen, nicht aus dem Technikbaukasten.
+  Die Frage ist immer: Was fehlt ihm, wenn er das Instrument in der Hand
+  hat?
+- **Fachlich Stellung beziehen.** Er hat ausdrücklich darum gebeten, dass
+  die App wie ein Konservatoriumsprofessor auftritt. Ein Hinweis ohne
+  Begründung wird weggetippt; jeder Befund und jeder Übungsschritt trägt
+  deshalb ein *Warum* und ein *fertig, wenn*.
+- **Widerspruch ist willkommen, wenn er begründet ist.** Die Wochenansicht
+  ist auf seinen Einwand hin verschwunden, und das war richtig. Umgekehrt
+  sind die Altissimo-Griffe bis heute nicht eingebaut, weil die gelieferte
+  Grifftabelle nicht verlässlich lesbar war — geraten wird bei Griffen
+  nicht, lieber fehlt die Funktion.
+- **Ton der Texte.** Deutsch, knapp, in ganzen Sätzen, ohne Ausrufezeichen
+  und ohne Motivationssprache. Eine Zeile, die erklärt, warum etwas zählt,
+  ist mehr wert als drei, die anfeuern.
+- **Er prüft am Gerät.** Alles mit Mikrofon, der Kaltstart im Flugmodus und
+  jede Audio-Latenz lassen sich hier nicht testen. Nach Änderungen daran
+  ausdrücklich dazusagen, was er gegenprüfen muss.
+
+## 13. Was offen ist
+
+Ehrlicher Stand, damit niemand zweimal dieselbe Lücke sucht:
+
+- **Altissimo-Griffe fehlen weiterhin.** Der Nutzer hat eine Grifftabelle
+  geschickt, aus der sich F♯, G, G♯ und A ableiten ließen; sicher lesbar war
+  sie nicht, und H und B kannte er selbst nicht. Zwei Wege: er trägt sie
+  unter Technik → Griffe selbst ein, oder er schickt einen größeren
+  Ausschnitt. Bis dahin gilt Abschnitt 2: keine abgeschriebenen Griffe.
+- **Nie am Gerät geprüft:** Kaltstart im Flugmodus vom Home-Bildschirm,
+  Stimmgerät, Nachspielen, Tonanalyse und Obertöne mit echtem Mikrofon,
+  Wake Lock unter iOS. Im Browser am Rechner läuft alles; das heißt bei
+  Audio wenig.
+- **Die Obertonübung hört sich selbst zu**, wenn der Dauerton läuft und das
+  Mikrofon an ist. Steht als Hinweis in der Oberfläche. Eine echte Lösung
+  wäre, die eigene Frequenz aus der Erkennung herauszurechnen — bisher nicht
+  gebaut, weil unklar ist, ob es in der Praxis stört.
+- **Offene Ideen in der Reihenfolge des Nutzens** stehen am Ende von
+  Abschnitt 8.
+

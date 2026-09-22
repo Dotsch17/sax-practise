@@ -85,9 +85,11 @@ try {
   const ERLAUBT = new Set([
     "Disziplin", "Disziplinen", "Prüfungsdisziplin", "Prüfungsdisziplinen",
     "Minuszeichen", "Auflösungszeichen", "Adresszeile", "Kreuzsymbol",
-    "herauszufinden", "auszuschalten", "auszuwerten", "auszugeben",
-    "loszulegen", "auszulesen", "anzuzeigen", "auszublenden",
   ]);
+  // Trennbare Verben mit „zu“ im Inneren: herauszufinden, auszuschalten,
+  // loszulegen, herauszurechnen. Das ist eine offene Wortklasse, die sich
+  // nicht aufzählen lässt — deshalb eine Regel statt einer Liste.
+  const ZU_INFINITIV = new RegExp("s" + "zu[a-zäöüß]");
   // Zusammengesetzt, damit die Prüfung nicht über ihr eigenes Muster stolpert.
   const WORT = "[A-Za-zÄÖÜäöüß]*";
   const MUSTER = new RegExp(WORT + "s" + "z" + WORT, "g");
@@ -107,7 +109,7 @@ try {
     const zeilen = fs.readFileSync(f, "utf8").split(/\r?\n/);
     zeilen.forEach((zeile, i) => {
       for (const w of zeile.match(MUSTER) || []) {
-        if (ERLAUBT.has(w)) continue;
+        if (ERLAUBT.has(w) || ZU_INFINITIV.test(w)) continue;
         treffer.push(`${path.relative(ROOT, f)}:${i + 1}  ${w}`);
       }
     });
