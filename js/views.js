@@ -1,7 +1,7 @@
 /* ==========================================================================
    Was wo steht
 
-   Fünf Reiter unten, innerhalb jedes Reiters eine Reihe Werkzeuge. Damit ist
+   Sieben Reiter unten, innerhalb jedes Reiters eine Reihe Werkzeuge. Damit ist
    alles in höchstens zwei Tipps erreichbar und innerhalb eines Reiters in
    einem. Der Session-Runner steht ohne Umweg da, wenn die App startet — das
    ist die Hauptaktion und bleibt bei null Tipps.
@@ -9,6 +9,10 @@
    Prüfung und Aufnahme stehen gleich daneben: die Prüfung, weil sie sagt,
    wofür die Session heute da ist, und die Aufnahme, weil sie nach jedem
    Durchlauf gebraucht wird und nicht erst im Journal.
+
+   Impro ist die Sprache, Gig ist die Bühne: Setlist, Tonart am Song
+   finden, Gig-Training und Pop-Sound gehören zum zweiten Ziel, den Festen
+   mit DJ, und stehen deshalb in einem eigenen Reiter.
 
    Die Aufteilung folgt dem Üben, nicht der Technik: Ton und Technik sind die
    beiden Hälften der Instrumentalarbeit, Gehör ist die Prüfungsdisziplin
@@ -37,6 +41,8 @@ import grundlagen from "./tools/grundlagen.js";
 import popsound  from "./tools/popsound.js";
 import improvisation from "./tools/improvisation.js";
 import leadsheets from "./tools/leadsheets.js";
+import lickwoche from "./tools/lickwoche.js";
+import setlist   from "./tools/setlist.js";
 import callresponse from "./tools/callresponse.js";
 import gigtraining from "./tools/gigtraining.js";
 import tonartfinden from "./tools/tonartfinden.js";
@@ -52,7 +58,8 @@ export const TABS = [
   { id: "ton",     label: "Ton",     tools: [stimmgeraet, obertoene, tonanalyse, bordun] },
   { id: "technik", label: "Technik", tools: [tonleitern, kadenzen, rhythmus, blattspiel, griffe, metronom] },
   { id: "gehoer",  label: "Gehör",   tools: [hoertest, gehoer, nachspielen] },
-  { id: "impro",   label: "Impro",   tools: [grundlagen, popsound, improvisation, leadsheets, tonartfinden, songmitspielen, callresponse, gigtraining] },
+  { id: "impro",   label: "Impro",   tools: [grundlagen, improvisation, leadsheets, lickwoche, callresponse] },
+  { id: "gig",     label: "Gig",     tools: [setlist, songmitspielen, tonartfinden, gigtraining, popsound] },
   { id: "journal", label: "Journal", tools: [protokoll, statistik, repertoire, wissen, daten] },
 ];
 

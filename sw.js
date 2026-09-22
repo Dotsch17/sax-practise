@@ -12,7 +12,7 @@
    ========================================================================== */
 "use strict";
 
-const VERSION = "v18";
+const VERSION = "v19";
 const CACHE   = "sax-uebeplan-" + VERSION;
 
 // Relative Pfade, damit derselbe Worker unter jedem Unterverzeichnis läuft
@@ -39,9 +39,11 @@ const ASSETS = [
   "./js/core/session.js",
   "./js/core/store.js",
   "./js/data/improwissen.js",
+  "./js/data/licks.js",
   "./js/data/plan.js",
   "./js/data/popvokabular.js",
   "./js/data/pruefung.js",
+  "./js/data/setlist.js",
   "./js/data/songwissen.js",
   "./js/data/wissen.js",
   "./js/main.js",
@@ -54,6 +56,7 @@ const ASSETS = [
   "./js/music/klaviatur.js",
   "./js/music/leadsheet.js",
   "./js/music/lick.js",
+  "./js/music/lickwoche.js",
   "./js/music/melodie.js",
   "./js/music/notation.js",
   "./js/music/obertoene.js",
@@ -74,6 +77,7 @@ const ASSETS = [
   "./js/tools/improvisation.js",
   "./js/tools/kadenzen.js",
   "./js/tools/leadsheets.js",
+  "./js/tools/lickwoche.js",
   "./js/tools/metronom.js",
   "./js/tools/nachspielen.js",
   "./js/tools/obertoene.js",
@@ -83,6 +87,7 @@ const ASSETS = [
   "./js/tools/repertoire.js",
   "./js/tools/rhythmus.js",
   "./js/tools/session.js",
+  "./js/tools/setlist.js",
   "./js/tools/songmitspielen.js",
   "./js/tools/statistik.js",
   "./js/tools/stimmgeraet.js",

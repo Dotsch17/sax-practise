@@ -40,6 +40,7 @@ export const defaultState = () => ({
     skalaNoten: true,     // Tonleitern mit Noten oder auswendig
     kadenzVariante: 1,    // welche II–V–I-Variante vom Beiblatt geübt wird
     bandEinzaehlen: true, // eigene Stücke: ein Takt Hi-Hat vorweg
+    lickBpm: 80,          // Tempo für den Lick der Woche
     bandSpuren: { bass: true, comp: true, becken: true },
   },
   // Fortschritt je Übungsart. Bewusst flach und nach Übung getrennt,

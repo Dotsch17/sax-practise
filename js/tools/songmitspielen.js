@@ -41,6 +41,10 @@ const FORMEN = [4, 8, 12, 16];
 
 let offenerSong = null;   // Kopie des Songs, an dem gerade gearbeitet wird
 let offenerSchritt = 0;
+let vorgemerkt = null;    // id, mit der die Setlist hierher schickt
+
+/** Die Setlist schickt mit einem Song hierher, um seine Tonart zu finden. */
+export function oeffneSong(id) { vorgemerkt = id; }
 
 /* --- Speicher --------------------------------------------------------------- */
 
@@ -299,6 +303,13 @@ function zeichneEingabe(root, schritt) {
 export default {
   id: "songmitspielen",
   label: "Zum Song spielen",
-  mount(root) { render(root); },
+  mount(root) {
+    if (vorgemerkt) {
+      const s = alleSongs().find(x => x.id === vorgemerkt);
+      if (s) { offenerSong = { ...s }; offenerSchritt = naechsterOffener(s); }
+      vorgemerkt = null;
+    }
+    render(root);
+  },
   unmount() { offenerSong = null; offenerSchritt = 0; },
 };

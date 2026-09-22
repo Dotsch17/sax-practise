@@ -46,10 +46,10 @@ const ZIEL = {
   bordun:       { tab: "ton",     tool: "bordun",       name: "Bordun" },
   grundlagen:   { tab: "impro",   tool: "grundlagen",   name: "Grundlagen" },
   improvisation:{ tab: "impro",   tool: "improvisation",name: "Begleitband" },
-  tonartfinden: { tab: "impro",   tool: "tonartfinden", name: "Tonart finden" },
+  tonartfinden: { tab: "gig",     tool: "tonartfinden", name: "Tonart finden" },
   callresponse: { tab: "impro",   tool: "callresponse", name: "Call and Response" },
-  gigtraining:  { tab: "impro",   tool: "gigtraining",  name: "Gig-Training" },
-  songmitspielen:{tab: "impro",   tool: "songmitspielen",name:"Zum Song spielen" },
+  gigtraining:  { tab: "gig",     tool: "gigtraining",  name: "Gig-Training" },
+  songmitspielen:{tab: "gig",     tool: "songmitspielen",name:"Zum Song spielen" },
 };
 
 /* Was in welchem Kontext überhaupt geht. Am Travel Sax fehlt der Luftstrom

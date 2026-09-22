@@ -1263,3 +1263,45 @@ svg.klaviatur{ display: block; width: 100%; height: auto; max-height: 190px; }
 .pop-zeichen{ width: 16px; flex: none; }
 .pop-ergebnis.gut .pop-zeichen{ color: var(--brass); }
 .pop-ergebnis small{ color: var(--cane-dim); }
+
+/* --- Setlist und Bühne -----------------------------------------------------------
+   Die Bühnenkarte wird aus einem Meter gelesen, während der DJ schon den
+   nächsten Track anspielt: Griff-Tonart riesig, der Einsatz groß, der Rest
+   klein. Ein Tipp blättert weiter. */
+.sl-setzeile{ display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.sl-nr{ width: 20px; color: var(--cane-dim); font-variant-numeric: tabular-nums; }
+.sl-name{ flex: 1; text-align: left; text-decoration: none; color: var(--cane); min-height: 40px; }
+.sl-ton{ color: var(--brass); font-size: 14px; }
+.sl-mini{
+  min-width: 44px; min-height: 40px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--line); font-size: 14px;
+}
+.sl-mini:disabled{ opacity: .3; }
+.sl-karte{ display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.sl-karte-kopf{
+  flex: 1; display: block; text-align: left; min-height: 58px; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+}
+.sl-karte-kopf:active{ background: var(--surface-hi); }
+.sl-imset{ font-size: 12.5px; color: var(--brass); width: 52px; text-align: center; }
+.sl-vorschlaege{ margin-top: 22px; border-top: 1px solid var(--line); padding-top: 6px; }
+.sl-vorschlaege summary{ min-height: 48px; display: flex; align-items: center; cursor: pointer; color: var(--cane-dim); }
+.sl-vorschlag{ display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.sl-vorschlag > div{ flex: 1; }
+.sl-vorschlag span{ color: var(--cane-dim); font-size: 14px; }
+.sl-vorschlag .hint{ margin: 3px 0 0; }
+.buehne{ display: flex; flex-direction: column; gap: 6px; min-height: calc(100vh - 220px); }
+.buehne-kopf{ display: flex; justify-content: space-between; color: var(--cane-dim); font-size: 14px; }
+.buehne-titel{ font-family: var(--serif); font-size: 34px; line-height: 1.1; margin-top: 8px; }
+.buehne-interpret{ color: var(--cane-dim); font-size: 15px; }
+.buehne-ton{ font-family: var(--serif); font-size: 76px; line-height: 1; color: var(--brass); margin-top: 14px; }
+.buehne-klingt{ color: var(--cane-dim); font-size: 15px; }
+.buehne-rollen{ font-size: 18px; margin-top: 12px; color: var(--brass); }
+.buehne-einsatz{ font-size: 20px; line-height: 1.4; margin-top: 4px; }
+.buehne-naechst{ margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); color: var(--cane-dim); font-size: 15px; }
+.buehne-knoepfe button{ min-height: 72px; font-size: 18px; }
+@media (min-width: 600px){ .buehne-ton{ font-size: 110px; } .buehne-titel{ font-size: 44px; } }
+
+/* --- Lick der Woche ------------------------------------------------------------- */
+#lw-sitzt{ width: 100%; min-height: 44px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
+#lw-sitzt.weiter{ background: var(--brass); color: #12242A; border-color: var(--brass); }

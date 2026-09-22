@@ -145,7 +145,8 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Tonanalyse, Bordun |
 | Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Kadenzen fürs Klavier, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Hörtest (Melodie- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
-| Impro | Grundlagen, Pop-Sound (Lehrgang Subtone bis Altissimo-Schrei, mit Messung), Begleitband, Eigene Stücke (Band zu den eigenen Leadsheets), Tonart finden, Zum Song spielen, Call and Response, Gig-Training |
+| Impro | Grundlagen, Begleitband, Eigene Stücke (Band zu den eigenen Leadsheets), Lick der Woche, Call and Response |
+| Gig | Setlist mit Bühnenansicht, Zum Song spielen, Tonart finden, Gig-Training, Pop-Sound |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
 
 **Fünf Übe-Kontexte statt eines Plans.** Probelokal (voller Ton, übt für die
@@ -616,22 +617,51 @@ braucht eigene Werkzeuge.
   korrigiert: das Saxophon-Vibrato kommt aus einer kleinen Bewegung des
   Unterkiefers, klassisch wie im Pop.
 
+**Phase 14 — Setlist, Lick der Woche, Reiter Gig, umgesetzt (v19).**
+- Neuer Reiter **Gig** für das zweite Ziel: Setlist, Zum Song spielen,
+  Tonart finden, Gig-Training, Pop-Sound. Impro behält die Sprache:
+  Grundlagen, Begleitband, Eigene Stücke, Lick der Woche, Call and
+  Response. Die Sprungziele im Können-Profil zeigen auf den neuen Reiter.
+- `data/setlist.js` und `tools/setlist.js`: Repertoire, Set in der
+  Reihenfolge des Abends, Bühnenansicht mit Griff-Tonart groß, Einsatz,
+  Tempo und dem nächsten Song. **Die Songs sind dieselben wie in „Zum Song
+  spielen“** (`songmitspielen:liste`), ergänzt um ein Feld `gig`
+  (Interpret, Fassung, Rollen, Tempo, Einsatz, Stufe); das Set steht unter
+  `setlist:set`. Aus einem Song führt ein Knopf nach „Zum Song spielen“,
+  um die Tonart am Original zu bestimmen.
+- Die Vorschläge nennen Songs mit Saxophon, Interpret und Rolle — **ohne
+  Tonart**, mit Absicht: auf einem DJ-Set läuft oft ein Edit in anderer
+  Tonart, und eine Tonart aus dem Gedächtnis wäre an genau dem Abend
+  falsch. Der Test hält fest, dass keine drinsteht.
+- `music/lickwoche.js`, `data/licks.js`, `tools/lickwoche.js`: ein Lick
+  durch zwölf Tonarten im Quartenzirkel, über Stufen transponiert und in
+  den Umfang gelegt, je Tonart abzuhaken, dazu die Band in der Harmonie
+  des Licks. Sechs selbst gebaute Licks zum Anfangen — keine
+  Transkriptionen; der Test prüft, dass jeder Ton zum Akkord gehört oder
+  sich chromatisch auflöst. Eigene Licks aus Aufnahmen trägt man über eine
+  Tonhöhen- und Dauern-Eingabe ein; die App spielt die Aufnahme nicht.
+- Beim Bau der Band zum Lick fiel ein Buchstabierfehler auf: klingend über
+  Halbtöne gerechnet stand in Des-Dur gegriffen „Dism7“ statt „Esm7“.
+  `bandFuer()` buchstabiert jetzt in der gegriffenen Tonart über Stufen und
+  überträgt dann nach klingend; getestet über alle zwölf Tonarten.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Gig-Setlist und Lick der Woche**: die Stücke, die bei Hochzeiten
-   wirklich drankommen, mit Tonart und der Stelle fürs Solo; dazu je Woche
-   eine Phrase aus einer echten Aufnahme, nach Gehör gelernt und in zwölf
-   Tonarten gespielt.
-2. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent aus dem
+1. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent aus dem
    Tonhöhenverlauf; die Messung für Pop-Vibrato und Shake käme damit gleich
    mit.
-3. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
-4. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
+2. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
+3. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
    dazu Zweistimmigkeit, falls die mdw sie verlangt — vorher bei
    MusicCoach nachsehen, wie die Aufgaben dort aussehen.
-5. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
+4. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
    der Klavierprüfung. Für die Stücke reicht vorerst das Cockpit; fürs
    Blattspiel ließe sich der Melodiegenerator zweihändig machen.
+5. **Buchstabierung der gegriffenen Akkorde in „Improvisation“ prüfen.**
+   Dort wird gegriffen über `fromMidi` mit Vorzeichen-Vorliebe gerechnet,
+   nicht über Stufen wie in `leadsheet.js` und `lickwoche.js`. Ob dabei in
+   entlegenen Tonarten dieselbe Verwechslung wie oben entsteht, ist nicht
+   geprüft.
 
 ## 9. Arbeitsweise
 
@@ -665,11 +695,11 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute achtzehn Suiten mit zusammen rund 43 500
+alle Testsuiten. Stand heute neunzehn Suiten mit zusammen rund 43 700
 Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
 Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
 Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Kadenzen, Leadsheets,
-Grooves, Pop-Vokabular, Tonhöhenerkennung. Dazu die
+Grooves, Pop-Vokabular, Lick der Woche und Setlist, Tonhöhenerkennung. Dazu die
 Rechtschreibprüfung aus Abschnitt 9.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`
