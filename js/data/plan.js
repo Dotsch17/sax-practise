@@ -255,7 +255,7 @@ export const KONTEXTE = [
     kurz: "Prüfungsteil",
     was: "Grundkenntnisse Klavier für die Zulassungsprüfung: zwei Stücke, Blattspiel, Kadenzen. Lieber täglich zwanzig Minuten als einmal in der Woche zwei Stunden.",
     bloecke: [
-      { id: "kl_kadenz", name: "Kadenzen", min: 8, werkzeug: "metronom", cues: [
+      { id: "kl_kadenz", name: "Kadenzen", min: 8, werkzeug: "kadenzen", cues: [
         "Einfache Kadenz I–IV–V–I in Quint-, Oktav- und Terzlage, Dur und Moll bis zwei Vorzeichen",
         "Dazu II–V–I in Dur, eine der drei Varianten vom Beiblatt",
         "Langsam und ohne Blick auf die Hände. Die Stimmen gehen den kürzesten Weg",

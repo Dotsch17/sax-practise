@@ -23,6 +23,7 @@ import {
   termin, meilensteine, sollStufe, naechsterMeilenstein, tageBis, hinweise,
 } from "../data/pruefung.js";
 import { abdeckung } from "../music/skalenarten.js";
+import { abdeckung as kadenzAbdeckung } from "../music/kadenz.js";
 import * as aufnahmen from "../core/aufnahmen.js";
 import { vorwaehlen } from "./aufnahme.js";
 import { vorwaehlen as hoertestModus } from "./hoertest.js";
@@ -111,7 +112,9 @@ function render() {
 function punktKarte(p, soll) {
   const e = eintrag(state().drills, p.id);
   if (p.art === "abdeckung") {
-    const a = abdeckung(state().drills);
+    const a = p.id === "kadenzen"
+      ? kadenzAbdeckung(state().drills, state().settings.kadenzVariante || 1)
+      : abdeckung(state().drills);
     return `<button class="pr-punkt" data-id="${p.id}">
       <span class="pr-punkt-kopf"><b>${escapeHtml(p.titel)}</b><em>${a.geuebt} von ${a.gesamt}</em></span>
       <span class="pr-punkt-sub">${escapeHtml(p.was)}</span>

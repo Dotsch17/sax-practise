@@ -38,6 +38,7 @@ export const defaultState = () => ({
     metroSound: "klick",
     countIn: true,
     skalaNoten: true,     // Tonleitern mit Noten oder auswendig
+    kadenzVariante: 1,    // welche II–V–I-Variante vom Beiblatt geübt wird
   },
   // Fortschritt je Übungsart. Bewusst flach und nach Übung getrennt,
   // damit eine neue Übung keine Migration braucht.

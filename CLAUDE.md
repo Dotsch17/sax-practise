@@ -143,7 +143,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 |---|---|
 | Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block. Prüfung: Countdown, alle Prüfungspunkte mit Stufen, Zeitplan rückwärts. Aufnahme: aufnehmen, nach Titel ablegen, erste gegen letzte hören |
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Tonanalyse, Bordun |
-| Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
+| Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Kadenzen fürs Klavier, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Hörtest (Melodie- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
 | Impro | Grundlagen, Begleitband, Tonart finden, Zum Song spielen, Call and Response, Gig-Training |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
@@ -525,22 +525,48 @@ braucht eigene Werkzeuge.
   Tonleiter-Werkzeug nie schreibt, und meldete deshalb dauerhaft alle
   dreizehn Tonarten als nie geübt.
 
+**Phase 11 — Kadenzen fürs Klavier, umgesetzt (v16).**
+- `music/kadenz.js`: genau die Modelle vom Beiblatt Kadenzen der mdw.
+  Einfache Kadenz in Quint-, Oktav- und Terzlage für Dur und Moll, II–V–I
+  in den Varianten 1 bis 3, alle Tonarten bis zwei Vorzeichen — für zkF
+  Popularmusik sind das 35 Aufgaben. Die Modelle stehen als
+  Stufen-Positionen, nicht als Halbtöne, damit jede Tonart richtig
+  buchstabiert herauskommt. C-Dur, a-Moll und die drei Varianten sind im
+  Test Ton für Ton gegen das Blatt geprüft; so wurde das Blatt gelesen:
+  Dur Quintlage C-E-G, C-F-A, H-D-G über C3 F3 G3 C3; II–V–I Variante 1
+  C-F, H-F, H-E, Variante 2 F-A-C-E, F-A-H-D, E-G-H-D, Variante 3
+  C-E-F-A, H-D-F-A, H-D-E-G, jeweils über D2 G2 C2.
+- `music/klaviatur.js`: die Tastatur als SVG. Für einen Klavieranfänger ist
+  „welche Tasten“ die erste Frage, nicht „welche Note“ — deshalb Tastatur
+  statt Notenbild. Rechte Hand Messing, Bass gedämpft, ein Punkt auf
+  Tönen, die vom vorigen Akkord liegen bleiben.
+- `tools/kadenzen.js` unter Technik: Akkord für Akkord, Vorspielen mit
+  mitlaufender Anzeige, Prüfermodus (Tonart und Lage, erst spielen, dann
+  aufdecken), Übersicht über alle 35. Die gewählte II–V–I-Variante steht
+  in `settings.kadenzVariante`; gezählt wird nur sie, weil in der Prüfung
+  nur eine gespielt wird.
+- **Kein Fingersatz**, aus demselben Grund wie bei den Altissimo-Griffen:
+  den legt der Lehrer fest, und ein falscher schleift sich ein.
+- Das Können-Profil meldet die Kadenzen nur im Kontext Klavier. Mit dem
+  Saxophon in der Hand ist ein Klaviervorschlag schlechter als keiner.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Kadenztrainer am Klavier**: Kadenzen in drei Lagen und II–V–I bis zwei
-   Vorzeichen, als Notenbild plus Vorspiel.
-2. **Begleitband für die Prüfungsstücke**: eigene Akkordfolgen eingeben,
+1. **Begleitband für die Prüfungsstücke**: eigene Akkordfolgen eingeben,
    damit auch Another You und Miss Jones mit der eingebauten Band laufen.
    Bis dahin iReal Pro.
-3. **Pop-Saxophon-Vokabular** für Ziel 2: Subtone, Growl, Bends, Falls,
+2. **Pop-Saxophon-Vokabular** für Ziel 2: Subtone, Growl, Bends, Falls,
    Ghost Notes; Lick der Woche aus echten Aufnahmen; Gig-Setlist.
-4. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent. Dabei den
+3. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent. Dabei den
    Wissensartikel prüfen — er lehrt Lippen- statt Kiefervibrato, die
    klassische Schule (Mule, Teal, Rousseau) lehrt Kiefervibrato.
-5. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
-6. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
+4. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
+5. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
    dazu Zweistimmigkeit, falls die mdw sie verlangt — vorher bei
    MusicCoach nachsehen, wie die Aufgaben dort aussehen.
+6. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
+   der Klavierprüfung. Für die Stücke reicht vorerst das Cockpit; fürs
+   Blattspiel ließe sich der Melodiegenerator zweihändig machen.
 
 ## 9. Arbeitsweise
 
@@ -569,10 +595,11 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute vierzehn Suiten mit zusammen rund 42 000
+alle Testsuiten. Stand heute fünfzehn Suiten mit zusammen rund 42 900
 Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
 Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
-Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Tonhöhenerkennung. Dazu die
+Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Kadenzen,
+Tonhöhenerkennung. Dazu die
 Rechtschreibprüfung aus Abschnitt 9.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`

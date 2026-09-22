@@ -64,6 +64,16 @@ console.log("\nHörtest und Tonleitern, wie die Werkzeuge sie speichern");
   ok(alle.every(x => x.ziel.tool !== "gehoer"), "kein Vorschlag führt auf die alte Werkzeug-id");
 }
 
+console.log("\nKadenzen nur am Klavier");
+{
+  const d = satt();
+  ok(!hat(K.befunde(S(d), "probelokal"), "kadenzen:nie"), "im Probelokal kein Klaviervorschlag");
+  ok(hat(K.befunde(S(d), "klavier"), "kadenzen:nie"), "im Kontext Klavier schon");
+  eq(K.befunde(S(d), "klavier")[0].id, "kadenzen:nie", "und dort als Erstes");
+  d["kadenz:dur:quint:C-Dur"] = { count: 1 };
+  ok(!hat(K.befunde(S(d), "klavier"), "kadenzen:nie"), "nach der ersten gesessenen Kadenz nicht mehr");
+}
+
 console.log("\nZu dünne Datenlage ist kein Urteil");
 {
   const d = satt();

@@ -1178,3 +1178,38 @@ svg.staff.mini{ height: 60px; }
 .wk-karte.richtig{ border-color: var(--brass); }
 .wk-karte.richtig b{ color: var(--brass); }
 .wk-karte.falsch{ opacity: .5; }
+
+/* --- Kadenzen ------------------------------------------------------------------
+   Weiße Tasten in der Farbe des Haupttexts, schwarze im Grund. Die rechte
+   Hand ist Messing, der Bass gedämpftes Messing — eine Akzentfarbe in zwei
+   Stärken, keine zweite. Liegen bleibende Töne tragen einen Punkt. */
+.kd-schritte{ display: flex; gap: 8px; margin: 14px 0 10px; }
+.kd-schritt{
+  flex: 1; min-height: 58px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--line);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.kd-schritt b{ font-family: var(--serif); font-size: 22px; font-weight: 400; line-height: 1; }
+.kd-schritt span{ font-size: 12.5px; color: var(--cane-dim); min-height: 15px; }
+.kd-schritt.on{ border-color: var(--brass); }
+.kd-schritt.on b{ color: var(--brass); }
+.kd-tasten{
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 10px 8px 4px;
+}
+svg.klaviatur{ display: block; width: 100%; height: auto; max-height: 190px; }
+.kl-weiss{ fill: var(--cane); stroke: var(--ground); stroke-width: 1; }
+.kl-schwarz{ fill: var(--ground); stroke: var(--ground); }
+.kl-weiss.kl-rechts, .kl-schwarz.kl-rechts{ fill: var(--brass); }
+.kl-weiss.kl-links, .kl-schwarz.kl-links{ fill: var(--brass-dim); }
+.kl-name{ font-family: var(--sans); font-size: 9.5px; font-weight: 600; fill: #12242A; }
+.kl-schwarz.kl-rechts + .kl-name, .kl-schwarz.kl-links + .kl-name{ fill: #12242A; }
+.kl-punkt{ fill: #12242A; }
+.kl-c4{ font-family: var(--sans); font-size: 9px; fill: var(--cane-dim); }
+.kd-haende{ margin-top: 12px; }
+.kd-hand{ display: flex; align-items: baseline; gap: 12px; padding: 4px 2px; }
+.kd-hand span{ width: 58px; flex: none; font-size: 13px; color: var(--cane-dim); }
+.kd-hand b{ font-family: var(--serif); font-weight: 400; font-size: 28px; letter-spacing: .01em; }
+.kd-zeile{ display: flex; align-items: center; gap: 6px; margin: 6px 0; }
+.kd-zeile-name{ width: 84px; flex: none; font-size: 13px; color: var(--cane-dim); }
+.kd-zeile .keycell{ flex: 1; min-width: 0; min-height: 48px; }

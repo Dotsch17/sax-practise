@@ -38,6 +38,7 @@ const ZIEL = {
   blattspiel:   { tab: "technik", tool: "blattspiel",   name: "Blattspiel" },
   gehoer:       { tab: "gehoer",  tool: "gehoerbildung", name: "Gehörbildung" },
   hoertest:     { tab: "gehoer",  tool: "hoertest",     name: "Hörtest" },
+  kadenzen:     { tab: "technik", tool: "kadenzen",     name: "Kadenzen" },
   nachspielen:  { tab: "gehoer",  tool: "nachspielen",  name: "Nachspielen" },
   stimmgeraet:  { tab: "ton",     tool: "stimmgeraet",  name: "Stimmgerät" },
   obertoene:    { tab: "ton",     tool: "obertoene",    name: "Obertöne" },
@@ -56,10 +57,12 @@ const ZIEL = {
    dort nicht üben, und ein Vorschlag, der das ignoriert, ist schlechter als
    gar keiner. */
 const NICHT_IM_KONTEXT = {
-  travelsax: new Set(["obertoene", "stimmgeraet", "tonanalyse", "bordun"]),
-  leise:     new Set(["gigtraining"]),
-  probelokal: new Set(),
-  tonplan:    new Set(),
+  // Kadenzen sind Klavier. Mit dem Saxophon in der Hand hilft ein
+  // Klaviervorschlag nicht, also nur im Kontext Klavier.
+  travelsax: new Set(["obertoene", "stimmgeraet", "tonanalyse", "bordun", "kadenzen"]),
+  leise:     new Set(["gigtraining", "kadenzen"]),
+  probelokal: new Set(["kadenzen"]),
+  tonplan:    new Set(["kadenzen"]),
   // Am Klavier ist kein Saxophon in der Hand. Was bleibt, ist das Gehör.
   klavier:    new Set(["obertoene", "stimmgeraet", "tonanalyse", "bordun", "tonleitern",
                        "rhythmus", "blattspiel", "improvisation", "tonartfinden", "callresponse",
@@ -327,6 +330,24 @@ function technik(drills) {
   return befunde;
 }
 
+/**
+ * Klavier: die Kadenzen vom Beiblatt. Gemeldet wird, was nie saß — in
+ * der Reihenfolge, in der man sie lernt: Dur vor Moll vor II–V–I.
+ */
+function klavier(drills) {
+  const alle = mitPraefix(drills, "kadenz");
+  const gesessen = alle.filter(x => (x.d?.count || 0) > 0);
+  if (!gesessen.length) {
+    return [{
+      id: "kadenzen:nie", bereich: "Klavier", ziel: ZIEL.kadenzen,
+      titel: "Die Kadenzen waren noch nie dran",
+      grund: "Sie sind der Teil der Klavierprüfung, der sich am sichersten vorbereiten lässt: fünfunddreißig feste Aufgaben. Anfangen mit C-Dur in Quintlage.",
+      gewicht: 0.8, messbar: false,
+    }];
+  }
+  return [];
+}
+
 /** Welcher Block fällt im Protokoll regelmäßig aus? */
 export function ausgelasseneBloecke(log, bloecke) {
   if (!log?.length || !bloecke?.length) return [];
@@ -355,7 +376,7 @@ export function befunde(S, kontext = "probelokal") {
 
   const alle = [
     ...tonleitern(drills), ...intonation(drills), ...obertoene(drills),
-    ...gehoer(drills), ...improvisation(drills), ...technik(drills),
+    ...gehoer(drills), ...improvisation(drills), ...technik(drills), ...klavier(drills),
   ];
   return alle
     .filter(b => !gesperrt.has(b.ziel.tool))
