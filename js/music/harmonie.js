@@ -171,7 +171,11 @@ export function chordSymbol(root, qualityId, naming = NAMING.DE) {
    Die Auswahl ist die eines Lehrers, nicht die einer Datenbank: was man
    wirklich übt, bevor man Standards spielt. */
 
-/* `sigVersatz` ist die Verschiebung der Vorzeichnung gegenüber Dur, in
+/* `groove` ist der Stil, in dem die Band die Folge spielt; ohne Angabe
+   Swing. Ein House-Vamp im Swing wäre eine Übung für etwas, das es auf
+   keinem Gig gibt.
+
+   `sigVersatz` ist die Verschiebung der Vorzeichnung gegenüber Dur, in
    Quintschritten: Moll liegt drei Quinten tiefer als seine Durparallele,
    Dorisch zwei. Ohne diese Angabe stünde über einem dorischen Vamp auf D
    eine Vorzeichnung mit zwei Kreuzen, wo keines hingehört. */
@@ -257,7 +261,7 @@ export const PROGRESSIONS = [
     ],
   },
   {
-    id: "vier_akkorde", sigVersatz: 0, name: "Die vier Akkorde", takt: 4, tempo: 120,
+    id: "vier_akkorde", groove: "pop", sigVersatz: 0, name: "Die vier Akkorde", takt: 4, tempo: 120,
     was: "I–V–vi–IV. Die Folge, über die gefühlt die halbe Popmusik läuft. Wer sie in jeder Tonart kann, kommt auf jedem Fest durch.",
     akkorde: [
       { grad: 0, q: "dur", takte: 1 }, { grad: 7, q: "dur", takte: 1 },
@@ -265,7 +269,7 @@ export const PROGRESSIONS = [
     ],
   },
   {
-    id: "moll_pop", sigVersatz: -3, name: "Moll-Vierer", takt: 4, tempo: 116,
+    id: "moll_pop", groove: "pop", sigVersatz: -3, name: "Moll-Vierer", takt: 4, tempo: 116,
     was: "i–VI–III–VII. Die dunkle Schwester der vier Akkorde, von Ballade bis Dancefloor.",
     akkorde: [
       { grad: 0, q: "moll", takte: 1 }, { grad: 8, q: "dur", takte: 1 },
@@ -273,14 +277,14 @@ export const PROGRESSIONS = [
     ],
   },
   {
-    id: "house_vamp", sigVersatz: -3, name: "House-Vamp", takt: 4, tempo: 124,
+    id: "house_vamp", groove: "house", sigVersatz: -3, name: "House-Vamp", takt: 4, tempo: 124,
     was: "Zwei Mollakkorde, vier Takte lang. Genau das, was unter einem DJ-Set liegt — und da kommt es nicht auf Akkordtöne an, sondern auf Timing und einen Ton, der trägt.",
     akkorde: [
       { grad: 0, q: "m7", takte: 4 }, { grad: 5, q: "m7", takte: 4 },
     ],
   },
   {
-    id: "bossa", sigVersatz: 0, name: "Bossa", takt: 4, tempo: 132,
+    id: "bossa", groove: "bossa", sigVersatz: 0, name: "Bossa", takt: 4, tempo: 132,
     was: "Der Klang jedes Aperitivo. Ruhig, warm, und die Septimen dürfen klingen.",
     akkorde: [
       { grad: 0, q: "maj7", takte: 2 }, { grad: 5, q: "maj7", takte: 2 },
@@ -289,7 +293,7 @@ export const PROGRESSIONS = [
     ],
   },
   {
-    id: "ballade", sigVersatz: 0, name: "Balladenwendung", takt: 4, tempo: 68,
+    id: "ballade", groove: "ballade", sigVersatz: 0, name: "Balladenwendung", takt: 4, tempo: 68,
     was: "Langsam, viel Platz. Hier hört man jeden Ton — und jede Intonation.",
     akkorde: [
       { grad: 0, q: "maj7", takte: 2 },

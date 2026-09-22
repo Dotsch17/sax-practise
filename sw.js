@@ -12,7 +12,7 @@
    ========================================================================== */
 "use strict";
 
-const VERSION = "v17";
+const VERSION = "v18";
 const CACHE   = "sax-uebeplan-" + VERSION;
 
 // Relative Pfade, damit derselbe Worker unter jedem Unterverzeichnis läuft
@@ -40,6 +40,7 @@ const ASSETS = [
   "./js/core/store.js",
   "./js/data/improwissen.js",
   "./js/data/plan.js",
+  "./js/data/popvokabular.js",
   "./js/data/pruefung.js",
   "./js/data/songwissen.js",
   "./js/data/wissen.js",
@@ -47,6 +48,7 @@ const ASSETS = [
   "./js/music/diktat.js",
   "./js/music/glyphs.js",
   "./js/music/griffbild.js",
+  "./js/music/grooves.js",
   "./js/music/harmonie.js",
   "./js/music/kadenz.js",
   "./js/music/klaviatur.js",
@@ -55,6 +57,7 @@ const ASSETS = [
   "./js/music/melodie.js",
   "./js/music/notation.js",
   "./js/music/obertoene.js",
+  "./js/music/popmessung.js",
   "./js/music/rhythmus.js",
   "./js/music/skalenarten.js",
   "./js/music/theory.js",
@@ -74,6 +77,7 @@ const ASSETS = [
   "./js/tools/metronom.js",
   "./js/tools/nachspielen.js",
   "./js/tools/obertoene.js",
+  "./js/tools/popsound.js",
   "./js/tools/protokoll.js",
   "./js/tools/pruefung.js",
   "./js/tools/repertoire.js",

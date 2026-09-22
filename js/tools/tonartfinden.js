@@ -115,7 +115,7 @@ function starte(root) {
   absTakt = -1;
   band.configure({
     akkorde: runde.akkorde, bpm: sel.tempo, swing: SWING[runde.prog.id] ?? 0.5,
-    a4: state().settings.a4, taktlaenge: 4,
+    a4: state().settings.a4, taktlaenge: 4, groove: runde.prog.groove || "swing",
   });
   if (!offBar) offBar = band.onBar(info => aufTakt(root, info));
   // Wird die Band von außen gestoppt, bleibt die Frage offen — nur die

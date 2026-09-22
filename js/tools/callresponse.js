@@ -195,7 +195,7 @@ function baue(root) {
   akkorde = buildProgression(progOf(), TONARTEN[sel.tonartIdx].pc);
   band.configure({
     akkorde, bpm: sel.tempo, swing: sel.swing,
-    a4: state().settings.a4,
+    a4: state().settings.a4, groove: progOf().groove || "swing",
   });
   renderForm(root);
 }
@@ -215,7 +215,7 @@ function los(root) {
   aktuellesLick = null;
   letztesLick = null;
   phase = "hoeren";
-  band.configure({ akkorde, bpm: sel.tempo, swing: sel.swing, a4: state().settings.a4 });
+  band.configure({ akkorde, bpm: sel.tempo, swing: sel.swing, a4: state().settings.a4, groove: progOf().groove || "swing" });
   band.start();
   holdScreen();
   const d = drill(drillId(), { runden: 0 });

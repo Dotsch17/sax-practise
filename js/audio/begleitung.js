@@ -1,19 +1,16 @@
 /* ==========================================================================
-   Begleitung: Bass, Comping, Becken
+   Begleitung: Bass, Akkorde, Schlagzeug
 
    Derselbe vorausschauende Scheduler wie beim Metronom — ein Wecker alle
    25 ms legt die nächsten 200 ms exakt auf die Audio-Uhr. Gehört wird die
    Audio-Uhr; Ruckler im Hauptthread sind unhörbar.
 
-   Swing ist kein Schalter, sondern ein Verhältnis: das „und“ liegt bei
-   geradem Spiel auf 0,5 und bei vollem Swing auf 0,667 der Zählzeit.
-   Dazwischen ist alles erlaubt, und genau das braucht man beim Üben —
-   ein Blues bei 200 swingt weniger als einer bei 100.
-
-   Der Bass geht bewusst nicht nach Zufall. Eine Basslinie, die den nächsten
-   Grundton nicht ansteuert, klingt nach Zufallsgenerator und hilft beim
-   Hören der Harmonie nicht. Deshalb: Grundton auf Eins, Akkordtöne in der
-   Mitte, Leitton auf Vier.
+   Gerechnet wird in Sechzehnteln, weil Funk und House sie brauchen. Was auf
+   welchem Sechzehntel erklingt, steht in js/music/grooves.js; hier wird nur
+   daraus Klang gemacht. Bei den geswingten Grooves gibt es nur Viertel und
+   „und“, und das „und“ liegt auf dem Swing-Verhältnis: bei 0,5 gerade, bei
+   0,667 voller Swing, dazwischen alles — ein Blues bei 200 swingt weniger
+   als einer bei 100.
 
    Kein DOM.
    ========================================================================== */
@@ -21,8 +18,9 @@
 "use strict";
 
 import { audio } from "./context.js";
-import { midiToFreq, toMidi } from "../music/theory.js";
-import { QUALITIES, chordAtBar, progressionTakte, akkordAufSchlag, akkordeImTakt } from "../music/harmonie.js";
+import { midiToFreq } from "../music/theory.js";
+import { chordAtBar, progressionTakte, akkordAufSchlag, akkordeImTakt } from "../music/harmonie.js";
+import { grooveOf, ereignisse, subAnteil } from "../music/grooves.js";
 
 const LOOKAHEAD_S = 0.2;
 const TICK_MS = 25;
@@ -30,31 +28,38 @@ const TICK_MS = 25;
 let running = false;
 let timer = null;
 let naechsteZeit = 0;
-let position = 0;          // Achtelschritte seit dem Start
+let position = 0;          // Sechzehntel seit dem Start, Einzähler inklusive
 let akkorde = [];
 let bpm = 120;
 let swing = 0.62;
 let a4 = 440;
 let taktlaenge = 4;
+let groove = "swing";
 let laut = { bass: 0.9, comp: 0.55, becken: 0.5 };
 let spuren = { bass: true, comp: true, becken: true };
 // Ein Takt Hi-Hat vor dem ersten Akkord. Aus, solange es niemand verlangt —
 // die Übungen mit festen Folgen fangen direkt an.
 let einzaehlen = false;
-let vorlauf = 0;           // Achtelschritte Einzähler dieses Laufs
+let vorlauf = 0;           // Sechzehntel Einzähler dieses Laufs
+let zustand = {};          // laufende Basslinie des Grooves
 
 const barWatchers = new Set();
 export function onBar(fn) { barWatchers.add(fn); return () => barWatchers.delete(fn); }
 const stateWatchers = new Set();
 export function onStateChange(fn) { stateWatchers.add(fn); return () => stateWatchers.delete(fn); }
 
+const proTakt = () => taktlaenge * 4;
 export const isRunning = () => running;
 export const getBpm = () => bpm;
-export const getTakt = () => Math.floor(Math.max(0, position - vorlauf) / (taktlaenge * 2));
+export const getGroove = () => groove;
+export const getTakt = () => Math.floor(Math.max(0, position - vorlauf) / proTakt());
 
 export function configure(opts = {}) {
-  const tempoWechsel = (opts.bpm != null && opts.bpm !== bpm) ||
-                       (opts.swing != null && opts.swing !== swing);
+  const warGerade = grooveOf(groove).gerade;
+  const neuGroove = opts.groove != null ? grooveOf(opts.groove).id : groove;
+  const zeitWechsel = (opts.bpm != null && opts.bpm !== bpm) ||
+                      (opts.swing != null && opts.swing !== swing) ||
+                      grooveOf(neuGroove).gerade !== warGerade;
   if (opts.akkorde) akkorde = opts.akkorde;
   if (opts.bpm != null) bpm = Math.min(300, Math.max(30, Math.round(opts.bpm)));
   if (opts.swing != null) swing = Math.min(0.7, Math.max(0.5, opts.swing));
@@ -63,8 +68,9 @@ export function configure(opts = {}) {
   if (opts.laut) laut = { ...laut, ...opts.laut };
   if (opts.spuren) spuren = { ...spuren, ...opts.spuren };
   if (opts.einzaehlen != null) einzaehlen = !!opts.einzaehlen;
-  if (tempoWechsel && running) verankere();
-  for (const fn of stateWatchers) fn({ running, bpm, swing });
+  if (neuGroove !== groove) { groove = neuGroove; zustand = {}; }
+  if (zeitWechsel && running) verankere();
+  for (const fn of stateWatchers) fn({ running, bpm, swing, groove });
 }
 
 /* --- Klangbausteine --------------------------------------------------------- */
@@ -82,7 +88,7 @@ function bass(time, midi, dauer, amp) {
 
   g.gain.setValueAtTime(0.0001, time);
   g.gain.exponentialRampToValueAtTime(amp, time + 0.012);
-  g.gain.exponentialRampToValueAtTime(amp * 0.5, time + 0.09);
+  g.gain.exponentialRampToValueAtTime(amp * 0.5, time + Math.min(0.09, dauer * 0.5));
   g.gain.exponentialRampToValueAtTime(0.0001, time + dauer);
 
   for (const [mult, a, typ] of [[1, 1, "triangle"], [2, 0.18, "sine"], [1.005, 0.4, "triangle"]]) {
@@ -97,28 +103,28 @@ function bass(time, midi, dauer, amp) {
   lp.connect(g); g.connect(ctx.destination);
 }
 
-/** Comping: weiche Akkordfläche, kurz angeschlagen. */
-function comp(time, midis, dauer, amp) {
+/** Akkorde: weiche Fläche, kurz angeschlagen. `hell` für Funk-Stabs. */
+function comp(time, midis, dauer, amp, hell = false) {
   const ctx = audio();
   const g = ctx.createGain();
   const lp = ctx.createBiquadFilter();
   lp.type = "lowpass";
-  lp.frequency.value = 2600;
+  lp.frequency.value = hell ? 4200 : 2600;
 
   g.gain.setValueAtTime(0.0001, time);
-  g.gain.exponentialRampToValueAtTime(amp, time + 0.02);
-  g.gain.exponentialRampToValueAtTime(amp * 0.35, time + dauer * 0.5);
+  g.gain.exponentialRampToValueAtTime(amp, time + 0.015);
+  g.gain.exponentialRampToValueAtTime(amp * 0.35, time + Math.max(0.03, dauer * 0.5));
   g.gain.exponentialRampToValueAtTime(0.0001, time + dauer);
 
   midis.forEach((m, i) => {
-    for (const [mult, a] of [[1, 1], [2, 0.22], [3, 0.08]]) {
+    for (const [mult, a] of [[1, 1], [2, hell ? 0.4 : 0.22], [3, hell ? 0.2 : 0.08]]) {
       const o = ctx.createOscillator();
       const og = ctx.createGain();
-      o.type = "triangle";
+      o.type = hell ? "square" : "triangle";
       // Die Stimmen minimal gegeneinander verstimmen, sonst klingt der
       // Akkord wie ein Orgelregister statt wie ein Instrument.
       o.frequency.value = midiToFreq(m, a4) * mult * (1 + (i - 1) * 0.0008);
-      og.gain.value = a / midis.length;
+      og.gain.value = (hell ? 0.35 : 1) * a / midis.length;
       o.connect(og); og.connect(lp);
       o.start(time); o.stop(time + dauer + 0.05);
     }
@@ -139,75 +145,62 @@ function rauschen() {
   return rauschPuffer;
 }
 
-function becken(time, amp, hell = true, dauer = 0.25) {
+/** Gefiltertes Rauschen mit Hüllkurve: Becken, Hi-Hat, Snare, Besen, Shaker. */
+function geraeusch(time, amp, { typ = "highpass", freq = 7000, q = 0.7, dauer = 0.2, rate = 1.6, anstieg = 0.001 } = {}) {
   const ctx = audio();
   const src = ctx.createBufferSource();
   src.buffer = rauschen();
-  src.playbackRate.value = hell ? 1.6 : 1;
-
-  const hp = ctx.createBiquadFilter();
-  hp.type = "highpass";
-  hp.frequency.value = hell ? 7000 : 5200;
-
+  src.playbackRate.value = rate;
+  const f = ctx.createBiquadFilter();
+  f.type = typ;
+  f.frequency.value = freq;
+  f.Q.value = q;
   const g = ctx.createGain();
-  g.gain.setValueAtTime(amp, time);
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(amp, time + anstieg);
   g.gain.exponentialRampToValueAtTime(0.0001, time + dauer);
-
-  src.connect(hp); hp.connect(g); g.connect(ctx.destination);
+  src.connect(f); f.connect(g); g.connect(ctx.destination);
   src.start(time); src.stop(time + dauer + 0.02);
 }
 
-/* --- Linien bauen ------------------------------------------------------------ */
-
-/** Nächster Grundton, damit der Bass ihn ansteuern kann. */
-function naechsterGrund(takt) {
-  const gesamt = progressionTakte(akkorde);
-  return chordAtBar(akkorde, (takt + 1) % gesamt);
+/** Ein kurzer Ton mit Tonhöhenabfall: Bassdrum, Snare-Körper, Rimshot. */
+function schlag(time, amp, von, bis, dauer, typ = "sine") {
+  const ctx = audio();
+  const o = ctx.createOscillator();
+  o.type = typ;
+  o.frequency.setValueAtTime(von, time);
+  o.frequency.exponentialRampToValueAtTime(bis, time + dauer * 0.6);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(amp, time + 0.003);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + dauer);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(time); o.stop(time + dauer + 0.02);
 }
 
-/**
- * Bass für einen Abschnitt von ein bis vier Schlägen: so lange, bis der
- * Akkord wechselt oder der Takt endet. Grundton auf dem ersten Schlag,
- * Akkordtöne dazwischen, auf dem letzten ein Halbton an den nächsten
- * Grundton heran. Das ist die Regel, nach der Bassisten wirklich spielen,
- * und sie macht die Harmonie hörbar statt nur satt. Bei zwei Akkorden im
- * Takt heißt das: Grundton, Leitton, Grundton, Leitton.
- */
-function bassAbschnitt(akkord, danach, schlaege) {
-  const q = QUALITIES[akkord.q];
-  const grund = toMidi(akkord.root);
-  // In eine bequeme Basslage bringen: unteres E bis oberes G.
-  let r = grund;
-  while (r > 52) r -= 12;
-  while (r < 40) r += 12;
-
-  const terz = r + q.steps[1];
-  const quinte = r + q.steps[2];
-  const sept = r + q.steps[3];
-
-  const zielRoh = toMidi(danach.root);
-  let ziel = zielRoh;
-  while (ziel > r + 7) ziel -= 12;
-  while (ziel < r - 5) ziel += 12;
-
-  // Auf Vier von oben oder unten einen Halbton an das Ziel heran.
-  const leitton = ziel + (Math.random() < 0.5 ? 1 : -1);
-
-  const mitte = Math.random() < 0.5 ? [terz, quinte] : [quinte, sept];
-  if (schlaege >= 4) return [r, mitte[0], mitte[1], leitton];
-  if (schlaege === 3) return [r, mitte[0], leitton];
-  if (schlaege === 2) return [r, leitton];
-  return [r];
-}
-
-/** Comping-Voicing: Terz und Septime plus Quinte, in der Mitte gelegen. */
-function voicing(akkord) {
-  const q = QUALITIES[akkord.q];
-  let r = toMidi(akkord.root);
-  while (r > 60) r -= 12;
-  while (r < 52) r += 12;
-  return [r + q.steps[1], r + q.steps[2], r + q.steps[3]];
-}
+/* Die Stimmen des Schlagzeugs. Alle aus Rauschen und kurzen Tönen gebaut —
+   keine Samples, damit zur Laufzeit nichts nachgeladen wird. */
+const SCHLAGZEUG = {
+  ride:    (t, a) => geraeusch(t, a, { freq: 7000, dauer: 0.22 }),
+  hihat:   (t, a, d) => geraeusch(t, a, { freq: 5200, rate: 1, dauer: Math.min(0.09, d || 0.09) }),
+  openhat: (t, a) => geraeusch(t, a, { freq: 6500, dauer: 0.2 }),
+  shaker:  (t, a) => geraeusch(t, a, { typ: "bandpass", freq: 6000, q: 1.2, dauer: 0.05, anstieg: 0.008 }),
+  besen:   (t, a, d) => geraeusch(t, a, { typ: "bandpass", freq: 2600, q: 0.6, rate: 1, dauer: Math.max(0.12, d || 0.3), anstieg: 0.04 }),
+  kick:    (t, a) => schlag(t, a * 2.2, 120, 45, 0.32),
+  snare:   (t, a) => {
+    geraeusch(t, a, { typ: "bandpass", freq: 1900, q: 0.8, rate: 1, dauer: 0.16 });
+    schlag(t, a * 0.8, 210, 160, 0.08, "triangle");
+  },
+  clap:    (t, a) => {
+    for (const d of [0, 0.011, 0.022]) {
+      geraeusch(t + d, a, { typ: "bandpass", freq: 1300, q: 1.1, rate: 1, dauer: d === 0.022 ? 0.18 : 0.03 });
+    }
+  },
+  rim:     (t, a) => {
+    geraeusch(t, a * 0.7, { typ: "bandpass", freq: 2500, q: 4, rate: 1, dauer: 0.035 });
+    schlag(t, a, 1700, 1600, 0.03, "triangle");
+  },
+};
 
 /* --- Scheduler ---------------------------------------------------------------
    Jeder Schritt wird absolut aus dem Startzeitpunkt gerechnet, nicht
@@ -216,26 +209,38 @@ function voicing(akkord) {
    nicht. */
 
 let startZeit = 0;              // Audio-Uhr-Zeit von Schritt 0
-let bassLinie = [40, 40, 40, 40];
-let bassAb = 0;                 // auf welchem Schlag die Linie begann
 
-/** Absolute Zeit eines Achtelschritts. Das „und“ rutscht nach hinten, wenn
-    geswingt wird — bei 0,5 gerade, bei 0,667 voller Swing. */
+/** Absolute Zeit eines Sechzehntels. */
 function zeitVon(schritt) {
   const spb = 60 / bpm;
-  const proTakt = taktlaenge * 2;
-  const takt = Math.floor(schritt / proTakt);
-  const imTakt = schritt % proTakt;
-  const viertel = Math.floor(imTakt / 2);
-  const und = imTakt % 2;
-  return startZeit + takt * taktlaenge * spb + viertel * spb + (und ? swing * spb : 0);
+  const takt = Math.floor(schritt / proTakt());
+  const imTakt = schritt % proTakt();
+  const viertel = Math.floor(imTakt / 4);
+  const sub = imTakt % 4;
+  return startZeit + (takt * taktlaenge + viertel + subAnteil(sub, grooveOf(groove).gerade, swing)) * spb;
 }
 
-/** Nach einem Tempowechsel neu verankern, damit der nächste Schritt dort
-    liegt, wo er ohne Wechsel gelegen hätte. */
+/** Nach einem Tempo- oder Groovewechsel neu verankern, damit der nächste
+    Schritt dort liegt, wo er ohne Wechsel gelegen hätte. */
 function verankere() {
   const soll = zeitVon(position);
   startZeit += naechsteZeit - soll;
+}
+
+/** Nächster Grundton, für die Anzeige. */
+function naechsterGrund(takt) {
+  const gesamt = progressionTakte(akkorde);
+  return chordAtBar(akkorde, (takt + 1) % gesamt);
+}
+
+function spiele(e, zeit, spb) {
+  if (e.typ === "bass") {
+    if (spuren.bass) bass(zeit, e.midi, e.dauer * spb, e.amp * laut.bass);
+  } else if (e.typ === "comp") {
+    if (spuren.comp) comp(zeit, e.midis, Math.max(0.08, e.dauer * spb), e.amp * laut.comp, e.hell);
+  } else if (spuren.becken && SCHLAGZEUG[e.typ]) {
+    SCHLAGZEUG[e.typ](zeit, e.amp * laut.becken * 1.4, e.dauer ? e.dauer * spb : undefined);
+  }
 }
 
 function schedule() {
@@ -243,64 +248,33 @@ function schedule() {
   if (!akkorde.length) return;
   const spb = 60 / bpm;
   const gesamtTakte = progressionTakte(akkorde);
-  const proTakt = taktlaenge * 2;
 
   while (naechsteZeit < ctx.currentTime + LOOKAHEAD_S) {
     // --- Einzähler: nur die Hi-Hat auf jedem Schlag, die Eins betont.
     if (position < vorlauf) {
-      if (position % 2 === 0) {
-        becken(naechsteZeit, (position === 0 ? 0.16 : 0.11) * Math.max(0.6, laut.becken), false, 0.07);
+      if (position % 4 === 0) {
+        SCHLAGZEUG.hihat(naechsteZeit, (position === 0 ? 0.16 : 0.11) * Math.max(0.6, laut.becken), 0.07);
       }
       position++;
       naechsteZeit = zeitVon(position);
       continue;
     }
     const p = position - vorlauf;
-    const imTakt = p % proTakt;
-    const takt = Math.floor(p / proTakt);
+    const imTakt = p % proTakt();
+    const takt = Math.floor(p / proTakt());
     const taktImLoop = ((takt % gesamtTakte) + gesamtTakte) % gesamtTakte;
-    const viertel = Math.floor(imTakt / 2);
-    const istUnd = imTakt % 2 === 1;
+    const viertel = Math.floor(imTakt / 4);
+    const sub = imTakt % 4;
     const hier = akkordAufSchlag(akkorde, taktImLoop, viertel, taktlaenge);
-    const akkord = hier.akkord;
 
-    // --- Bass: auf jedem Viertel. Eine neue Linie beginnt auf der Eins und
-    //     bei jedem Akkordwechsel mitten im Takt.
-    if (spuren.bass && !istUnd) {
-      if (viertel === 0 || hier.beginnt) {
-        bassLinie = bassAbschnitt(akkord, hier.danach, hier.schlaege);
-        bassAb = viertel;
-      }
-      const i = Math.min(bassLinie.length - 1, viertel - bassAb);
-      bass(naechsteZeit, bassLinie[i], spb * 0.92, 0.18 * laut.bass);
-    }
-
-    // --- Becken: Ride auf 1, 2, 2-und, 3, 4, 4-und; Hi-Hat auf 2 und 4
-    if (spuren.becken) {
-      if (!istUnd) {
-        becken(naechsteZeit, (viertel === 0 ? 0.10 : 0.07) * laut.becken, true, 0.22);
-        if (viertel === 1 || viertel === 3) {
-          becken(naechsteZeit, 0.09 * laut.becken, false, 0.09);
-        }
-      } else if (viertel === 1 || viertel === 3) {
-        becken(naechsteZeit, 0.05 * laut.becken, true, 0.16);
-      }
-    }
-
-    // --- Comping: auf zwei und vier, plus ein Anschlag auf die Eins beim
-    //     Akkordwechsel, damit der Wechsel hörbar ist.
-    if (spuren.comp && !istUnd) {
-      const wechsel = hier.beginnt;
-      if (wechsel || viertel === 1 || viertel === 3) {
-        comp(naechsteZeit, voicing(akkord), spb * (wechsel ? 1.2 : 0.7),
-             (wechsel ? 0.10 : 0.07) * laut.comp);
-      }
+    for (const e of ereignisse(groove, { viertel, sub, taktImLoop, hier }, zustand)) {
+      spiele(e, naechsteZeit, spb);
     }
 
     // --- Anzeige auf der Eins, zum klingenden Zeitpunkt
     if (imTakt === 0) {
       const payload = {
-        takt: taktImLoop, akkord,
+        takt: taktImLoop, akkord: hier.akkord,
         imTakt: akkordeImTakt(akkorde, taktImLoop, taktlaenge),
         naechster: naechsterGrund(taktImLoop),
         durchgang: Math.floor(takt / gesamtTakte),
@@ -320,14 +294,13 @@ export function start() {
   const ctx = audio();
   running = true;
   position = 0;
-  vorlauf = einzaehlen ? taktlaenge * 2 : 0;
-  bassLinie = [40];
-  bassAb = 0;
+  vorlauf = einzaehlen ? proTakt() : 0;
+  zustand = {};
   startZeit = ctx.currentTime + 0.15;
   naechsteZeit = startZeit;
   timer = setInterval(schedule, TICK_MS);
   schedule();
-  for (const fn of stateWatchers) fn({ running, bpm, swing });
+  for (const fn of stateWatchers) fn({ running, bpm, swing, groove });
 }
 
 export function stop() {
@@ -335,7 +308,7 @@ export function stop() {
   running = false;
   clearInterval(timer);
   timer = null;
-  for (const fn of stateWatchers) fn({ running, bpm, swing });
+  for (const fn of stateWatchers) fn({ running, bpm, swing, groove });
 }
 
 export function toggle() { running ? stop() : start(); }

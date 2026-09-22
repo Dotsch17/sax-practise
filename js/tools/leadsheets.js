@@ -29,6 +29,7 @@ import { guidePitches, akkordeImTakt, progressionTakte, chordAtBar } from "../mu
 import { leseLeadsheet, gegriffenSymbol, zuGegriffen, VORLAGEN, vorlageText } from "../music/leadsheet.js";
 import { programmTitel } from "../data/pruefung.js";
 import * as band from "../audio/begleitung.js";
+import { GROOVES, grooveOf } from "../music/grooves.js";
 import { holdScreen, releaseScreen } from "../core/session.js";
 
 let root = null;
@@ -85,7 +86,7 @@ function render() {
       return `<button class="rp-karte ls-karte" data-id="${s.id}">
         <span class="rp-kopf"><b>${escapeHtml(s.titel)}</b>
           <em class="rp-status">${r.fehler.length ? "Fehler im Leadsheet" : `${r.taktzahl} Takte`}</em></span>
-        <span class="rp-sub">${s.tempo} bpm · ${s.eingabe === "es" ? "Es-Leadsheet" : "C-Leadsheet"}</span>
+        <span class="rp-sub">${grooveOf(s.groove).name} · ${s.tempo} bpm · ${s.eingabe === "es" ? "Es-Leadsheet" : "C-Leadsheet"}</span>
       </button>`;
     }).join("") : `<p class="empty">Noch keine Stücke. Leg dein erstes Prüfungsstück an.</p>`}</div>
 
@@ -173,6 +174,8 @@ function renderSong(song) {
       <input type="range" id="ls-swing" min="50" max="67" value="${Math.round((song.swing ?? 0.62) * 100)}">
       <span class="slider-val" id="ls-swing-val"></span>
     </div>
+    <div class="chips scroll" id="ls-groove" role="group" aria-label="Groove"></div>
+    <p class="hint" id="ls-groove-was"></p>
     <div class="chips" id="ls-spuren" role="group" aria-label="Spuren"></div>` : `
     <p class="warnung">${r.akkorde.length
       ? "Das Leadsheet hat Fehler. Die Band spielt erst, wenn jeder Akkord gelesen werden kann — sonst übst du über etwas, das nicht dasteht."
@@ -205,6 +208,7 @@ function renderSong(song) {
 
   renderGitter(r);
   renderSpuren();
+  renderGroove(song);
   zeigeTakt(r, { takt: 0 });
   $("#ls-swing-val", root).textContent = swingText(song.swing ?? 0.62);
   $("#ls-einz", root).value = state().settings.bandEinzaehlen === false ? "0" : "1";
@@ -212,6 +216,7 @@ function renderSong(song) {
   const konfig = () => band.configure({
     akkorde: r.akkorde, bpm: song.tempo, swing: song.swing ?? 0.62, a4: state().settings.a4,
     spuren: spuren(), einzaehlen: state().settings.bandEinzaehlen !== false,
+    groove: song.groove || "swing",
   });
   konfig();
 
@@ -245,10 +250,30 @@ function spuren() {
   return s && typeof s === "object" ? s : { bass: true, comp: true, becken: true };
 }
 
+/* Der Groove gehört zum Stück: Another You ist Swing, Blue Bossa ist Bossa.
+   Beim Wechsel wird das Tempo nicht angefasst — das Stück hat seins. */
+function renderGroove(song) {
+  const host = $("#ls-groove", root);
+  host.innerHTML = "";
+  for (const g of GROOVES) {
+    host.append(el("button", {
+      class: "chip" + (g.id === (song.groove || "swing") ? " on" : ""),
+      text: g.name,
+      on: { click: () => {
+        song.groove = g.id;
+        save();
+        band.configure({ groove: g.id });
+        renderGroove(song);
+      } },
+    }));
+  }
+  $("#ls-groove-was", root).textContent = grooveOf(song.groove).was;
+}
+
 function renderSpuren() {
   const host = $("#ls-spuren", root);
   host.innerHTML = "";
-  for (const [id, label] of [["bass", "Bass"], ["comp", "Akkorde"], ["becken", "Becken"]]) {
+  for (const [id, label] of [["bass", "Bass"], ["comp", "Akkorde"], ["becken", "Schlagzeug"]]) {
     host.append(el("button", {
       class: "chip" + (spuren()[id] ? " on" : ""), text: label,
       on: { click: () => {
@@ -373,9 +398,9 @@ export default {
   unmount() {
     offBar?.(); offState?.();
     band.stop();
-    // Der Einzähler gilt nur hier. Call and Response und Gig-Training
-    // zählen ihre Takte ab dem ersten Schlag der Band.
-    band.configure({ einzaehlen: false });
+    // Einzähler und Groove gelten nur hier. Call and Response und
+    // Gig-Training zählen ihre Takte ab dem ersten Schlag der Band.
+    band.configure({ einzaehlen: false, groove: "swing" });
     releaseScreen();
     root = null;
   },

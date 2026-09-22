@@ -145,7 +145,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Tonanalyse, Bordun |
 | Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Kadenzen fürs Klavier, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Hörtest (Melodie- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
-| Impro | Grundlagen, Begleitband, Eigene Stücke (Band zu den eigenen Leadsheets), Tonart finden, Zum Song spielen, Call and Response, Gig-Training |
+| Impro | Grundlagen, Pop-Sound (Lehrgang Subtone bis Altissimo-Schrei, mit Messung), Begleitband, Eigene Stücke (Band zu den eigenen Leadsheets), Tonart finden, Zum Song spielen, Call and Response, Gig-Training |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
 
 **Fünf Übe-Kontexte statt eines Plans.** Probelokal (voller Ton, übt für die
@@ -582,13 +582,49 @@ braucht eigene Werkzeuge.
 - Die Band spielt Swing mit Walking Bass. Für Bossa und Funk stimmt das
   Gerüst, nicht der Groove.
 
+**Phase 13 — Grooves und Pop-Sound, umgesetzt (v18).**
+- `music/grooves.js`: sechs Grooves als Tabellen — Swing, Ballade, Bossa,
+  Funk, Pop, House. Je Sechzehntel steht, was Bass, Akkorde und Schlagzeug
+  tun, mit einer eigenen Bassregel je Stil. Rein und getestet: House hat
+  die Bassdrum auf jedem Schlag, Funk den Backbeat auf zwei und vier,
+  Bossa die Clave über zwei Takte.
+- `begleitung.js` rechnet jetzt in Sechzehnteln. Geswingte Grooves nutzen
+  nur Viertel und „und“, das „und“ auf dem Swing-Verhältnis. Neue Klänge,
+  alle aus Rauschen und kurzen Tönen: Bassdrum, Snare, Clap, Rimshot,
+  Shaker, offene Hi-Hat, Besen. Der Groove lässt sich im Lauf wechseln;
+  wer mitten im Takt auf Swing umschaltet, bekommt eine Basslinie ab dort
+  (war ein Absturz, ist getestet).
+- Feste Folgen tragen ihren Groove (`groove` in PROGRESSIONS): House-Vamp
+  spielt House, Bossa Bossa, die vier Akkorde Pop. Jedes Werkzeug, das die
+  Band startet, gibt den Groove ausdrücklich mit — die Band ist ein
+  gemeinsamer Zustand, und ohne das spielte Call and Response nach einer
+  Bossa in „Eigene Stücke“ ebenfalls Bossa. „Eigene Stücke“ und
+  „Pop-Sound“ setzen Groove und Einzähler beim Verlassen zurück.
+- `data/popvokabular.js` und `tools/popsound.js`: neun Techniken in
+  Lernreihenfolge — Subtone, Scoop, Fall, Bend, Ghost Notes und
+  Pop-Artikulation, Growl, Pop-Vibrato, Shake, Altissimo-Schrei. Jede mit
+  Warum, Schritten, typischen Fehlern, „fertig, wenn“, einer Übung über
+  den passenden Groove und Hörempfehlungen, dazu vier gemeinsame Stufen.
+  Keine davon am Travel Sax.
+- `music/popmessung.js`: Scoop, Fall und Bend werden am Tonhöhenverlauf
+  gemessen, Subtone an der Helligkeit gegen den eigenen normalen Ton. Jede
+  Ablehnung sagt, was zu ändern ist. Growl, Ghost Notes und Shake werden
+  bewusst nicht gemessen: dafür gäbe es Zahlen, aber keine, die ein Urteil
+  tragen. Gemessen wird ohne Band, sonst verfolgt das Mikrofon den Bass.
+- Der Wissensartikel „Vibrato“ lehrte Lippen- statt Kiefervibrato und
+  nannte Kiefervibrato unter „Ansatz“ ein Symptom für zu viel Druck. Beides
+  korrigiert: das Saxophon-Vibrato kommt aus einer kleinen Bewegung des
+  Unterkiefers, klassisch wie im Pop.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Pop-Saxophon-Vokabular** für Ziel 2: Subtone, Growl, Bends, Falls,
-   Ghost Notes; Lick der Woche aus echten Aufnahmen; Gig-Setlist.
-2. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent. Dabei den
-   Wissensartikel prüfen — er lehrt Lippen- statt Kiefervibrato, die
-   klassische Schule (Mule, Teal, Rousseau) lehrt Kiefervibrato.
+1. **Gig-Setlist und Lick der Woche**: die Stücke, die bei Hochzeiten
+   wirklich drankommen, mit Tonart und der Stelle fürs Solo; dazu je Woche
+   eine Phrase aus einer echten Aufnahme, nach Gehör gelernt und in zwölf
+   Tonarten gespielt.
+2. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent aus dem
+   Tonhöhenverlauf; die Messung für Pop-Vibrato und Shake käme damit gleich
+   mit.
 3. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
 4. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
    dazu Zweistimmigkeit, falls die mdw sie verlangt — vorher bei
@@ -596,9 +632,6 @@ braucht eigene Werkzeuge.
 5. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
    der Klavierprüfung. Für die Stücke reicht vorerst das Cockpit; fürs
    Blattspiel ließe sich der Melodiegenerator zweihändig machen.
-6. **Grooves für die Band**: Bossa, Latin, Funk, Ballade mit Besen. Ein
-   Stück in einer anderen Stilrichtung braucht einen anderen Bass und
-   andere Becken, nicht nur gerade Achtel.
 
 ## 9. Arbeitsweise
 
@@ -609,6 +642,11 @@ braucht eigene Werkzeuge.
   Deployen und nie im Browser.
 - Kein Build-Schritt. Wer einen einführen will, begründet es hier zuerst.
 - Änderungen klein halten und einzeln verifizieren.
+- **Kein `git stash` in zusammengesetzten Befehlen.** Einmal ist es
+  passiert, am Ende einer Befehlskette: die ganze ungesicherte Arbeit einer
+  Runde lag plötzlich im Stash, und der Browsertest lief gegen die alte
+  Begleitung. Wer etwas beiseitelegen will, tut es als eigenen Schritt und
+  holt es sofort zurück.
 - Was rechnerisch prüfbar ist, wird geprüft, bevor es eine Oberfläche
   bekommt. Musiktheorie, Notensatz und die Generatoren sind genau deshalb
   DOM-frei. Bei jedem dieser Module haben die Tests echte Fehler gefunden,
@@ -627,11 +665,11 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute sechzehn Suiten mit zusammen rund 43 100
+alle Testsuiten. Stand heute achtzehn Suiten mit zusammen rund 43 500
 Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
 Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
 Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Kadenzen, Leadsheets,
-Tonhöhenerkennung. Dazu die
+Grooves, Pop-Vokabular, Tonhöhenerkennung. Dazu die
 Rechtschreibprüfung aus Abschnitt 9.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`

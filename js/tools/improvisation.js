@@ -28,6 +28,7 @@ import {
 } from "../music/theory.js";
 import { renderStaff, pitchesToNotes, DUR } from "../music/notation.js";
 import * as band from "../audio/begleitung.js";
+import { GROOVES, grooveOf } from "../music/grooves.js";
 import { holdScreen, releaseScreen } from "../core/session.js";
 
 const MODI = [
@@ -56,12 +57,14 @@ let sel = {
   prog: "dur251", tonartIdx: 0, modus: "ziel", muster: "akkord1357",
   tempo: 120, swing: 0.62,
   spuren: { bass: true, comp: true, becken: true },
+  groove: null,          // null heißt: der Groove, der zur Folge gehört
 };
 let akkorde = [];
 let aktuell = null;
 let offBar = null, offState = null;
 
 const progOf = () => PROGRESSIONS.find(p => p.id === sel.prog) || PROGRESSIONS[0];
+const grooveJetzt = () => sel.groove || progOf().groove || "swing";
 
 /** Ein klingender Akkord, wie er gegriffen gelesen wird. */
 function gegriffen(akkord) {
@@ -115,6 +118,7 @@ function render(root) {
       <span class="slider-val" id="im-swing-val"></span>
     </div>
 
+    <div class="chips scroll" id="im-groove" role="group" aria-label="Groove"></div>
     <div class="chips" id="im-spuren" role="group" aria-label="Spuren"></div>
 
     <p class="hint spaced">
@@ -127,6 +131,7 @@ function render(root) {
   renderModusChips(root);
   renderMusterChips(root);
   renderSpuren(root);
+  renderGroove(root);
   $("#im-tonart", root).value = String(sel.tonartIdx);
   $("#im-swing-val", root).textContent = swingText();
   baue(root);
@@ -146,7 +151,7 @@ function render(root) {
   });
   $("#im-los", root).addEventListener("click", () => {
     if (band.isRunning()) { band.stop(); releaseScreen(); }
-    else { band.configure({ akkorde, bpm: sel.tempo, swing: sel.swing, a4: state().settings.a4, spuren: sel.spuren }); band.start(); holdScreen(); }
+    else { band.configure({ akkorde, bpm: sel.tempo, swing: sel.swing, a4: state().settings.a4, spuren: sel.spuren, groove: grooveJetzt() }); band.start(); holdScreen(); }
   });
 }
 
@@ -160,7 +165,7 @@ function renderProgChips(root) {
     host.append(el("button", {
       class: "chip" + (p.id === sel.prog ? " on" : ""),
       text: p.name,
-      on: { click: () => { sel.prog = p.id; sel.tempo = p.tempo; render(root); } },
+      on: { click: () => { sel.prog = p.id; sel.tempo = p.tempo; sel.groove = null; render(root); } },
     }));
   }
 }
@@ -191,6 +196,24 @@ function renderMusterChips(root) {
   }
 }
 
+/* Jede Folge bringt ihren Groove mit, aber man darf ihn wechseln: eine
+   II–V–I als Bossa ist eine andere Übung als im Swing. */
+function renderGroove(root) {
+  const host = $("#im-groove", root);
+  host.innerHTML = "";
+  for (const g of GROOVES) {
+    host.append(el("button", {
+      class: "chip" + (g.id === grooveJetzt() ? " on" : ""),
+      text: g.name, title: g.was,
+      on: { click: () => {
+        sel.groove = g.id;
+        band.configure({ groove: g.id });
+        renderGroove(root);
+      } },
+    }));
+  }
+}
+
 function renderSpuren(root) {
   const host = $("#im-spuren", root);
   host.innerHTML = "";
@@ -212,7 +235,7 @@ function baue(root) {
   akkorde = buildProgression(p, TONARTEN[sel.tonartIdx].pc);
   sel.tempo = sel.tempo || p.tempo;
   $("#im-was", root).textContent = p.was;
-  band.configure({ akkorde, bpm: sel.tempo, swing: sel.swing, a4: state().settings.a4, spuren: sel.spuren });
+  band.configure({ akkorde, bpm: sel.tempo, swing: sel.swing, a4: state().settings.a4, spuren: sel.spuren, groove: grooveJetzt() });
   aktuell = { takt: 0, akkord: akkorde[0], naechster: akkorde[1 % akkorde.length] };
   renderForm(root);
   zeigeAkkord(root);

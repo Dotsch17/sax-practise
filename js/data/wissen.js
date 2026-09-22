@@ -31,7 +31,7 @@ export const ARTIKEL = [
         "Im Leisen bricht der Ton ab, statt dünner zu werden.",
         "Die tiefen Töne sprechen erst nach einem Ruck an.",
         "Nach zwanzig Minuten tut die Unterlippe weh.",
-        "Das Vibrato kommt aus dem Kiefer statt aus der Lippe und klingt eckig.",
+        "Das Vibrato klingt eckig und ungleichmäßig statt rund.",
       ]},
       { h: "Die Probe", p: [
         "Spiel das Mundstück allein und halte den Ton zehn Sekunden absolut stabil. Wandert die Tonhöhe nach oben, beißt du nach. Biege den Ton dann bewusst nach unten und langsam zurück, ohne dass er abreißt — das ist der Bewegungsumfang, den du brauchst, um im Zusammenspiel korrigieren zu können.",
@@ -154,10 +154,10 @@ export const ARTIKEL = [
     id: "vibrato",
     titel: "Vibrato",
     thema: "Ton",
-    lead: "Im klassischen Saxophonspiel kommt das Vibrato aus der Unterlippe, nicht aus dem Kiefer und nicht aus dem Zwerchfell. Es ist ein Ausdrucksmittel und kein Dauerzustand.",
+    lead: "Beim Saxophon kommt das Vibrato aus einer kleinen Bewegung des Unterkiefers, die man in der Unterlippe spürt — nicht aus dem Zwerchfell und nicht aus dem Hals. So lehrt es die klassische Schule seit Marcel Mule, und so spielt es auch der Pop. Es ist ein Ausdrucksmittel und kein Dauerzustand.",
     abschnitte: [
       { h: "Wie es entsteht", p: [
-        "Die Unterlippe macht eine kleine, regelmäßige Bewegung, als würdest du „wa-wa-wa“ oder „ja-ja-ja“ formen. Der Ton wird dabei leicht nach unten gebogen und kehrt zur Ausgangshöhe zurück — das Vibrato liegt also unter der Tonhöhe, nicht darum herum.",
+        "Der Unterkiefer macht eine kleine, regelmäßige Auf- und Abbewegung, als würdest du „wa-wa-wa“ oder „ja-ja-ja“ formen; der Druck der Unterlippe aufs Blatt ändert sich dabei minimal. Der Ton wird leicht nach unten gebogen und kehrt zur Ausgangshöhe zurück — das Vibrato liegt also unter der Tonhöhe, nicht darum herum.",
         "Der Ton selbst muss ohne Vibrato stehen, bevor du eines darauflegst. Vibrato auf einem wackligen Ton macht den Wackler nur unsichtbar, nicht besser.",
       ]},
       { h: "Üben mit dem Metronom", p: [

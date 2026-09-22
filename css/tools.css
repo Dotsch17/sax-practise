@@ -1245,3 +1245,21 @@ svg.klaviatur{ display: block; width: 100%; height: auto; max-height: 190px; }
 .jetzt-akkord.mehrere{ font-size: 44px; white-space: nowrap; }
 @media (min-width: 600px){ .jetzt-akkord.mehrere{ font-size: 60px; } }
 #ls-los{ margin-bottom: 14px; }
+
+/* --- Pop-Sound ------------------------------------------------------------------ */
+.pop-schritte, .pop-fehler, .pop-hoeren{ padding-left: 20px; margin: 6px 0 14px; font-size: 15px; line-height: 1.55; }
+.pop-schritte li, .pop-fehler li, .pop-hoeren li{ margin: 5px 0; }
+.pop-fehler li, .pop-hoeren li{ color: var(--cane-dim); }
+.pop-hoeren b{ color: var(--cane); font-weight: 500; }
+.pop-mess .wide{ margin-top: 8px; }
+.pop-jetzt{ margin: 10px 0 12px; }
+.pop-jetzt .jetzt-akkord{ font-size: 48px; }
+.pop-ergebnis{
+  display: flex; gap: 10px; align-items: baseline;
+  padding: 9px 2px; border-top: 1px solid var(--line); font-size: 14.5px; line-height: 1.45;
+  color: var(--cane-dim);
+}
+.pop-ergebnis.gut{ color: var(--cane); }
+.pop-zeichen{ width: 16px; flex: none; }
+.pop-ergebnis.gut .pop-zeichen{ color: var(--brass); }
+.pop-ergebnis small{ color: var(--cane-dim); }

@@ -201,6 +201,7 @@ function baue(root) {
   akkorde = buildProgression(progOf(), TONARTEN[sel.tonartIdx].pc);
   band.configure({
     akkorde, bpm: sel.tempo, swing: sel.swing, a4: state().settings.a4,
+    groove: progOf().groove || "swing",
   });
 }
 
@@ -214,7 +215,7 @@ function los(root) {
     seitTakten: 0,
     absTakt: -1,
   };
-  band.configure({ akkorde, bpm: sel.tempo, swing: sel.swing, a4: state().settings.a4 });
+  band.configure({ akkorde, bpm: sel.tempo, swing: sel.swing, a4: state().settings.a4, groove: progOf().groove || "swing" });
   band.start();
   holdScreen();
   zeigeAuflage(root);

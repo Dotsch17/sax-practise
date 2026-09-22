@@ -34,6 +34,7 @@ import rhythmus  from "./tools/rhythmus.js";
 import blattspiel from "./tools/blattspiel.js";
 import griffe     from "./tools/griffe.js";
 import grundlagen from "./tools/grundlagen.js";
+import popsound  from "./tools/popsound.js";
 import improvisation from "./tools/improvisation.js";
 import leadsheets from "./tools/leadsheets.js";
 import callresponse from "./tools/callresponse.js";
@@ -51,7 +52,7 @@ export const TABS = [
   { id: "ton",     label: "Ton",     tools: [stimmgeraet, obertoene, tonanalyse, bordun] },
   { id: "technik", label: "Technik", tools: [tonleitern, kadenzen, rhythmus, blattspiel, griffe, metronom] },
   { id: "gehoer",  label: "Gehör",   tools: [hoertest, gehoer, nachspielen] },
-  { id: "impro",   label: "Impro",   tools: [grundlagen, improvisation, leadsheets, tonartfinden, songmitspielen, callresponse, gigtraining] },
+  { id: "impro",   label: "Impro",   tools: [grundlagen, popsound, improvisation, leadsheets, tonartfinden, songmitspielen, callresponse, gigtraining] },
   { id: "journal", label: "Journal", tools: [protokoll, statistik, repertoire, wissen, daten] },
 ];
 
