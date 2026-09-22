@@ -126,10 +126,10 @@ const PROBELOKAL = [
     "Metronom auf 2 und 4, halbes Tempo, bis es swingt, nicht nur stimmt",
     "Bei einer Transkription: mit dem Original mitspielen, bis Artikulation und Luft gleich sind",
   ]},
-  { id: "p_stueck", name: "Prüfungsstück", min: 22, prio: 2, werkzeug: "improvisation", cues: [
+  { id: "p_stueck", name: "Prüfungsstück", min: 22, prio: 2, werkzeug: "leadsheets", cues: [
     "Thema auswendig, mit der Phrasierung der Aufnahme, die du als Vorbild hast",
     "Dann über die Form: erst Grundtöne, dann Terzen und Septimen, dann frei",
-    "Blues und Rhythm Changes laufen in der Begleitband, alles andere mit iReal Pro oder einem Playalong",
+    "Die Band spielt die Akkorde aus deinem Leadsheet; die Zieltöne stehen über dem Formgitter",
     "Die Eins jedes Formteils treffen. Wer die Form verliert, hört auf und wartet auf den nächsten Anfang",
   ]},
   { id: "p_durchlauf", name: "Durchlauf mit Aufnahme", min: 8, prio: 5, werkzeug: "aufnahme", cues: [

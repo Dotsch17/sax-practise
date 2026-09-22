@@ -145,7 +145,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Tonanalyse, Bordun |
 | Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Kadenzen fürs Klavier, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Hörtest (Melodie- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
-| Impro | Grundlagen, Begleitband, Tonart finden, Zum Song spielen, Call and Response, Gig-Training |
+| Impro | Grundlagen, Begleitband, Eigene Stücke (Band zu den eigenen Leadsheets), Tonart finden, Zum Song spielen, Call and Response, Gig-Training |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
 
 **Fünf Übe-Kontexte statt eines Plans.** Probelokal (voller Ton, übt für die
@@ -550,23 +550,55 @@ braucht eigene Werkzeuge.
 - Das Können-Profil meldet die Kadenzen nur im Kontext Klavier. Mit dem
   Saxophon in der Hand ist ein Klaviervorschlag schlechter als keiner.
 
+**Phase 12 — Band zu den eigenen Stücken, umgesetzt (v17).**
+- `music/leadsheet.js`: liest ein Leadsheet als Text, `| Cm7 F7 | Bbmaj7 |`.
+  Klingend (C-Leadsheet) oder gegriffen (Es-Leadsheet) muss man beim
+  Eintippen sagen; gespeichert wird klingend, angezeigt gegriffen. Die
+  Transposition läuft über Stufen (fünf Stufen, neun Halbtöne), damit
+  klingend Des gegriffen B heißt und nicht Ais. „B“ allein hängt an der
+  Namenseinstellung, „Bb“ und „H“ sind immer eindeutig. Unbekannte
+  Akkorde werden mit Taktnummer als Fehler gemeldet, und dann spielt die
+  Band nicht — eine Band, die still etwas Falsches spielt, ist schlimmer
+  als keine. Slash-Bässe werden gelesen, aber nicht gespielt, und das wird
+  gesagt.
+- Vorlagen nur für allgemeine Formen: Blues, Jazz-Blues, Rhythm Changes
+  (AABA), Moll-Blues. **Die Harmonien bestimmter Standards stehen bewusst
+  nicht im Code**, aus demselben Grund wie die Altissimo-Griffe: es gibt
+  viele Fassungen, und eine aus dem Gedächtnis wäre für das Leadsheet des
+  Nutzers vermutlich falsch. Oleo ist Rhythm Changes in B, Straight, No
+  Chaser ein Blues in F, klingend — das steht in den Vorlagen.
+- `harmonie.js` hat `akkordAufSchlag()` und `akkordeImTakt()`; die Band
+  (`begleitung.js`) wechselt jetzt auch mitten im Takt. Der Bass spielt je
+  Abschnitt bis zum nächsten Wechsel oder Taktende: bei zwei Akkorden
+  Grundton und Leitton. Dazu ein optionaler Einzähler (ein Takt Hi-Hat),
+  der nur in „Eigene Stücke“ an ist und beim Verlassen wieder aus geht —
+  Call and Response zählt seine Phasen ab dem ersten Schlag.
+- `tools/leadsheets.js` unter Impro: Formgitter mit vier Takten je Zeile,
+  laufender Takt in Messing, darüber der Akkord gegriffen und seine
+  Zieltöne. Der Startknopf steht über dem Gitter, weil 32 Takte sonst
+  gescrollt werden müssten. Aus dem Prüfungs-Cockpit führt „Mit der Band
+  spielen“ direkt hierher und legt das Stück an, wenn es noch fehlt; der
+  Block „Prüfungsstück“ im Probelokal hängt dieses Werkzeug ein.
+- Die Band spielt Swing mit Walking Bass. Für Bossa und Funk stimmt das
+  Gerüst, nicht der Groove.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Begleitband für die Prüfungsstücke**: eigene Akkordfolgen eingeben,
-   damit auch Another You und Miss Jones mit der eingebauten Band laufen.
-   Bis dahin iReal Pro.
-2. **Pop-Saxophon-Vokabular** für Ziel 2: Subtone, Growl, Bends, Falls,
+1. **Pop-Saxophon-Vokabular** für Ziel 2: Subtone, Growl, Bends, Falls,
    Ghost Notes; Lick der Woche aus echten Aufnahmen; Gig-Setlist.
-3. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent. Dabei den
+2. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent. Dabei den
    Wissensartikel prüfen — er lehrt Lippen- statt Kiefervibrato, die
    klassische Schule (Mule, Teal, Rousseau) lehrt Kiefervibrato.
-4. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
-5. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
+3. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
+4. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
    dazu Zweistimmigkeit, falls die mdw sie verlangt — vorher bei
    MusicCoach nachsehen, wie die Aufgaben dort aussehen.
-6. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
+5. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
    der Klavierprüfung. Für die Stücke reicht vorerst das Cockpit; fürs
    Blattspiel ließe sich der Melodiegenerator zweihändig machen.
+6. **Grooves für die Band**: Bossa, Latin, Funk, Ballade mit Besen. Ein
+   Stück in einer anderen Stilrichtung braucht einen anderen Bass und
+   andere Becken, nicht nur gerade Achtel.
 
 ## 9. Arbeitsweise
 
@@ -595,10 +627,10 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute fünfzehn Suiten mit zusammen rund 42 900
+alle Testsuiten. Stand heute sechzehn Suiten mit zusammen rund 43 100
 Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
 Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
-Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Kadenzen,
+Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Kadenzen, Leadsheets,
 Tonhöhenerkennung. Dazu die
 Rechtschreibprüfung aus Abschnitt 9.
 

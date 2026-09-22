@@ -22,7 +22,7 @@
 
 import { audio } from "./context.js";
 import { midiToFreq, toMidi } from "../music/theory.js";
-import { QUALITIES, chordAtBar, progressionTakte } from "../music/harmonie.js";
+import { QUALITIES, chordAtBar, progressionTakte, akkordAufSchlag, akkordeImTakt } from "../music/harmonie.js";
 
 const LOOKAHEAD_S = 0.2;
 const TICK_MS = 25;
@@ -38,6 +38,10 @@ let a4 = 440;
 let taktlaenge = 4;
 let laut = { bass: 0.9, comp: 0.55, becken: 0.5 };
 let spuren = { bass: true, comp: true, becken: true };
+// Ein Takt Hi-Hat vor dem ersten Akkord. Aus, solange es niemand verlangt —
+// die Übungen mit festen Folgen fangen direkt an.
+let einzaehlen = false;
+let vorlauf = 0;           // Achtelschritte Einzähler dieses Laufs
 
 const barWatchers = new Set();
 export function onBar(fn) { barWatchers.add(fn); return () => barWatchers.delete(fn); }
@@ -46,7 +50,7 @@ export function onStateChange(fn) { stateWatchers.add(fn); return () => stateWat
 
 export const isRunning = () => running;
 export const getBpm = () => bpm;
-export const getTakt = () => Math.floor(position / (taktlaenge * 2));
+export const getTakt = () => Math.floor(Math.max(0, position - vorlauf) / (taktlaenge * 2));
 
 export function configure(opts = {}) {
   const tempoWechsel = (opts.bpm != null && opts.bpm !== bpm) ||
@@ -58,6 +62,7 @@ export function configure(opts = {}) {
   if (opts.taktlaenge != null) taktlaenge = opts.taktlaenge;
   if (opts.laut) laut = { ...laut, ...opts.laut };
   if (opts.spuren) spuren = { ...spuren, ...opts.spuren };
+  if (opts.einzaehlen != null) einzaehlen = !!opts.einzaehlen;
   if (tempoWechsel && running) verankere();
   for (const fn of stateWatchers) fn({ running, bpm, swing });
 }
@@ -161,12 +166,14 @@ function naechsterGrund(takt) {
 }
 
 /**
- * Vier Viertel Bass für einen Takt. Grundton auf Eins, Akkordtöne dazwischen,
- * auf Vier ein Halbton- oder Quintschritt zum nächsten Grundton. Das ist die
- * Regel, nach der Bassisten wirklich spielen, und sie macht die Harmonie
- * hörbar statt nur satt.
+ * Bass für einen Abschnitt von ein bis vier Schlägen: so lange, bis der
+ * Akkord wechselt oder der Takt endet. Grundton auf dem ersten Schlag,
+ * Akkordtöne dazwischen, auf dem letzten ein Halbton an den nächsten
+ * Grundton heran. Das ist die Regel, nach der Bassisten wirklich spielen,
+ * und sie macht die Harmonie hörbar statt nur satt. Bei zwei Akkorden im
+ * Takt heißt das: Grundton, Leitton, Grundton, Leitton.
  */
-function bassTakt(akkord, takt) {
+function bassAbschnitt(akkord, danach, schlaege) {
   const q = QUALITIES[akkord.q];
   const grund = toMidi(akkord.root);
   // In eine bequeme Basslage bringen: unteres E bis oberes G.
@@ -178,7 +185,7 @@ function bassTakt(akkord, takt) {
   const quinte = r + q.steps[2];
   const sept = r + q.steps[3];
 
-  const zielRoh = toMidi(naechsterGrund(takt).root);
+  const zielRoh = toMidi(danach.root);
   let ziel = zielRoh;
   while (ziel > r + 7) ziel -= 12;
   while (ziel < r - 5) ziel += 12;
@@ -187,7 +194,10 @@ function bassTakt(akkord, takt) {
   const leitton = ziel + (Math.random() < 0.5 ? 1 : -1);
 
   const mitte = Math.random() < 0.5 ? [terz, quinte] : [quinte, sept];
-  return [r, mitte[0], mitte[1], leitton];
+  if (schlaege >= 4) return [r, mitte[0], mitte[1], leitton];
+  if (schlaege === 3) return [r, mitte[0], leitton];
+  if (schlaege === 2) return [r, leitton];
+  return [r];
 }
 
 /** Comping-Voicing: Terz und Septime plus Quinte, in der Mitte gelegen. */
@@ -207,6 +217,7 @@ function voicing(akkord) {
 
 let startZeit = 0;              // Audio-Uhr-Zeit von Schritt 0
 let bassLinie = [40, 40, 40, 40];
+let bassAb = 0;                 // auf welchem Schlag die Linie begann
 
 /** Absolute Zeit eines Achtelschritts. Das „und“ rutscht nach hinten, wenn
     geswingt wird — bei 0,5 gerade, bei 0,667 voller Swing. */
@@ -235,17 +246,33 @@ function schedule() {
   const proTakt = taktlaenge * 2;
 
   while (naechsteZeit < ctx.currentTime + LOOKAHEAD_S) {
-    const imTakt = position % proTakt;
-    const takt = Math.floor(position / proTakt);
+    // --- Einzähler: nur die Hi-Hat auf jedem Schlag, die Eins betont.
+    if (position < vorlauf) {
+      if (position % 2 === 0) {
+        becken(naechsteZeit, (position === 0 ? 0.16 : 0.11) * Math.max(0.6, laut.becken), false, 0.07);
+      }
+      position++;
+      naechsteZeit = zeitVon(position);
+      continue;
+    }
+    const p = position - vorlauf;
+    const imTakt = p % proTakt;
+    const takt = Math.floor(p / proTakt);
     const taktImLoop = ((takt % gesamtTakte) + gesamtTakte) % gesamtTakte;
-    const akkord = chordAtBar(akkorde, taktImLoop);
     const viertel = Math.floor(imTakt / 2);
     const istUnd = imTakt % 2 === 1;
+    const hier = akkordAufSchlag(akkorde, taktImLoop, viertel, taktlaenge);
+    const akkord = hier.akkord;
 
-    // --- Bass: auf jedem Viertel
+    // --- Bass: auf jedem Viertel. Eine neue Linie beginnt auf der Eins und
+    //     bei jedem Akkordwechsel mitten im Takt.
     if (spuren.bass && !istUnd) {
-      if (viertel === 0) bassLinie = bassTakt(akkord, taktImLoop);
-      bass(naechsteZeit, bassLinie[viertel % bassLinie.length], spb * 0.92, 0.18 * laut.bass);
+      if (viertel === 0 || hier.beginnt) {
+        bassLinie = bassAbschnitt(akkord, hier.danach, hier.schlaege);
+        bassAb = viertel;
+      }
+      const i = Math.min(bassLinie.length - 1, viertel - bassAb);
+      bass(naechsteZeit, bassLinie[i], spb * 0.92, 0.18 * laut.bass);
     }
 
     // --- Becken: Ride auf 1, 2, 2-und, 3, 4, 4-und; Hi-Hat auf 2 und 4
@@ -263,7 +290,7 @@ function schedule() {
     // --- Comping: auf zwei und vier, plus ein Anschlag auf die Eins beim
     //     Akkordwechsel, damit der Wechsel hörbar ist.
     if (spuren.comp && !istUnd) {
-      const wechsel = viertel === 0 && taktImLoop === akkord.abTakt;
+      const wechsel = hier.beginnt;
       if (wechsel || viertel === 1 || viertel === 3) {
         comp(naechsteZeit, voicing(akkord), spb * (wechsel ? 1.2 : 0.7),
              (wechsel ? 0.10 : 0.07) * laut.comp);
@@ -274,6 +301,7 @@ function schedule() {
     if (imTakt === 0) {
       const payload = {
         takt: taktImLoop, akkord,
+        imTakt: akkordeImTakt(akkorde, taktImLoop, taktlaenge),
         naechster: naechsterGrund(taktImLoop),
         durchgang: Math.floor(takt / gesamtTakte),
         zeit: naechsteZeit,
@@ -292,7 +320,9 @@ export function start() {
   const ctx = audio();
   running = true;
   position = 0;
-  bassLinie = bassTakt(chordAtBar(akkorde, 0), 0);
+  vorlauf = einzaehlen ? taktlaenge * 2 : 0;
+  bassLinie = [40];
+  bassAb = 0;
   startZeit = ctx.currentTime + 0.15;
   naechsteZeit = startZeit;
   timer = setInterval(schedule, TICK_MS);

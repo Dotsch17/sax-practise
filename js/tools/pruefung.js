@@ -27,6 +27,7 @@ import { abdeckung as kadenzAbdeckung } from "../music/kadenz.js";
 import * as aufnahmen from "../core/aufnahmen.js";
 import { vorwaehlen } from "./aufnahme.js";
 import { vorwaehlen as hoertestModus } from "./hoertest.js";
+import { oeffneFuerTitel } from "./leadsheets.js";
 
 let offen = null;
 let root = null;
@@ -180,6 +181,9 @@ function renderPunkt(id) {
         <button id="pr-aufnehmen">Aufnehmen</button>
       </div>
       <p class="hint" id="pr-aufnahme-info"></p>` : ""}
+    ${p.art === "stueck" ? `<button class="wide" id="pr-band">Mit der Band spielen</button>
+      <p class="hint">Öffnet das Stück unter Impro, Eigene Stücke. Gibt es noch keins mit diesem Titel,
+        wird es angelegt, und du tippst die Akkorde aus deinem Leadsheet ab.</p>` : ""}
 
     ${p.werkzeug ? `<button class="wide" id="pr-werkzeug">${escapeHtml(p.werkzeug.name)} öffnen</button>` : ""}
 
@@ -214,6 +218,12 @@ function renderPunkt(id) {
     speichereEintrag(id, { titel: t });
     vorwaehlen(t);
     gehZu("ueben", "aufnahme");
+  });
+  $("#pr-band", root)?.addEventListener("click", () => {
+    const t = $("#pr-titel", root)?.value.trim() || p.titel;
+    speichereEintrag(id, { titel: t });
+    oeffneFuerTitel(t);
+    gehZu("impro", "leadsheets");
   });
   $("#pr-werkzeug", root)?.addEventListener("click", () => {
     if (p.werkzeug.tool === "hoertest" && p.werkzeug.modus) hoertestModus(p.werkzeug.modus);

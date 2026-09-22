@@ -84,7 +84,7 @@ try {
   // Wörter, in denen s und z wirklich aufeinandertreffen.
   const ERLAUBT = new Set([
     "Disziplin", "Disziplinen", "Prüfungsdisziplin", "Prüfungsdisziplinen",
-    "Minuszeichen", "Auflösungszeichen", "Adresszeile", "Kreuzsymbol",
+    "Minuszeichen", "Auflösungszeichen", "Wiederholungszeichen", "Adresszeile", "Kreuzsymbol",
   ]);
   // Trennbare Verben mit „zu“ im Inneren: herauszufinden, auszuschalten,
   // loszulegen, herauszurechnen. Das ist eine offene Wortklasse, die sich
@@ -139,6 +139,7 @@ ok = run(["tools/test-skalenarten.mjs"], "Pruefungsstoff Tonleitern") && ok;
 ok = run(["tools/test-pruefung.mjs"], "Pruefungsplan") && ok;
 ok = run(["tools/test-diktat.mjs"], "Hoertest") && ok;
 ok = run(["tools/test-kadenz.mjs"], "Kadenzen") && ok;
+ok = run(["tools/test-leadsheet.mjs"], "Leadsheets") && ok;
 ok = run(["tools/test-pitch.mjs"], "Tonhoehenerkennung") && ok;
 ok = run(["tools/sync-precache.mjs"], "Precache-Liste") && ok;
 

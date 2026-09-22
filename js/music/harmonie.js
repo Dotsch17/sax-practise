@@ -364,3 +364,40 @@ export function applyPattern(scale, stufen, startStufe = 0) {
     return { ...p, octave: p.octave + okt };
   });
 }
+
+/* --- Akkorde innerhalb des Takts -----------------------------------------------
+   Standards wechseln oft zweimal im Takt: | Dm7 G7 |. Die Begleitung fragt
+   deshalb nicht „welcher Akkord in diesem Takt“, sondern „welcher auf
+   diesem Schlag, und wie viele Schläge bleibt er, bevor der Takt oder der
+   Akkord endet“. Danach richtet sich die Basslinie: vier Schläge sind ein
+   Gang zum nächsten Grundton, zwei sind Grundton und Leitton. */
+
+const EPS = 1e-6;
+
+/**
+ * Der Akkord auf einem Schlag. `takt` ist die Taktnummer in der Form,
+ * `schlag` der Schlag im Takt ab 0. Gibt den Akkord, ob er hier beginnt,
+ * wie viele Schläge er bis zum nächsten Wechsel oder Taktende klingt, und
+ * den Akkord danach.
+ */
+export function akkordAufSchlag(akkorde, takt, schlag, taktlaenge = 4) {
+  const gesamt = progressionTakte(akkorde);
+  const pos = takt + schlag / taktlaenge;
+  const akkord = chordAtBar(akkorde, pos);
+  const beginnt = Math.abs(((pos - akkord.abTakt) % gesamt + gesamt) % gesamt) < EPS;
+  const bisAkkordende = Math.round((akkord.abTakt + akkord.takte - (pos % gesamt)) * taktlaenge);
+  const bisTaktende = taktlaenge - schlag;
+  const schlaege = Math.max(1, Math.min(bisAkkordende, bisTaktende));
+  const danach = chordAtBar(akkorde, ((pos + schlaege / taktlaenge) % gesamt + gesamt) % gesamt);
+  return { akkord, beginnt, schlaege, danach };
+}
+
+/** Alle Akkorde, die in einem Takt erklingen, in Reihenfolge. */
+export function akkordeImTakt(akkorde, takt, taktlaenge = 4) {
+  const out = [];
+  for (let s = 0; s < taktlaenge; s++) {
+    const a = chordAtBar(akkorde, takt + s / taktlaenge);
+    if (out[out.length - 1] !== a) out.push(a);
+  }
+  return out;
+}
