@@ -135,6 +135,8 @@ ok = run(["tools/test-lick.mjs"], "Licks") && ok;
 ok = run(["tools/test-obertoene.mjs"], "Teiltoene") && ok;
 ok = run(["tools/test-koennen.mjs"], "Koennen-Profil") && ok;
 ok = run(["tools/test-plan.mjs"], "Uebungsplan") && ok;
+ok = run(["tools/test-skalenarten.mjs"], "Pruefungsstoff Tonleitern") && ok;
+ok = run(["tools/test-pruefung.mjs"], "Pruefungsplan") && ok;
 ok = run(["tools/test-pitch.mjs"], "Tonhoehenerkennung") && ok;
 ok = run(["tools/sync-precache.mjs"], "Precache-Liste") && ok;
 

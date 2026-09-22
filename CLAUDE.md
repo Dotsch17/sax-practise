@@ -28,9 +28,20 @@ Begleitautomat.
 **Zwei Ziele, und beide zählen.** Sie ziehen in verschiedene Richtungen, und
 wer nur eines davon kennt, baut am anderen vorbei:
 
-1. **Aufnahmeprüfung IGP Saxophon an der mdw.** Klassischer Ton, Tonleitern
-   in allen Tonarten, Blattspiel, Gehörbildung, Etüden. Dafür steht der
-   ausgearbeitete Übungsplan in `js/data/plan.js`.
+1. **Zulassungsprüfung IGP Saxophon *Popularmusik* an der mdw, Juni 2027.**
+   Nicht Klassik — das war lange falsch in dieser Datei, und die App war
+   deshalb auf Ferling, Mule und klassischen Ton ausgerichtet. Verlangt sind
+   (Stand 2026/27, Quellen in `js/data/pruefung.js`): Tonleitern und Akkorde
+   in allen Tonarten theoretisch und am Instrument, zwei Jazzetüden oder
+   Etüde plus Transkription, drei Stücke verschiedener Stilrichtungen mit
+   Improvisation, Blattlesen. Dazu zwei Prüfungsteile außerhalb des
+   Saxophons, die genauso bestanden werden müssen: **Klavier** (zwei Stücke,
+   Blattspiel, Kadenzen inklusive II–V–I) und ein **schriftlicher Hörtest**
+   (Melodie- und Rhythmusdiktat, Akkorde mit Umkehrungen, Fehler erkennen).
+   Der Nutzer fängt am Klavier bei null an. Seine Kandidaten für die Stücke:
+   There Will Never Be Another You, Straight No Chaser, Parker's Mood, Oleo,
+   Have You Met Miss Jones — alles Swing, deshalb mahnt das Cockpit eine
+   Ballade und einen geraden Groove an. Er hat einen Lehrer.
 2. **Auf Events, Aperitivi und Hochzeiten mit DJ spielen.** Das ist eine
    andere Disziplin: Tonart eines laufenden Stücks nach Gehör finden, über
    eine Begleitung improvisieren, den Hook treffen, in die Lücken spielen,
@@ -130,19 +141,29 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 
 | Bereich | Werkzeuge |
 |---|---|
-| Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block |
+| Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block. Prüfung: Countdown, alle Prüfungspunkte mit Stufen, Zeitplan rückwärts. Aufnahme: aufnehmen, nach Titel ablegen, erste gegen letzte hören |
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Tonanalyse, Bordun |
-| Technik | Tonleitern, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
+| Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Nachspielen mit Mikrofonkontrolle, Intervalle/Akkorde/Skalen |
 | Impro | Grundlagen, Begleitband, Tonart finden, Zum Song spielen, Call and Response, Gig-Training |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
 
-**Drei Übe-Kontexte statt eines Plans.** Der Nutzer übt an drei verschiedenen
-Orten, und das sind drei verschiedene Sessions: im Probelokal mit vollem Ton,
-zuhause leise mit Rücksicht auf die Nachbarn, und am Travel Sax für die
-Technik. Die Kontexte stehen in `KONTEXTE` in `js/data/plan.js`, `planFor()` liefert
-die Blöcke dazu. Der Probelokal-Kontext ist der unveränderte Plan aus `BLOCKS`,
-nur um eine Werkzeugzuordnung ergänzt — `BLOCKS` selbst wird nicht angefasst.
+**Fünf Übe-Kontexte statt eines Plans.** Probelokal (voller Ton, übt für die
+Prüfung), Tonarbeit (der klassische Tonplan), zuhause leise, Travel Sax und
+Klavier. Die Kontexte stehen in `KONTEXTE` in `js/data/plan.js`, `planFor()`
+liefert die Blöcke dazu.
+
+Das **Probelokal** hat seit v14 einen eigenen Plan: Einspielen und Ton,
+Tonleitern und Akkorde, Etüde oder Transkription, Prüfungsstück, Durchlauf
+mit Aufnahme, Blattlesen. Der alte Plan war achtzig Minuten reine
+Tonarbeit; bei vierzig Minuten fiel die Etüde weg, und Tonleitern kamen im
+Probelokal gar nicht vor. Jetzt gilt: jede Session hat Ton, Technik und
+Musik. Blöcke dürfen ein `prio` tragen — gestrichen wird bei knapper Zeit
+nach `prio`, gespielt wird trotzdem in Planreihenfolge. Deshalb bleibt bei
+zwanzig Minuten das Prüfungsstück und nicht die Tonleiter.
+
+`BLOCKS` selbst bleibt unangetastet und lebt als Kontext **Tonarbeit**
+weiter, mit der Werkzeugzuordnung aus `BLOCK_WERKZEUG`.
 Der Travel-Sax-Kontext trägt eine Warnung: Ansatz, Voicing, Obertöne und
 Klangfarbe lassen sich dort nicht üben, und das muss dastehen, sonst hält man
 das digitale Blasrohr für ein Saxophon.
@@ -360,6 +381,18 @@ Vorversion schreiben — der Nutzer hat dann echte Übungsdaten drin.
 - Tonleitern und Blattspiel bleiben im notierten Umfang B3 bis Fis6
   (`RANGE` in `theory.js`). Eine Übung, die darüber hinausläuft, ist
   unbrauchbar.
+- **Der Prüfungsstoff für Tonleitern steht in `js/music/skalenarten.js`**:
+  siebzehn Arten mal zwölf Grundtöne. Grundtöne der Modi und Akkorde
+  werden je Tonhöhe in der Schreibweise mit den wenigsten Vorzeichen
+  gewählt — Cis-phrygisch, nicht Des-phrygisch mit Eses und Fes. „Ganzer
+  Umfang“ heißt vom tiefsten Grundton bis zum höchsten Ton, hinunter bis
+  zum tiefsten und zurück. Zwei Oktaven passen auf G, Gis/As und A
+  physikalisch nicht; das ist kein Fehler, dafür gibt es den ganzen Umfang.
+  Abdeckung zählt Tonhöhen, nicht Namen: Fis- und Ges-Dur sind eine Aufgabe.
+- **Aufnahmen liegen in IndexedDB** (`js/core/aufnahmen.js`), nicht im
+  Zustandsobjekt und nicht im JSON-Export — dafür sind sie zu groß. Jede
+  Aufnahme lässt sich einzeln als Datei sichern. `recordings` im Zustand
+  gehört weiterhin der Tonanalyse und enthält nur Messwerte.
 
 ## 8. Roadmap
 
@@ -452,19 +485,37 @@ braucht eigene Werkzeuge.
   einziges Motiv, nur die mittlere Oktave. Einschränkung erzeugt Ideen;
   freies Spielen über ein Playback erzeugt Gewohnheiten.
 
+**Phase 9 — Ausrichtung auf die Zulassungsprüfung Popularmusik, umgesetzt (v14).**
+- `data/pruefung.js` und `tools/pruefung.js`: die Anforderungen aller drei
+  Prüfungsteile, jeder Punkt mit Stufen und „fertig, wenn“, Zeitplan
+  rückwärts vom Prüfungstag, Hinweise zum Programm (Stilrichtungen,
+  fehlende Ballade, was hinter dem Zeitplan liegt).
+- `audio/rekorder.js`, `core/aufnahmen.js`, `tools/aufnahme.js`: aufnehmen
+  mit Pegelanzeige und Warnung bei Übersteuerung, Ablage nach Titel,
+  Vergleich erste gegen letzte Aufnahme. Aus jedem Prüfungspunkt direkt
+  erreichbar.
+- `music/skalenarten.js` und das umgebaute Tonleitern-Werkzeug: alle
+  siebzehn Prüfungsarten, ganzer Umfang, auswendig, Prüfermodus mit
+  „erst sagen, dann aufdecken“, Abdeckung über 204 Aufgaben.
+- Neuer Probelokal-Plan und Kontext Klavier, siehe Abschnitt 4.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Referenzaufnahmen vergleichen**, Tag 1 gegen Tag 30, identische
-   Aufnahmekette. Baut auf der Tonanalyse auf; Audio gehört dann in
-   IndexedDB, nicht in localStorage.
-2. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent aus dem
-   Tonhöhenverlauf.
-3. **Melodiediktat** in der Gehörbildung: Melodie hören, Töne eingeben.
-   Der Notensatz und der Melodiegenerator stehen bereits.
-4. **Prüfungssimulation**: Ablauf mit Zeitdruck, zufällige Tonart, Blattspiel
-   ohne zweiten Versuch.
-5. **Setlist für Gigs**: die Stücke, die bei Hochzeiten wirklich drankommen,
-   mit Tonart, Form und der Stelle, an der das Solo steht.
+1. **Hörtest als Diktat.** Der Hörtest ist schriftlich: Melodie- und
+   Rhythmusdiktat, Septakkorde mit Umkehrungen, veränderten Ton im Akkord
+   finden, Gehörtes dem Notenbild zuordnen. Die Gehörbildung fragt bisher
+   nur Namen per Knopf ab. Notensatz und Melodiegenerator stehen bereit.
+2. **Kadenztrainer am Klavier**: Kadenzen in drei Lagen und II–V–I bis zwei
+   Vorzeichen, als Notenbild plus Vorspiel.
+3. **Begleitband für die Prüfungsstücke**: eigene Akkordfolgen eingeben,
+   damit auch Another You und Miss Jones mit der eingebauten Band laufen.
+   Bis dahin iReal Pro.
+4. **Pop-Saxophon-Vokabular** für Ziel 2: Subtone, Growl, Bends, Falls,
+   Ghost Notes; Lick der Woche aus echten Aufnahmen; Gig-Setlist.
+5. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent. Dabei den
+   Wissensartikel prüfen — er lehrt Lippen- statt Kiefervibrato, die
+   klassische Schule (Mule, Teal, Rousseau) lehrt Kiefervibrato.
+6. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
 
 ## 9. Arbeitsweise
 
@@ -493,9 +544,10 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute elf Suiten mit zusammen rund 29 800 Prüfungen:
-Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre, Notenerkennung,
-Licks, Teiltöne, Können-Profil, Übungsplan, Tonhöhenerkennung. Dazu die
+alle Testsuiten. Stand heute dreizehn Suiten mit zusammen rund 34 900
+Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
+Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
+Prüfungsstoff Tonleitern, Prüfungsplan, Tonhöhenerkennung. Dazu die
 Rechtschreibprüfung aus Abschnitt 9.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`
@@ -578,7 +630,12 @@ Ehrlicher Stand, damit niemand zweimal dieselbe Lücke sucht:
   Ausschnitt. Bis dahin gilt Abschnitt 2: keine abgeschriebenen Griffe.
 - **Nie am Gerät geprüft:** Kaltstart im Flugmodus vom Home-Bildschirm,
   Stimmgerät, Nachspielen, Tonanalyse und Obertöne mit echtem Mikrofon,
-  Wake Lock unter iOS. Im Browser am Rechner läuft alles; das heißt bei
+  Wake Lock unter iOS, **die Aufnahme** (MediaRecorder mit audio/mp4 in
+  der Home-Bildschirm-App, Pegelanzeige, Abspielen und Sichern der Datei).
+  Im Testbrowser ist das Mikrofon gesperrt; Speichern, Liste und Vergleich
+  sind dort mit einer eingespielten Datei geprüft.
+- **Mundstück und Blätter** des Nutzers sind noch nicht erfasst. Er schaut
+  nach; danach fragen, wenn es um Gig-Setup oder Klang geht. Im Browser am Rechner läuft alles; das heißt bei
   Audio wenig.
 - **Die Obertonübung hört sich selbst zu**, wenn der Dauerton läuft und das
   Mikrofon an ist. Steht als Hinweis in der Oberfläche. Eine echte Lösung

@@ -22,35 +22,35 @@ console.log("Der Plan aus Modul 1 bleibt unangetastet");
   ok(P.BLOCKS.every(b => !("werkzeug" in b)), "die Werkzeugzuordnung steht nicht in BLOCKS");
 }
 
-console.log("\nOhne Zeitvorgabe kommt der volle Plan");
+console.log("\nOhne Zeitvorgabe kommt der volle Tonplan");
 {
-  const p = P.planFor("probelokal");
+  const p = P.planFor("tonplan");
   eq(p.length, 7, "alle Blöcke");
   eq(summe(p), 80, "volle Länge");
   ok(p.every(b => "werkzeug" in b), "mit Werkzeug je Block");
-  eq(P.planFor("probelokal", { minuten: 0 }).length, 7, "null Minuten heißt alles");
-  eq(P.planFor("probelokal", { minuten: 999 }).length, 7, "mehr Zeit als nötig ändert nichts");
+  eq(P.planFor("tonplan", { minuten: 0 }).length, 7, "null Minuten heißt alles");
+  eq(P.planFor("tonplan", { minuten: 999 }).length, 7, "mehr Zeit als nötig ändert nichts");
 }
 
 console.log("\nEine kurze Session ist kürzer, nicht kleinteiliger");
 {
   for (const min of [20, 40, 60]) {
-    const p = P.planFor("probelokal", { minuten: min });
+    const p = P.planFor("tonplan", { minuten: min });
     eq(summe(p), min, `${min} Minuten kommen auf genau ${min} heraus`);
     ok(p.every(b => b.min >= P.MINDEST), `kein Block unter ${P.MINDEST} Minuten bei ${min}`);
     ok(p.length >= 1 && p.length <= 7, `sinnvolle Blockzahl bei ${min}: ${p.length}`);
     eq(p[0].id, "mundstueck", `das Einspielen bleibt bei ${min} drin`);
   }
-  ok(P.planFor("probelokal", { minuten: 20 }).length <
-     P.planFor("probelokal", { minuten: 60 }).length,
+  ok(P.planFor("tonplan", { minuten: 20 }).length <
+     P.planFor("tonplan", { minuten: 60 }).length,
      "zwanzig Minuten haben weniger Blöcke als sechzig");
 
   // Der eigentliche Punkt: kurz üben heißt weniger Sachen, nicht dieselben
   // Sachen in Häppchen.
-  const kurz = P.planFor("probelokal", { minuten: 20 });
+  const kurz = P.planFor("tonplan", { minuten: 20 });
   ok(kurz.length <= 3, `zwanzig Minuten ergeben höchstens drei Blöcke (waren ${kurz.length})`);
   ok(kurz.every(b => b.min >= 4), "und jeder davon ist mindestens vier Minuten lang");
-  const mittel = P.planFor("probelokal", { minuten: 40 });
+  const mittel = P.planFor("tonplan", { minuten: 40 });
   ok(mittel.length <= 5, `vierzig Minuten ergeben höchstens fünf Blöcke (waren ${mittel.length})`);
   ok(summe(mittel) / mittel.length >= 7,
      "im Schnitt bleiben die Blöcke bei sieben Minuten oder mehr");
@@ -60,7 +60,7 @@ console.log("\nDie Reihenfolge wird nie umgestellt");
 {
   const voll = P.BLOCKS.map(b => b.id);
   for (const min of [20, 30, 40, 55, 60, 75]) {
-    const ids = P.planFor("probelokal", { minuten: min }).map(b => b.id);
+    const ids = P.planFor("tonplan", { minuten: min }).map(b => b.id);
     const sortiert = [...ids].sort((a, b) => voll.indexOf(a) - voll.indexOf(b));
     eq(ids.join(","), sortiert.join(","), `Planreihenfolge bei ${min} Minuten`);
   }
@@ -68,15 +68,15 @@ console.log("\nDie Reihenfolge wird nie umgestellt");
 
 console.log("\nDer Schwerpunkt bekommt Zeit und bleibt lange drin");
 {
-  const ohne = P.planFor("probelokal", { minuten: 40 });
-  const mit  = P.planFor("probelokal", { minuten: 40, schwerpunkt: "obertoene" });
+  const ohne = P.planFor("tonplan", { minuten: 40 });
+  const mit  = P.planFor("tonplan", { minuten: 40, schwerpunkt: "obertoene" });
   eq(summe(mit), 40, "die Gesamtzeit stimmt weiterhin");
   const o1 = ohne.find(b => b.id === "obertoene")?.min || 0;
   const o2 = mit.find(b => b.id === "obertoene")?.min || 0;
   ok(o2 > o1, `mit Schwerpunkt mehr Minuten (${o1} auf ${o2})`);
 
   // Bei sehr wenig Zeit überlebt neben dem Einspielen genau der Schwerpunkt.
-  const knapp = P.planFor("probelokal", { minuten: 20, schwerpunkt: "etuede" });
+  const knapp = P.planFor("tonplan", { minuten: 20, schwerpunkt: "etuede" });
   ok(knapp.some(b => b.id === "etuede"), "der Schwerpunkt ist auch bei 20 Minuten dabei");
   eq(knapp[0].id, "mundstueck", "und das Einspielen davor");
   eq(summe(knapp), 20, "zwanzig Minuten bleiben zwanzig");
@@ -91,7 +91,7 @@ console.log("\nDie anderen Kontexte werden genauso zugeschnitten");
 {
   for (const k of P.KONTEXTE) {
     const voll = P.planFor(k.id);
-    ok(voll.length >= 4, `${k.name}: der volle Plan hat Substanz (${voll.length} Blöcke)`);
+    ok(voll.length >= (k.id === "klavier" ? 3 : 4), `${k.name}: der volle Plan hat Substanz (${voll.length} Blöcke)`);
     const kurz = P.planFor(k.id, { minuten: 25 });
     eq(summe(kurz), 25, `${k.name}: 25 Minuten kommen auf 25`);
     ok(kurz.every(b => b.min >= P.MINDEST), `${k.name}: kein zu kurzer Block`);
@@ -100,9 +100,41 @@ console.log("\nDie anderen Kontexte werden genauso zugeschnitten");
   }
 }
 
+console.log("\nDas Probelokal übt für die Prüfung");
+{
+  const voll = P.planFor("probelokal");
+  const ids = voll.map(b => b.id);
+  ok(ids.includes("p_ton") && ids.includes("p_skalen") && ids.includes("p_stueck"),
+     "Ton, Tonleitern und Prüfungsstück stehen im vollen Plan");
+  ok(voll.every(b => b.werkzeug !== undefined), "jeder Block nennt sein Werkzeug oder ausdrücklich keines");
+  eq(ids[0], "p_ton", "angefangen wird mit dem Einspielen");
+
+  // Der eigentliche Grund für den Umbau: auch kurz wird Musik gemacht.
+  for (const min of [20, 25, 30, 40, 60]) {
+    const p = P.planFor("probelokal", { minuten: min });
+    eq(summe(p), min, `${min} Minuten kommen auf ${min}`);
+    ok(p.some(b => b.id === "p_stueck"), `bei ${min} Minuten ist ein Prüfungsstück dabei`);
+    eq(p[0].id, "p_ton", `bei ${min} Minuten wird zuerst eingespielt`);
+  }
+  const vierzig = P.planFor("probelokal", { minuten: 40 }).map(b => b.id);
+  ok(vierzig.includes("p_skalen"), "bei vierzig Minuten sind auch die Tonleitern dabei");
+  // Gestrichen wird nach Priorität, gespielt in Planreihenfolge.
+  eq(vierzig.join(","), [...vierzig].sort((a, b) => ids.indexOf(a) - ids.indexOf(b)).join(","),
+     "die Reihenfolge bleibt die des Plans");
+  eq(P.blockFuerWerkzeug("probelokal", "aufnahme"), "p_durchlauf", "die Aufnahme gehört zum Durchlauf");
+}
+
+console.log("\nKlavier ist ein eigener Kontext");
+{
+  const k = P.planFor("klavier");
+  ok(k.some(b => b.id === "kl_kadenz"), "Kadenzen sind dabei");
+  ok(k.some(b => /II–V–I/.test(b.cues.join(" "))), "und die II–V–I aus dem Beiblatt");
+  eq(P.planFor("klavier", { minuten: 20 }).reduce((s, b) => s + b.min, 0), 20, "zwanzig Minuten Klavier gehen auf");
+}
+
 console.log("\nDie Kontexte selbst");
 {
-  eq(P.KONTEXTE.length, 3, "drei Kontexte");
+  eq(P.KONTEXTE.length, 5, "fünf Kontexte");
   eq(P.kontextOf("gibtsnicht").id, "probelokal", "unbekannt fällt auf das Probelokal zurück");
   const ts = P.kontextOf("travelsax");
   ok(!!ts.warnung, "am Travel Sax steht die Warnung dabei");
@@ -111,10 +143,10 @@ console.log("\nDie Kontexte selbst");
 
 console.log("\nWerkzeug zurück auf den Block");
 {
-  eq(P.blockFuerWerkzeug("probelokal", "obertoene"), "obertoene", "Obertöne finden ihren Block");
-  eq(P.blockFuerWerkzeug("probelokal", "bordun"), "intonation", "der Bordun gehört zur Intonation");
-  eq(P.blockFuerWerkzeug("probelokal", "tonleitern"), null, "was nicht im Plan steht, gibt null");
-  eq(P.blockFuerWerkzeug("probelokal", null), null, "ohne Werkzeug kein Block");
+  eq(P.blockFuerWerkzeug("tonplan", "obertoene"), "obertoene", "Obertöne finden ihren Block");
+  eq(P.blockFuerWerkzeug("tonplan", "bordun"), "intonation", "der Bordun gehört zur Intonation");
+  eq(P.blockFuerWerkzeug("tonplan", "tonleitern"), null, "was nicht im Plan steht, gibt null");
+  eq(P.blockFuerWerkzeug("tonplan", null), null, "ohne Werkzeug kein Block");
   eq(P.blockFuerWerkzeug("leise", "tonleitern"), "singen_greifen",
      "im leisen Kontext hängen Tonleitern am Singen und Greifen");
 }

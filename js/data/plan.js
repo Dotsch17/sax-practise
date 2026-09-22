@@ -69,9 +69,11 @@ export function planForWeek(week){
 /* ==========================================================================
    Übe-Kontexte
 
-   Der Plan oben ist der für das Probelokal: echtes Saxophon, beliebig laut,
+   Der Plan oben ist der klassische Tonplan: echtes Saxophon, beliebig laut,
    volle Tonarbeit. Er bleibt unverändert, weil er aus einem ausgearbeiteten
-   Konzept stammt.
+   Konzept stammt, und steht als Kontext „Tonarbeit“ zur Wahl. Das
+   Probelokal hat seit der Ausrichtung auf die Popularmusik-Prüfung einen
+   eigenen Plan, siehe PROBELOKAL.
 
    Nur: an den meisten Tagen steht man nicht im Probelokal. Und dann ist die
    ehrliche Antwort nicht „mach dasselbe leiser“ — sie ist, dass das
@@ -92,12 +94,69 @@ export function planForWeek(week){
    anderen Reiter wechseln — und dann macht man es nicht.
    ========================================================================== */
 
+/* Das Probelokal übt für die Zulassungsprüfung IGP Saxophon Popularmusik.
+   Das ist eine Prüfung mit Tonleitern und Akkorden, Jazzetüden, drei
+   Stücken mit Improvisation und Blattlesen — der Tonplan oben allein
+   bereitet darauf nicht vor. In ihm kam Musik erst nach siebzig Minuten
+   vor, und bei vierzig Minuten Übezeit nie.
+
+   Deshalb gilt hier: jede Session hat Ton, Technik und Musik. `prio` legt
+   fest, was bei knapper Zeit bleibt — nicht die Reihenfolge. Gespielt wird
+   in Planreihenfolge, gestrichen wird von hinten nach `prio`. Bei zwanzig
+   Minuten heißt das: einspielen und ein Prüfungsstück, nicht einspielen und
+   Tonleitern. Die Stücke sind der größte Brocken und brauchen täglichen
+   Kontakt.
+
+   Der Tonplan bleibt als eigener Kontext „Tonarbeit“ erhalten, für die
+   Tage, an denen es nur um den Klang geht. */
+const PROBELOKAL = [
+  { id: "p_ton", name: "Einspielen und Ton", min: 12, prio: 0, werkzeug: "obertoene", cues: [
+    "Zwei Minuten Mundstück allein, dann Obertöne auf tief B, H und C",
+    "Lange Töne gegen den Bordun, auf die Schwebung hören, nicht aufs Display",
+    "Subtone im pp und voller Ton im f — beides brauchst du, eine Ballade und ein Funk-Stück",
+    "Altissimo: der Ton, der gerade teilweise geht, zehnmal hintereinander aus dem Nichts",
+  ]},
+  { id: "p_skalen", name: "Tonleitern und Akkorde", min: 15, prio: 3, werkzeug: "tonleitern", cues: [
+    "Prüfer spielen: zufällige Art und Tonart, erst die Töne laut sagen, dann spielen",
+    "Ganzer Umfang, auswendig, einmal gebunden und einmal im Jazz-Muster",
+    "Erst abhaken, wenn es zweimal hintereinander sitzt",
+  ]},
+  { id: "p_etuede", name: "Etüde oder Transkription", min: 18, prio: 4, werkzeug: "metronom", cues: [
+    "Die schwierigste Stelle zuerst, mit einem Takt davor und danach",
+    "Metronom auf 2 und 4, halbes Tempo, bis es swingt, nicht nur stimmt",
+    "Bei einer Transkription: mit dem Original mitspielen, bis Artikulation und Luft gleich sind",
+  ]},
+  { id: "p_stueck", name: "Prüfungsstück", min: 22, prio: 2, werkzeug: "improvisation", cues: [
+    "Thema auswendig, mit der Phrasierung der Aufnahme, die du als Vorbild hast",
+    "Dann über die Form: erst Grundtöne, dann Terzen und Septimen, dann frei",
+    "Blues und Rhythm Changes laufen in der Begleitband, alles andere mit iReal Pro oder einem Playalong",
+    "Die Eins jedes Formteils treffen. Wer die Form verliert, hört auf und wartet auf den nächsten Anfang",
+  ]},
+  { id: "p_durchlauf", name: "Durchlauf mit Aufnahme", min: 8, prio: 5, werkzeug: "aufnahme", cues: [
+    "Ein Stück oder eine Etüde von vorn bis hinten, ohne Anhalten",
+    "Fehler werden nicht korrigiert, es geht weiter — so wie in der Prüfung",
+    "Nicht heute anhören. Morgen, mit frischem Ohr",
+  ]},
+  { id: "p_blatt", name: "Blattlesen", min: 5, prio: 6, werkzeug: "blattspiel", cues: [
+    "Einmal durch, ohne anzuhalten. Stehenbleiben ist der einzige echte Fehler",
+    "Achtel swingen, auch wenn sie gerade dastehen",
+  ]},
+];
+
 export const KONTEXTE = [
   {
     id: "probelokal",
     name: "Probelokal",
-    kurz: "laut",
-    was: "Echtes Saxophon, beliebig laut. Der volle Tonplan.",
+    kurz: "Prüfung",
+    was: "Echtes Saxophon, beliebig laut. Ton, Technik und die Prüfungsstücke — jede Session alle drei.",
+    bloecke: PROBELOKAL,
+  },
+
+  {
+    id: "tonplan",
+    name: "Tonarbeit",
+    kurz: "nur Ton",
+    was: "Der klassische Tonplan: Mundstück, lange Töne, Obertöne, Dynamik, Intonation, Artikulation. Für die Tage, an denen es nur um den Klang geht.",
     bloecke: null,          // null heißt: der Plan oben, unverändert
   },
 
@@ -182,6 +241,34 @@ export const KONTEXTE = [
       { id: "ts_gehoer", name: "Nachspielen", min: 10, werkzeug: "nachspielen", cues: [
         "Phrase hören, innerlich singen, nachspielen. Nicht suchen",
         "Das ist die Fähigkeit, die dich auf einer Bühne rettet",
+      ]},
+    ],
+  },
+
+  /* Klavier ist ein eigener Prüfungsteil und wird nicht bestanden, indem man
+     Saxophon übt. Von null bis zur Prüfung sind es neun Monate — das geht,
+     aber nur mit täglich einer kleinen Menge, nicht mit einem Wochenende im
+     April. */
+  {
+    id: "klavier",
+    name: "Klavier",
+    kurz: "Prüfungsteil",
+    was: "Grundkenntnisse Klavier für die Zulassungsprüfung: zwei Stücke, Blattspiel, Kadenzen. Lieber täglich zwanzig Minuten als einmal in der Woche zwei Stunden.",
+    bloecke: [
+      { id: "kl_kadenz", name: "Kadenzen", min: 8, werkzeug: "metronom", cues: [
+        "Einfache Kadenz I–IV–V–I in Quint-, Oktav- und Terzlage, Dur und Moll bis zwei Vorzeichen",
+        "Dazu II–V–I in Dur, eine der drei Varianten vom Beiblatt",
+        "Langsam und ohne Blick auf die Hände. Die Stimmen gehen den kürzesten Weg",
+      ]},
+      { id: "kl_stueck", name: "Klavierstück", min: 12, werkzeug: null, cues: [
+        "Hände einzeln, bis jede für sich sicher ist, erst dann zusammen",
+        "Fingersatz einmal festlegen und in die Noten schreiben, dann nie mehr ändern",
+        "Täglich das eine Stück, jeden zweiten Tag das andere",
+      ]},
+      { id: "kl_blatt", name: "Blattspiel", min: 5, werkzeug: null, cues: [
+        "Mikrokosmos oder Microjazz, ein neues Stück pro Tag, einmal durch",
+        "Vorher zehn Sekunden schauen: Tonart, Takt, Lage der Hände",
+        "Nicht anhalten. Lieber eine Hand weglassen als stehenbleiben",
       ]},
     ],
   },
@@ -271,7 +358,9 @@ export function baueSession(bloecke, minuten = 0, schwerpunkt = null) {
 
   // Wer überlebt, wenn die Zeit knapp wird: das Einspielen, dann der
   // Schwerpunkt, dann der Rest in Planreihenfolge.
-  const rang = new Map(alle.map((b, i) => [b.id, i + 10]));
+  // Ein Block mit `prio` wird danach behandelt statt nach seiner Stelle im
+  // Plan; gespielt wird trotzdem in Planreihenfolge.
+  const rang = new Map(alle.map((b, i) => [b.id, (b.prio ?? i) + 10]));
   rang.set(alle[0].id, 0);
   if (schwerpunkt && rang.has(schwerpunkt)) rang.set(schwerpunkt, 1);
 

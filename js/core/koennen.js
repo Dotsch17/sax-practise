@@ -58,6 +58,11 @@ const NICHT_IM_KONTEXT = {
   travelsax: new Set(["obertoene", "stimmgeraet", "tonanalyse", "bordun"]),
   leise:     new Set(["gigtraining"]),
   probelokal: new Set(),
+  tonplan:    new Set(),
+  // Am Klavier ist kein Saxophon in der Hand. Was bleibt, ist das Gehör.
+  klavier:    new Set(["obertoene", "stimmgeraet", "tonanalyse", "bordun", "tonleitern",
+                       "rhythmus", "blattspiel", "improvisation", "tonartfinden", "callresponse",
+                       "gigtraining", "songmitspielen", "nachspielen"]),
 };
 
 const ALLE_DUR = [

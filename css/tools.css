@@ -125,7 +125,7 @@ input[type=range]::-moz-range-thumb{
   width: 26px; height: 26px; border-radius:50%; background: var(--brass); border:0;
 }
 
-input[type=number], input[type=text], select{
+input[type=number], input[type=text], input[type=date], select{
   background: var(--surface); color: var(--cane);
   border: 1px solid var(--line); border-radius: 8px;
   padding: 10px; font-family: inherit; font-size: 16px;
@@ -1044,3 +1044,92 @@ svg.staff.compact{ height: 96px; }
   margin-top: 10px; font-size: 13.5px; color: var(--cane-dim); line-height: 1.5;
 }
 .rat-schwerpunkt b{ color: var(--cane); font-weight: 500; }
+
+/* --- Tonleitern: Prüfermodus und Abdeckung -----------------------------------
+   Die Frage steht groß, weil sie aus sechzig Zentimetern gelesen wird. Die
+   Tonnamen stehen darunter, verdeckt, bis man sie selbst gesagt hat. */
+.pruefer{
+  border: 1px solid var(--brass-dim); border-radius: 14px;
+  background: var(--surface); padding: 16px; margin: 14px 0;
+}
+.pruefer-kopf{
+  font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--brass);
+}
+.pruefer-frage{
+  font-family: var(--serif); font-size: 44px; line-height: 1.1; margin: 8px 0 4px;
+}
+.toene{
+  font-size: 18px; letter-spacing: .02em; margin: 10px 0 6px; color: var(--cane);
+}
+.bbar.abdeckung{ width: 100%; min-height: 44px; text-align: left; }
+.bbar.abdeckung:active{ background: var(--surface-hi); }
+
+/* --- Formularfelder mit Beschriftung darüber -------------------------------- */
+.feld{
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 13px; color: var(--cane-dim); margin: 10px 0;
+}
+
+/* --- Aufnahme -----------------------------------------------------------------
+   Der Knopf ist das Einzige, was man mit dem Instrument in der Hand trifft,
+   deshalb groß. Läuft die Aufnahme, bleibt er Messing, aber die Schrift
+   wird zur Uhr — ein zweites Signal braucht es nicht. */
+.au-knopf{ min-height: 72px; font-size: 20px; margin-top: 14px; font-variant-numeric: tabular-nums; }
+.au-knopf.laeuft{ background: none; color: var(--brass); border: 2px solid var(--brass); }
+.au-pegel{
+  height: 8px; border-radius: 4px; margin: 12px 0 0; overflow: hidden;
+  background: color-mix(in srgb, var(--line) 60%, transparent);
+}
+.au-pegel i{ display:block; height:100%; width:0; background: var(--brass); }
+.au-gruppe{ border-bottom: 1px solid var(--line); padding: 4px 0; }
+.au-gruppe summary{
+  min-height: 52px; display:flex; align-items:center; justify-content:space-between;
+  cursor: pointer; font-size: 16px;
+}
+.au-gruppe summary span{ color: var(--cane-dim); font-size: 14px; }
+.au-zeile{ padding: 10px 0 14px; border-top: 1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.au-kopf{ display:flex; justify-content:space-between; font-size: 14px; color: var(--cane-dim); margin-bottom: 6px; }
+.au-kopf b{ color: var(--cane); font-weight: 500; }
+.au-zeile audio, .au-vergleich audio{ width: 100%; height: 44px; }
+.au-notiz{ font-size: 14px; color: var(--cane-dim); margin: 6px 0 0; line-height: 1.45; }
+.au-aktionen{ display:flex; gap: 18px; margin-top: 8px; font-size: 14px; }
+.au-aktionen a, .au-aktionen button{ min-height: 36px; display:inline-flex; align-items:center; }
+.au-vergleich{
+  display: grid; gap: 10px; padding: 12px; margin-bottom: 8px;
+  border: 1px solid var(--brass-dim); border-radius: 12px;
+}
+
+/* --- Prüfung ------------------------------------------------------------------ */
+.countdown{ margin: 10px 0 4px; }
+.countdown b{ font-family: var(--serif); font-size: 64px; font-weight: 400; line-height: 1; color: var(--cane); }
+.countdown span{ display:block; font-size: 14px; color: var(--cane-dim); margin-top: 4px; }
+.pr-teil{ margin-top: 26px; }
+.pr-punkt{
+  display:block; width:100%; text-align:left;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+  padding: 14px; margin: 8px 0; min-height: 58px;
+}
+.pr-punkt:active{ background: var(--surface-hi); }
+.pr-punkt-kopf{ display:flex; justify-content:space-between; gap: 10px; align-items: baseline; }
+.pr-punkt-kopf b{ font-weight: 500; font-size: 16px; }
+.pr-punkt-kopf em{ font-style: normal; font-size: 12.5px; color: var(--brass); flex:none; }
+.pr-punkt-sub{ display:block; font-size: 13.5px; color: var(--cane-dim); margin-top: 4px; line-height: 1.4; }
+.pr-stufen{ display:flex; gap: 4px; margin-top: 10px; }
+.pr-stufen i{ flex:1; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--line) 70%, transparent); }
+.pr-stufen i.an{ background: var(--brass); }
+.pr-stufen i.soll{ outline: 1px solid var(--brass-dim); outline-offset: 1px; }
+.meilenstein{ display:flex; gap: 12px; padding: 9px 2px; font-size: 14.5px; border-bottom: 1px solid var(--line); }
+.meilenstein time{ width: 86px; flex:none; color: var(--cane-dim); font-variant-numeric: tabular-nums; }
+.meilenstein .zeichen{ width: 18px; flex:none; color: var(--brass); }
+.meilenstein.vorbei{ color: var(--cane-dim); }
+.meilenstein.jetzt b{ color: var(--brass); font-weight: 500; }
+.stufenwahl{ display:flex; flex-direction:column; gap: 6px; }
+.stufe{
+  text-align:left; width:100%; min-height: 58px; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+}
+.stufe b{ display:block; font-weight: 500; font-size: 15.5px; }
+.stufe span{ display:block; font-size: 13px; color: var(--cane-dim); margin-top: 3px; line-height: 1.4; }
+.stufe.an{ border-color: var(--brass-dim); }
+.stufe.an b::before{ content: "✓ "; color: var(--brass); }
+.stufe:active{ background: var(--surface-hi); }

@@ -37,6 +37,7 @@ export const defaultState = () => ({
     pitchView: "written", // wird der Griff oder der klingende Ton angezeigt
     metroSound: "klick",
     countIn: true,
+    skalaNoten: true,     // Tonleitern mit Noten oder auswendig
   },
   // Fortschritt je Übungsart. Bewusst flach und nach Übung getrennt,
   // damit eine neue Übung keine Migration braucht.

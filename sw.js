@@ -12,7 +12,7 @@
    ========================================================================== */
 "use strict";
 
-const VERSION = "v13";
+const VERSION = "v14";
 const CACHE   = "sax-uebeplan-" + VERSION;
 
 // Relative Pfade, damit derselbe Worker unter jedem Unterverzeichnis läuft
@@ -31,13 +31,16 @@ const ASSETS = [
   "./js/audio/metronome.js",
   "./js/audio/notenfolge.js",
   "./js/audio/pitch.js",
+  "./js/audio/rekorder.js",
   "./js/audio/signals.js",
+  "./js/core/aufnahmen.js",
   "./js/core/dom.js",
   "./js/core/koennen.js",
   "./js/core/session.js",
   "./js/core/store.js",
   "./js/data/improwissen.js",
   "./js/data/plan.js",
+  "./js/data/pruefung.js",
   "./js/data/songwissen.js",
   "./js/data/wissen.js",
   "./js/main.js",
@@ -49,7 +52,9 @@ const ASSETS = [
   "./js/music/notation.js",
   "./js/music/obertoene.js",
   "./js/music/rhythmus.js",
+  "./js/music/skalenarten.js",
   "./js/music/theory.js",
+  "./js/tools/aufnahme.js",
   "./js/tools/blattspiel.js",
   "./js/tools/bordun.js",
   "./js/tools/callresponse.js",
@@ -63,6 +68,7 @@ const ASSETS = [
   "./js/tools/nachspielen.js",
   "./js/tools/obertoene.js",
   "./js/tools/protokoll.js",
+  "./js/tools/pruefung.js",
   "./js/tools/repertoire.js",
   "./js/tools/rhythmus.js",
   "./js/tools/session.js",

@@ -156,7 +156,9 @@ function boot() {
 
   window.addEventListener("hashchange", () => {
     const [t, x] = location.hash.replace(/^#/, "").split("/");
-    if (t && t !== currentTab.id) openTab(t, x);
+    // Auch innerhalb eines Reiters: die Prüfung schickt in die Aufnahme,
+    // und die liegt im selben Reiter.
+    if (t && (t !== currentTab.id || (x && x !== currentTool?.id))) openTab(t, x);
   });
 }
 
