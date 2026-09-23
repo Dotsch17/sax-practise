@@ -207,5 +207,24 @@ console.log("\n6. Versetzungszeichen");
   ok(chrom > 300, `erhöhte Töne kommen vor (${chrom})`);
 }
 
+console.log("\nProbetest");
+{
+  const plan = M.probePlan();
+  eq(plan.length, 22, "22 Teilaufgaben: 4 + 2 + 1 + 4 + 4 + 1 + 6");
+  eq(M.PROBETEST.reduce((s, a) => s + a.anzahl * a.max, 0), 31.5, "zusammen 31,5 Punkte wie im Mustertest");
+  eq(M.PROBETEST.map(a => a.anzahl * a.max), [2, 8, 4, 4, 4, 3.5, 6], "Punkte je Aufgabe wie im Mustertest");
+  eq(plan.filter(p => p.modus === "tonrhythmus").map(p => p.stufe), [2, 3], "die zwei Rhythmen in Stufe 2 und 3");
+  eq(M.probePunkte("intervall", { richtig: true }), 0.5, "ein Intervall: ein halber Punkt");
+  eq(M.probePunkte("typ", { alles: false }), 0, "falscher Akkordtyp: null");
+  const alle = plan.map(p => ({ nr: p.nr, punkte: p.max }));
+  const voll = M.probeAuswertung(alle);
+  ok(voll.summe === 31.5 && voll.bestanden, "alles richtig: 31,5 und bestanden");
+  const knapp = M.probeAuswertung(plan.map(p => ({ nr: p.nr, punkte: p.nr <= 3 ? p.max : 0 })));
+  ok(knapp.summe === 14 && !knapp.bestanden, "nur Aufgabe 1 bis 3: 14 Punkte, nicht bestanden");
+  eq(knapp.schwach.nr, 7, "genannt wird die Aufgabe, in der die meisten Punkte fehlen (Akkordtyp, 6)");
+  const nurRhythmusFalsch = M.probeAuswertung(plan.map(p => ({ nr: p.nr, punkte: p.nr === 2 ? 0 : p.nr === 1 ? 0 : p.max })));
+  eq(nurRhythmusFalsch.schwach.nr, 2, "acht fehlende Punkte im Rhythmus vor zwei bei den Intervallen");
+}
+
 console.log(fail ? `\n${fail} von ${n} Prüfungen fehlgeschlagen` : `\nAlle ${n} Prüfungen bestanden`);
 process.exit(fail ? 1 : 0);

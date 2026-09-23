@@ -165,8 +165,8 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 | Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block. Prüfung: Countdown, alle Prüfungspunkte mit Stufen, Zeitplan rückwärts. Simulation: das ganze Programm am Stück mit Aufnahme. Aufnahme: aufnehmen, nach Titel ablegen, erste gegen letzte hören |
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Vibrato-Analyse, Tonanalyse, Bordun |
 | Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Kadenzen fürs Klavier, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
-| Gehör | Hörtest (alle sieben Aufgaben des Mustertests der mdw, dazu Tonhöhen- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
-| Impro | Grundlagen, Begleitband, Eigene Stücke (Band zu den eigenen Leadsheets), Lick der Woche, Call and Response |
+| Gehör | Hörtest (Probe-Gehörtest und alle sieben Aufgaben des Mustertests der mdw, dazu Tonhöhen- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
+| Impro | Grundlagen (Stile und Formen mit Band und Formübung, Skalen, Konzepte, Über einen Song), Begleitband, Eigene Stücke (Band zu den eigenen Leadsheets), Lick der Woche, Call and Response |
 | Gig | Setlist mit Bühnenansicht, Zum Song spielen, Tonart finden, Gig-Training, Pop-Sound |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
 
@@ -888,12 +888,39 @@ braucht eigene Werkzeuge.
   Septakkorde in allen Tonarten, Intervallnamen, Namen der Umkehrungen,
   Vorzeichnungen, die Wissensartikel (Ansatz bis Vorspielen).
 
+**Phase 21 — Probe-Gehörtest und Stile und Formen, umgesetzt (v26).**
+- Hörtest → „Probetest“: alle sieben Aufgaben des Mustertests am Stück,
+  22 Teilaufgaben, Punkte genau wie dort (2 + 8 + 4 + 4 + 4 + 3,5 + 6 =
+  31,5, 16 zum Bestehen; `PROBETEST` in `music/mustertest.js`). Jede
+  Aufgabe wird so oft vorgespielt wie im Mustertest, danach ist der Knopf
+  gesperrt; Übungsknöpfe (gebrochen, Kadenz) gibt es nicht. Keine
+  Rückmeldung unterwegs — `zeigeErgebnis()` und `werte()` leiten im
+  Probetest um. Am Ende Punkte je Aufgabe, der Rat nennt die Aufgabe, in
+  der die meisten Punkte fehlen (nicht die mit dem schlechtesten Anteil),
+  und ein Rückblick mit jeder Lösung. Verlauf unter
+  `drills["hoertest:probe"]`.
+- Impro → Grundlagen → „Stile und Formen“, jetzt der erste Teil: Blues,
+  Moll-Blues, Rhythm Changes, Jazz-Standard, Ballade, Bossa Nova, Funk und
+  Soul, Pop und House. Der Nutzer sagte, er wisse nicht, was ein Blues
+  sei — also steht zu jedem Stil, was er ist, woran man ihn hört, seine
+  Form, Schritte mit „fertig, wenn“, typische Fehler, Aufnahmen und was er
+  für die eigenen Prüfungsstücke heißt. Inhalte in `data/stile.js`.
+- Die Form steht als Raster in der gewählten klingenden Tonart, gegriffen
+  gelesen, mit der Stufe darunter; die Band spielt sie. Formübung: auf die
+  Eins jedes neuen Durchgangs tippen, erst mit Raster, dann verdeckt —
+  gewertet auf einen Schlag genau, zum hörbaren Zeitpunkt (über
+  `band.onBar`, also mit Bluetooth-Verzug).
+- `stufenText()` in `music/leadsheet.js` macht aus Stufen Akkorde in einer
+  Tonart, jetzt auch Dreiklänge (vi → Am, bVII → G in a). Die
+  Leadsheet-Vorlagen laufen darüber.
+- Faktenregel für die Stil-Texte: Tonarten von Stücken nur als „in den
+  meisten Leadsheets“, Hörbeispiele nur, wo Titel, Musiker und Jahr
+  sicher sind. Die Harmonien der Prüfungsstücke stehen weiterhin nicht im
+  Code; der Standard-Artikel verweist auf „Eigene Stücke“.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Ein ganzer Probe-Gehörtest** im Format der mdw: alle sieben Aufgaben
-   hintereinander, mit den Punkten des Mustertests (31,5, 16 zum
-   Bestehen) und je Aufgabe so oft vorgespielt wie dort.
-2. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
+1. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
    der Klavierprüfung. Für die Stücke reicht vorerst das Cockpit; fürs
    Blattspiel ließe sich der Melodiegenerator zweihändig machen.
 

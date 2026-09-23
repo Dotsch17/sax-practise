@@ -474,3 +474,64 @@ export function pruefeVorzeichen(a, alters) {
 }
 
 export { laenge as wertLaenge };
+
+/* --- Der ganze Probe-Gehörtest ---------------------------------------------------------
+   Aufbau und Punkte genau wie im Mustertest: sieben Aufgaben, 31,5 Punkte,
+   16 zum Bestehen. Wie oft vorgespielt wird, steht je Aufgabe dabei; im
+   Probetest ist danach Schluss. Die Stufen sind die schwereren, weil der
+   Mustertest so schwer ist. */
+
+export const PROBETEST = [
+  { nr: 1, modus: "intervall", titel: "Intervall ergänzen", anzahl: 4, max: 0.5, hoeren: 3,
+    anweisung: "Ergänze den zweiten Ton. ▲ heißt darüber, ▼ darunter. Beide Töne klingen zugleich, dreimal." },
+  { nr: 2, modus: "tonrhythmus", titel: "Rhythmus und Taktstriche", anzahl: 2, max: 4, hoeren: 2, satz: 2, stufen: [2, 3],
+    anweisung: "Ergänze den Rhythmus und setz die Taktstriche. Zweimal nur die Melodie, zweimal mit Begleitung." },
+  { nr: 3, modus: "ergaenzen", titel: "Melodie ergänzen", anzahl: 1, max: 4, hoeren: 3, stufe: 3,
+    anweisung: "Die ersten vier Takte stehen da, notiere die zweiten vier. Dreimal." },
+  { nr: 4, modus: "akkordneu", titel: "Veränderter Akkord", anzahl: 4, max: 1, hoeren: 3,
+    anweisung: "Zwei Akkorde, der zweite um einen Ton oder ein Vorzeichen verändert. Notiere den zweiten. Dreimal." },
+  { nr: 5, modus: "bass", titel: "Basston gegeben", anzahl: 4, max: 1, hoeren: 3,
+    anweisung: "Dreistimmiger Akkord, der Basston steht da. Notiere die beiden Töne darüber. Dreimal." },
+  { nr: 6, modus: "vorzeichen", titel: "Versetzungszeichen", anzahl: 1, max: 3.5, hoeren: 3,
+    anweisung: "Eine dur-moll-tonale Melodie: ergänze die Versetzungszeichen. Dreimal." },
+  { nr: 7, modus: "typ", titel: "Akkordtyp", anzahl: 6, max: 1, hoeren: 3,
+    anweisung: "Drei- oder vierstimmiger Akkord: bestimme den Typ. Dreimal." },
+];
+export const PROBE_MAX = 31.5;
+export const PROBE_BESTANDEN = 16;
+
+/** Die einzelnen Aufgaben des Probetests in Reihenfolge. */
+export function probePlan() {
+  const plan = [];
+  for (const a of PROBETEST) {
+    for (let k = 0; k < a.anzahl; k++) {
+      plan.push({ ...a, teil: k + 1, stufe: a.stufen ? a.stufen[k % a.stufen.length] : a.stufe });
+    }
+  }
+  return plan;
+}
+
+/** Punkte für eine gelöste Teilaufgabe, aus dem Ergebnis der Auswertung. */
+export function probePunkte(modus, ergebnis) {
+  if (!ergebnis) return 0;
+  switch (modus) {
+    case "intervall": return ergebnis.richtig ? 0.5 : 0;
+    case "tonrhythmus": case "ergaenzen": case "vorzeichen": return ergebnis.punkte || 0;
+    case "akkordneu": case "bass": case "typ": return ergebnis.alles ? 1 : 0;
+    default: return 0;
+  }
+}
+
+/** Punkte je Aufgabe, Summe und ob bestanden. */
+export function probeAuswertung(einzeln) {
+  const jeAufgabe = PROBETEST.map(a => {
+    const teile = einzeln.filter(e => e.nr === a.nr);
+    return { nr: a.nr, titel: a.titel, punkte: teile.reduce((s, e) => s + e.punkte, 0), max: a.anzahl * a.max };
+  });
+  const summe = jeAufgabe.reduce((s, a) => s + a.punkte, 0);
+  // Wo fehlen die meisten Punkte? Das ist die Aufgabe, deren Übung am
+  // meisten bringt — nicht die mit dem schlechtesten Anteil: acht fehlende
+  // Punkte im Rhythmus wiegen mehr als zwei bei den Intervallen.
+  const schwach = [...jeAufgabe].sort((x, y) => (y.max - y.punkte) - (x.max - x.punkte) || x.punkte / x.max - y.punkte / y.max)[0];
+  return { jeAufgabe, summe, max: PROBE_MAX, bestanden: summe >= PROBE_BESTANDEN, schwach };
+}

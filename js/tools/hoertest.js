@@ -35,7 +35,7 @@
 
 "use strict";
 
-import { $, $$, el, escapeHtml, toast } from "../core/dom.js";
+import { $, $$, el, escapeHtml, toast, todayISO } from "../core/dom.js";
 import { state, drill, scoreDrill, save } from "../core/store.js";
 import { spell, toMidi, NAMING } from "../music/theory.js";
 import { renderStaff, autoBeam, DUR } from "../music/notation.js";
@@ -51,6 +51,7 @@ import {
   RHYTHMUS_STUFEN, rhythmusZuToenen, pruefeRhythmusZuToenen, satzFuer,
   akkordVeraendert, pruefeAkkord, akkordName, bassUndZwei, lageName,
   vorzeichenAufgabe, pruefeVorzeichen, erkenneAkkord,
+  PROBETEST, PROBE_MAX, PROBE_BESTANDEN, probePlan, probePunkte, probeAuswertung,
 } from "../music/mustertest.js";
 import { audio } from "../audio/context.js";
 import { playAt, playChord, playMelody, ok as sigOk, nope as sigNope } from "../audio/signals.js";
@@ -58,6 +59,7 @@ import { playAt, playChord, playMelody, ok as sigOk, nope as sigNope } from "../
 /* Die sieben Aufgaben des Mustertests, in seiner Reihenfolge und mit
    seinen Nummern; darunter die Grundlagen. */
 const MODI = [
+  { id: "probe",       label: "Probetest",            gruppe: "mt" },
   { id: "intervall",   label: "1 Intervall",          gruppe: "mt" },
   { id: "tonrhythmus",  label: "2 Rhythmus",           gruppe: "mt" },
   { id: "ergaenzen",   label: "3 Melodie",            gruppe: "mt" },
@@ -85,6 +87,11 @@ let gehoert = 0;
 let ergebnis = null;       // nach dem Prüfen
 let akkWahl = { art: null, umk: null };
 let gehoertSatz = 0;       // Rhythmus zu Tönen: wie oft mit Begleitung
+/* Der laufende Probetest: der Plan, wo man steht, die Punkte und für den
+   Rückblick, was jede Aufgabe verlangt hätte. Solange er läuft, gibt es
+   keine Rückmeldung — in der Prüfung auch nicht. */
+let probe = null;
+let letzteProbe = null;
 let stimme = null;         // Akkord verändert: die gewählte Stimme
 let vorgewaehlt = null;
 
@@ -95,7 +102,7 @@ const a4 = () => state().settings.a4;
 const deutsch = () => state().settings.naming !== NAMING.EN;
 const variante = () => ({
   ergaenzen: String(sel.ergStufe), tonrhythmus: String(sel.rzStufe),
-  intervall: "1", akkordneu: "1", bass: "1", vorzeichen: "1", typ: "mustertest",
+  intervall: "1", akkordneu: "1", bass: "1", vorzeichen: "1", typ: "mustertest", probe: "1",
   melodie: `${sel.melArt}:${sel.melStufe}`, rhythmus: String(sel.rhyStufe),
   akkorde: sel.akkStufe, fehler: sel.fehlerArt, wieder: "3",
 })[sel.modus];
@@ -197,6 +204,13 @@ function spieleRhythmusZu(mitSatz) {
 
 function spiele(extra = null) {
   if (!aufgabe) return;
+  if (probe) {
+    const teil = probe.plan[probe.i];
+    if (extra && extra !== "satz") return;            // keine Übungsknöpfe in der Prüfung
+    const schon = extra === "satz" ? gehoertSatz : gehoert;
+    const grenze = extra === "satz" ? teil.satz : teil.hoeren;
+    if (schon >= grenze) { toast(`In der Prüfung ${grenze === 2 ? "zweimal" : "dreimal"}, nicht öfter`); return; }
+  }
   if (sel.modus === "tonrhythmus") {
     const satz = extra === "satz";
     spieleRhythmusZu(satz);
@@ -254,6 +268,8 @@ function spiele(extra = null) {
 
 function render() {
   if (!root) return;
+  if (probe) { renderProbeLauf(); return; }
+  if (sel.modus === "probe") { renderProbeStart(); return; }
   const d = drill(drillId(), { right: 0, wrong: 0, streak: 0, bestStreak: 0 });
   const gesamt = d.right + d.wrong;
   const schnitt = sel.modus === "ergaenzen" && d.aufgaben
@@ -359,8 +375,8 @@ function renderNeben() {
   const knopf = (label, extra) => `<button data-extra="${extra}">${label}</button>`;
   let k = "";
   if (sel.modus === "melodie" && sel.melArt === "tonal") k = knopf("Kadenz und Melodie", "kadenz");
-  if (sel.modus === "ergaenzen") k = knopf("Nur Kadenz (Übung)", "kadenz");
-  if (["intervall", "bass", "typ"].includes(sel.modus)) k = knopf("Gebrochen (Übung)", "gebrochen");
+  if (sel.modus === "ergaenzen" && !probe) k = knopf("Nur Kadenz (Übung)", "kadenz");
+  if (["intervall", "bass", "typ"].includes(sel.modus) && !probe) k = knopf("Gebrochen (Übung)", "gebrochen");
   if (sel.modus === "tonrhythmus") k = knopf("Mit Begleitung", "satz");
   if (sel.modus === "akkorde") k = knopf("Gebrochen", "gebrochen");
   if (sel.modus === "fehler" && sel.fehlerArt === "akkord") k = knopf("Gebrochen", "gebrochen");
@@ -476,6 +492,124 @@ function melodieText() {
     loesung: renderStaff({ notes: autoBeam(setzeVorzeichen(aufgabe.noten.map(n => ({ ...n })), aufgabe.keySig)),
       keySig: aufgabe.keySig, timeSig: [4, 4], ariaLabel: "Lösung", extraClass: "compact" }),
   };
+}
+
+/* --- Probetest ------------------------------------------------------------------------ */
+
+const komma = x => String(x).replace(".", ",");
+const probeListe = () => drill("hoertest:probe", { eintraege: [] }).eintraege;
+
+function renderProbeStart() {
+  const alt = probeListe().slice(-5).reverse();
+  root.innerHTML = `
+    <p class="ht-gruppe">Wie im Mustertest der mdw</p>
+    <div class="chips scroll" id="ht-modi" role="group" aria-label="Aufgabe aus dem Mustertest"></div>
+    <p class="ht-gruppe">Grundlagen</p>
+    <div class="chips scroll" id="ht-modi-gl" role="group" aria-label="Grundlagen"></div>
+    ${letzteProbe ? probeErgebnisHtml(letzteProbe) : `
+    <h2>Probe-Gehörtest</h2>
+    <p class="hint">Der ganze schriftliche Hörtest am Stück, aufgebaut wie der Mustertest der mdw: sieben Aufgaben,
+      ${komma(PROBE_MAX)} Punkte, ${PROBE_BESTANDEN} zum Bestehen. Jede Aufgabe wird so oft vorgespielt wie dort, danach ist Schluss.
+      Rückmeldung gibt es erst am Ende — in der Prüfung weißt du auch nicht, wie es steht.</p>
+    <ol class="probe-liste">${PROBETEST.map(a => `<li><b>${escapeHtml(a.titel)}</b>
+      <span>${a.anzahl > 1 ? `${a.anzahl} × ` : ""}${komma(a.max)} ${a.anzahl * a.max === 1 ? "Punkt" : "Punkte"}</span></li>`).join("")}</ol>
+    <p class="hint">Rund 30 bis 40 Minuten. Ruhig sitzen, Papier daneben ist erlaubt — zum Mitschreiben beim Hören, wie im Prüfungsraum.</p>`}
+    <button class="wide primary" id="probe-los">${letzteProbe ? "Neuer Probetest" : "Probetest beginnen"}</button>
+    ${alt.length ? `<h3>Bisher</h3>${alt.map(e => `
+      <div class="sim-zeile"><b>${escapeHtml(e.datum)}</b>
+        <span>${komma(e.summe)} von ${komma(PROBE_MAX)} · ${e.bestanden ? "bestanden" : "nicht bestanden"}</span></div>`).join("")}` : ""}`;
+  renderModi();
+  $("#probe-los", root).addEventListener("click", probeBeginnen);
+}
+
+function probeBeginnen() {
+  letzteProbe = null;
+  probe = { plan: probePlan(), i: 0, einzeln: [], rueckblick: [], start: Date.now(), selVorher: { ...sel } };
+  probeTeil();
+}
+
+function probeTeil() {
+  const teil = probe.plan[probe.i];
+  sel.modus = teil.modus;
+  if (teil.modus === "tonrhythmus") sel.rzStufe = teil.stufe;
+  if (teil.modus === "ergaenzen") sel.ergStufe = teil.stufe;
+  neueAufgabe();
+  render();
+  window.scrollTo(0, 0);
+}
+
+function renderProbeLauf() {
+  const teil = probe.plan[probe.i];
+  const zaehler = teil.modus === "tonrhythmus" ? `Melodie ${gehoert} von 2 · mit Begleitung ${gehoertSatz} von 2` : `${gehoert} von ${teil.hoeren}`;
+  root.innerHTML = `
+    <div class="sim-kopf">
+      <span>Probetest · Aufgabe ${teil.nr}${teil.anzahl > 1 ? `, ${teil.teil} von ${teil.anzahl}` : ""}</span>
+      <span>${probe.i + 1} / ${probe.plan.length}</span>
+    </div>
+    <h2 style="margin-top:6px">${teil.nr}. ${escapeHtml(teil.titel)}</h2>
+    <p class="hint">${escapeHtml(teil.anweisung)}</p>
+    <div class="quiz">
+      <button class="wide primary quiz-play" id="ht-play">Anhören</button>
+      <div class="ht-nebenknoepfe" id="ht-neben"></div>
+      <div id="ht-aufgabe"></div>
+      <div id="ht-ergebnis" class="quiz-feedback" hidden></div>
+    </div>
+    <button class="linkish" id="probe-abbruch">Probetest abbrechen</button>`;
+  $("#ht-play", root).addEventListener("click", () => spiele());
+  renderNeben();
+  $("#ht-gehoert", root).textContent = zaehler;
+  renderAufgabe();
+  $("#probe-abbruch", root).addEventListener("click", () => {
+    if (!confirm("Probetest abbrechen? Die bisherigen Antworten gehen verloren.")) return;
+    sel = { ...probe.selVorher, modus: "probe" };
+    probe = null;
+    render();
+  });
+}
+
+function probeWeiter(ansicht) {
+  const teil = probe.plan[probe.i];
+  const punkte = probePunkte(teil.modus, ergebnis);
+  probe.einzeln.push({ nr: teil.nr, punkte });
+  probe.rueckblick.push({ ...ansicht, nr: teil.nr, teil: teil.teil, anzahl: teil.anzahl, titel2: teil.titel, punkte, max: teil.max });
+  probe.i++;
+  if (probe.i < probe.plan.length) { probeTeil(); return; }
+
+  const auswertung = probeAuswertung(probe.einzeln);
+  const minuten = Math.round((Date.now() - probe.start) / 60000);
+  const eintraege = probeListe();
+  eintraege.push({ datum: todayISO(), summe: auswertung.summe, bestanden: auswertung.bestanden, minuten,
+    jeAufgabe: auswertung.jeAufgabe.map(a => ({ nr: a.nr, punkte: a.punkte, max: a.max })) });
+  if (eintraege.length > 30) eintraege.splice(0, eintraege.length - 30);
+  save();
+  letzteProbe = { auswertung, rueckblick: probe.rueckblick, minuten };
+  sel = { ...probe.selVorher, modus: "probe" };
+  probe = null;
+  render();
+  window.scrollTo(0, 0);
+}
+
+function probeErgebnisHtml({ auswertung: a, rueckblick, minuten }) {
+  const rat = a.bestanden
+    ? `Bestanden. Am meisten liegt noch in Aufgabe ${a.schwach.nr} (${a.schwach.titel}) — die gezielt üben, dann den nächsten Probetest.`
+    : `Nicht bestanden: ${komma(PROBE_BESTANDEN - a.summe)} Punkte fehlen. Am meisten bringt Aufgabe ${a.schwach.nr} (${a.schwach.titel}).`;
+  return `
+    <h2>Ergebnis: ${komma(a.summe)} von ${komma(a.max)}</h2>
+    <p class="quiz-verdict">${a.bestanden ? "✓ " : ""}${escapeHtml(rat)}</p>
+    <p class="hint">${minuten} Minuten.</p>
+    <div class="probe-tabelle">${a.jeAufgabe.map(x => `
+      <div class="probe-zeile"><span>${x.nr}. ${escapeHtml(x.titel)}</span>
+        <i style="--anteil:${(x.punkte / x.max).toFixed(2)}"></i>
+        <b>${komma(x.punkte)} / ${komma(x.max)}</b></div>`).join("")}</div>
+    <h3>Rückblick</h3>
+    <p class="hint">Jede Aufgabe mit Lösung. Übe danach die schwächste im Einzelmodus, nicht den ganzen Test noch einmal.</p>
+    ${rueckblick.map(r => `
+      <details class="probe-rueck">
+        <summary>${r.nr}. ${escapeHtml(r.titel2)}${r.anzahl > 1 ? ` ${r.teil}` : ""} · ${komma(r.punkte)} / ${komma(r.max)}</summary>
+        <p class="quiz-verdict">${escapeHtml(r.titel)}</p>
+        ${r.text ? `<p class="hint">${escapeHtml(r.text)}</p>` : ""}
+        ${r.loesung ? (r.loesung.startsWith('<div class="staff-wrap">') ? r.loesung : `<div class="staff-wrap">${r.loesung}</div>`) : ""}
+      </details>`).join("")}`;
 }
 
 /* --- Mustertest: gemeinsame Teile ---------------------------------------------------- */
@@ -1043,11 +1177,13 @@ function renderAufgabe() {
 }
 
 function werte(richtig) {
+  if (probe) return;                 // keine Rückmeldung, keine Statistik im Probetest
   scoreDrill(drillId(), richtig);
   richtig ? sigOk() : sigNope();
 }
 
 function zeigeErgebnis({ titel, text, loesung = "", vergleich = false }) {
+  if (probe) { probeWeiter({ titel, text, loesung }); return; }
   const host = $("#ht-ergebnis", root);
   host.hidden = false;
   host.innerHTML = `

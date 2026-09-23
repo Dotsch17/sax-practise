@@ -8,6 +8,7 @@
 import * as L from "../js/music/leadsheet.js";
 import * as H from "../js/music/harmonie.js";
 import * as T from "../js/music/theory.js";
+import { STILE } from "../js/data/stile.js";
 
 let n = 0, fail = 0;
 const ok = (b, m) => { n++; if (!b) { fail++; console.log("  FAIL " + m); } };
@@ -157,6 +158,40 @@ console.log("\nAkkord auf dem Schlag");
   for (let t = 0; t < 12; t++) {
     eq(H.akkordAufSchlag(blues, t, 0).akkord, H.chordAtBar(blues, t), `Blues Takt ${t + 1}: wie bisher`);
   }
+}
+
+console.log("\nStufen in Akkorde, Stile und Formen");
+{
+  const F = { step: 3, alter: 0, octave: 4 }, A = { step: 5, alter: 0, octave: 4 }, Bb = { step: 6, alter: -1, octave: 4 };
+  eq(L.stufenText("| I7 | IV7 | ii7 V7 |", F), "| F7 | B7 | Gm7 C7 |", "Septakkorde in F");
+  eq(L.stufenText("| I | V | vi | IV |", A), "| A | E | Fism | D |", "Dreiklänge: groß Dur, klein Moll");
+  eq(L.stufenText("| i | bVI | bIII | bVII |", A), "| Am | F | C | G |", "Moll-Vierer in a");
+  eq(L.stufenText("| IVmaj7 #IV°7 |", Bb), "| Esmaj7 E°7 |", "erhöhte IV in B ist E, nicht Fes");
+  eq(L.stufenText("| III7 | VI7 | II7 | V7 |", Bb), "| D7 | G7 | C7 | F7 |", "Bridge der Rhythm Changes in B");
+  eq(L.vorlageText("blues", F), L.stufenText(L.VORLAGEN.find(v => v.id === "blues").stufen, F), "Vorlagen laufen über dieselbe Funktion");
+
+  for (const s of STILE) {
+    ok(s.titel && s.kurz && s.abschnitte.length && s.erkennen.length && s.schritte.length && s.fehler.length && s.deine,
+       `${s.id}: alle Teile vorhanden`);
+    ok(s.schritte.every(x => x.was && x.wie && x.fertig), `${s.id}: jeder Schritt mit „fertig, wenn“`);
+    ok(s.hoeren.every(h => h.wer && h.was), `${s.id}: Hörbeispiele vollständig`);
+    ok(s.tempo >= 40 && s.tempo <= 220 && ["swing", "ballade", "bossa", "funk", "pop", "house"].includes(s.groove), `${s.id}: Tempo und Groove`);
+    for (const v of s.varianten) {
+      const takte = v.stufen.replace(/\[[^\]]*\]/g, "").split("|").map(x => x.trim()).filter(Boolean).length;
+      for (const t of s.tonarten) {
+        const r = L.leseLeadsheet(L.stufenText(v.stufen, t.tonika), { eingabe: "klingend" });
+        eq(r.fehler, [], `${s.id}/${v.id} in ${t.name}: lesbar`);
+        eq(r.takte.length, takte, `${s.id}/${v.id} in ${t.name}: ${takte} Takte`);
+        ok(r.akkorde.every(a => Math.abs(a.root.alter) <= 1), `${s.id}/${v.id} in ${t.name}: keine Doppelvorzeichen im Grundton`);
+      }
+    }
+  }
+  const blues = STILE.find(s => s.id === "blues");
+  eq(blues.varianten.find(v => v.id === "grund").stufen.split("|").filter(x => x.trim()).length, 12, "der Blues hat zwölf Takte");
+  const rh = STILE.find(s => s.id === "rhythm").varianten[0];
+  const r = L.leseLeadsheet(L.stufenText(rh.stufen, Bb), { eingabe: "klingend" });
+  eq(r.takte.length, 32, "Rhythm Changes: 32 Takte");
+  eq(r.abschnitte.map(a => a.label + a.abTakt), ["A0", "A8", "B16", "A24"], "AABA mit der Bridge ab Takt 17");
 }
 
 console.log(fail ? `\n${fail} von ${n} Prüfungen fehlgeschlagen` : `\nAlle ${n} Prüfungen bestanden`);

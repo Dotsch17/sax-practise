@@ -242,17 +242,28 @@ const STUFE = { I: 0, II: 2, III: 4, IV: 5, V: 7, VI: 9, VII: 11 };
  */
 export function vorlageText(id, tonika, naming = NAMING.DE) {
   const v = VORLAGEN.find(x => x.id === id);
-  if (!v) return "";
+  return v ? stufenText(v.stufen, tonika, naming) : "";
+}
+
+/**
+ * Macht aus Stufen ein Leadsheet in einer Tonart: `| I7 | IV7 | ii7 V7 |`
+ * über F wird `| F7 | B7 | Gm7 C7 |`. Groß ist Dur, klein ist Moll; ohne
+ * Endung ein Dreiklang (vi → Am), mit 7 ein Septakkord (ii7 → Dm7),
+ * dazu maj7 und °7. Vorzeichen vor der Stufe verschieben um einen
+ * Halbton (bVI, #IV). Buchstabiert wird über Stufen.
+ */
+export function stufenText(stufen, tonika, naming = NAMING.DE) {
   const t = { ...tonika, octave: 3 };
-  return v.stufen.replace(/([#b]?)([ivIV]+)(°7|maj7|7)/g, (_, vz, roem, suffix) => {
+  return stufen.replace(/([#b]?)([ivIV]+)(°7|maj7|7)?(?=[\s|]|$)/g, (_, vz, roem, suffix = "") => {
     const klein = roem === roem.toLowerCase();
     const idx = ["I", "II", "III", "IV", "V", "VI", "VII"].indexOf(roem.toUpperCase());
     const halbton = STUFE[roem.toUpperCase()] + (vz === "#" ? 1 : vz === "b" ? -1 : 0);
     const root = spellOnStep(toMidi(t) + halbton, (t.step + idx) % 7);
     const name = gross(spell(root, naming));
     if (suffix === "°7") return name + "°7";
-    if (klein) return name + "m7";
-    return name + suffix;
+    if (suffix === "7") return name + (klein ? "m7" : "7");
+    if (suffix === "maj7") return name + "maj7";
+    return name + (klein ? "m" : "");
   }).replace(/\s+/g, " ").trim();
 }
 
