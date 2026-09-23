@@ -89,6 +89,26 @@ console.log("\nSubtone");
   ok(!M.subtone(reihe(62, 1400, 5), reihe(62, 900, 5)).gut, "zu kurz gemessen");
 }
 
+console.log("\nPop-Vibrato und Shake über die Vibrato-Analyse");
+{
+  const welle = (hz, tiefe, einsatz, dauer = 2600) => {
+    const out = [];
+    for (let t = 0; t <= dauer; t += 16.7) {
+      const a = t < einsatz ? 0 : tiefe / 2;
+      out.push({ t, midi: 67 + (-a + a * Math.cos(2 * Math.PI * hz * t / 1000)) / 100 });
+    }
+    return out;
+  };
+  const spaet = M.MESSUNGEN.vibrato(welle(5, 60, 700));
+  ok(spaet.gut, `spätes, breites Vibrato ist Pop (${spaet.text})`);
+  ok(spaet.werte.einsatz >= 500, "der Einsatz wird mitgeliefert");
+  const sofort = M.MESSUNGEN.vibrato(welle(5, 60, 0));
+  ok(!sofort.gut && /sofort/.test(sofort.text), `sofortiges Vibrato wird angemerkt (${sofort.text})`);
+  const shake = M.MESSUNGEN.shake(welle(8, 300, 0));
+  ok(shake.gut, `ein breiter, schneller Wechsel ist ein Shake (${shake.text})`);
+  ok(!M.MESSUNGEN.shake(welle(8, 40, 0)).gut, "ein schmaler nicht");
+}
+
 console.log("\nDer Lehrgang");
 {
   eq(V.TECHNIKEN.map(t => t.id),
@@ -108,7 +128,8 @@ console.log("\nDer Lehrgang");
   }
   eq(V.STUFEN.length, 4, "vier Stufen");
   ok(V.STUFEN.every(s => s.fertig), "jede Stufe mit „fertig, wenn“");
-  ok(V.TECHNIKEN.filter(t => t.messung).length === 4, "vier Techniken lassen sich messen");
+  ok(V.TECHNIKEN.filter(t => t.messung).length === 6, "sechs Techniken lassen sich messen");
+  ok(!V.TECHNIKEN.find(t => t.id === "growl").messung, "Growl bewusst nicht");
 }
 
 console.log(fail ? `\n${fail} von ${n} Prüfungen fehlgeschlagen` : `\nAlle ${n} Prüfungen bestanden`);

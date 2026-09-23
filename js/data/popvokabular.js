@@ -211,7 +211,7 @@ export const TECHNIKEN = [
     name: "Pop-Vibrato",
     kurz: "Erst gerade, dann breit — das Vibrato am Ende eines Tons.",
     wo: ["probelokal", "leise"],
-    messung: null,
+    messung: "vibrato",
     warum: "Im Pop wird ein langer Ton gerade angesetzt und bekommt erst gegen Ende ein Vibrato, breiter und langsamer als im klassischen Spiel. So klingt es gesungen — ein Vibrato vom ersten Moment an klingt nach Tanzorchester.",
     wie: [
       "Das Vibrato kommt aus einer kleinen, regelmäßigen Auf- und Abbewegung des Unterkiefers, die man in der Unterlippe spürt. Nicht aus dem Hals, nicht aus dem Bauch.",
@@ -237,7 +237,7 @@ export const TECHNIKEN = [
     name: "Shake",
     kurz: "Ein schnelles Zittern zwischen zwei Tönen, meist hoch.",
     wo: ["probelokal"],
-    messung: null,
+    messung: "shake",
     warum: "Der Shake ist das Ausrufezeichen am Ende eines Riffs oder auf dem höchsten Ton einer Phrase. In Soul- und Funk-Bläsersätzen steht er ständig; im Solo einmal gesetzt, reißt er eine Stelle nach oben.",
     wie: [
       "Die leichte Form mit Fingern: ein Triller zum nächsthöheren Ton, aber schneller und unregelmäßiger, als ein klassischer Triller es wäre — etwa ein hohes D mit schnellem Wechsel zum F.",

@@ -36,6 +36,10 @@ let analyser = null;
 let buf = null;
 let spekBuf = null;
 let mitSpektrum = false;
+// Messungen je Sekunde. 30 reichen fürs Stimmgerät; ein Vibrato mit sechs
+// Wellen je Sekunde hätte dann nur fünf Punkte je Welle, deshalb darf ein
+// Werkzeug bis 60 verlangen — mehr liefert requestAnimationFrame nicht.
+let updateHz = UPDATE_HZ;
 let raf = null;
 let lastRun = 0;
 let history = [];            // für den Median, gegen Zappeln
@@ -121,10 +125,27 @@ export function rmsOf(x) {
  * Schwerpunkt und die Stärke der ersten Teiltöne. Die kostet rund tausend
  * Rechenschritte je Bild und wird deshalb nur eingeschaltet, wo sie
  * gebraucht wird — für ein Stimmgerät ist sie sinnlos.
+ *
+ * `opts.hz` ist die Zahl der Messungen je Sekunde, 10 bis 60, sonst 30.
+ * Die Vibrato-Analyse braucht 60; die Rohwerte stehen in `raw`, der
+ * geglättete Median in `freq`.
  */
 export async function start(opts = {}) {
   mitSpektrum = !!opts.spektrum;
+  updateHz = Math.min(60, Math.max(10, opts.hz || UPDATE_HZ));
   if (analyser) return;
+  // Läuft schon ein Start — Doppeltipp, oder zwei Werkzeuge kurz
+  // nacheinander —, wird auf ihn gewartet statt ein zweiter begonnen.
+  // Sonst entstehen zwei Messschleifen, und nach dem Stoppen läuft eine
+  // davon ohne Analyser weiter.
+  if (startend) return startend;
+  startend = oeffne().finally(() => { startend = null; });
+  return startend;
+}
+
+let startend = null;
+
+async function oeffne() {
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new Error("Dieser Browser gibt kein Mikrofon her.");
   }
@@ -153,6 +174,7 @@ export async function start(opts = {}) {
   spekBuf = new Float32Array(analyser.frequencyBinCount);
   history = [];
   lastRun = 0;
+  cancelAnimationFrame(raf);
   loop();
 }
 
@@ -167,9 +189,14 @@ export function stop() {
 }
 
 function loop() {
+  // Nach stop() gibt es keinen Analyser mehr; dann endet die Schleife hier,
+  // statt bei jedem Bild einen Fehler zu werfen.
+  if (!analyser) { raf = null; return; }
   raf = requestAnimationFrame(loop);
   const now = performance.now();
-  if (now - lastRun < 1000 / UPDATE_HZ) return;
+  // Etwas Spielraum, sonst fällt bei 60 Hz jedes zweite Bild weg, weil
+  // requestAnimationFrame nie ganz genau 16,7 ms trifft.
+  if (now - lastRun < 1000 / updateHz - 2) return;
   lastRun = now;
 
   const ctx = audio();

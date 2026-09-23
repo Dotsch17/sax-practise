@@ -143,6 +143,7 @@ ok = run(["tools/test-leadsheet.mjs"], "Leadsheets") && ok;
 ok = run(["tools/test-grooves.mjs"], "Grooves") && ok;
 ok = run(["tools/test-popvokabular.mjs"], "Pop-Vokabular") && ok;
 ok = run(["tools/test-lickwoche.mjs"], "Lick der Woche und Setlist") && ok;
+ok = run(["tools/test-vibrato.mjs"], "Vibrato") && ok;
 ok = run(["tools/test-pitch.mjs"], "Tonhoehenerkennung") && ok;
 ok = run(["tools/sync-precache.mjs"], "Precache-Liste") && ok;
 

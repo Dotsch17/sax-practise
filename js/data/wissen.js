@@ -161,7 +161,8 @@ export const ARTIKEL = [
         "Der Ton selbst muss ohne Vibrato stehen, bevor du eines darauflegst. Vibrato auf einem wackligen Ton macht den Wackler nur unsichtbar, nicht besser.",
       ]},
       { h: "Üben mit dem Metronom", p: [
-        "Stell das Metronom auf ein ruhiges Tempo, etwa 60, und spiel zuerst zwei Bewegungen je Schlag, dann drei, dann vier. Gleichmäßigkeit vor Geschwindigkeit. Übliche Vibratogeschwindigkeiten im klassischen Spiel liegen ungefähr bei fünf bis sieben Bewegungen je Sekunde, aber das ist ein Rahmen und keine Vorschrift: Tempo, Charakter und Lage des Stücks entscheiden.",
+        "Stell das Metronom auf ein ruhiges Tempo, etwa 60, und spiel zuerst zwei Bewegungen je Schlag, dann drei, dann vier. Gleichmäßigkeit vor Geschwindigkeit. Übliche Vibratogeschwindigkeiten im klassischen Spiel liegen ungefähr bei viereinhalb bis sechseinhalb Bewegungen je Sekunde — in der französischen Schule wird oft mit vier je Schlag bei Tempo 72 geübt, also knapp fünf. Das ist ein Rahmen und keine Vorschrift: Tempo, Charakter und Lage des Stücks entscheiden.",
+        "Unter Ton, Vibrato misst die App Geschwindigkeit, Tiefe und Gleichmäßigkeit, auch zum Metronom. Man hört das eigene Vibrato beim Spielen schlecht, weil die Bewegung zu nah ist — dort sieht man es.",
         "Übe es bewusst auch mit dem Ausschalten. Ein langer Ton, dessen Vibrato am Ende ruhig ausläuft, ist ein Ausdrucksmittel. Eines, das nie aufhört, ist ein Tick.",
       ]},
     ],

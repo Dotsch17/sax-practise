@@ -28,6 +28,7 @@ import bordun    from "./tools/bordun.js";
 import stimmgeraet from "./tools/stimmgeraet.js";
 import tonanalyse from "./tools/tonanalyse.js";
 import obertoene  from "./tools/obertoene.js";
+import vibrato   from "./tools/vibrato.js";
 import metronom  from "./tools/metronom.js";
 import tonleitern from "./tools/tonleitern.js";
 import kadenzen  from "./tools/kadenzen.js";
@@ -55,7 +56,7 @@ import daten     from "./tools/daten.js";
 
 export const TABS = [
   { id: "ueben",   label: "Üben",    tools: [session, pruefung, aufnahme] },
-  { id: "ton",     label: "Ton",     tools: [stimmgeraet, obertoene, tonanalyse, bordun] },
+  { id: "ton",     label: "Ton",     tools: [stimmgeraet, obertoene, vibrato, tonanalyse, bordun] },
   { id: "technik", label: "Technik", tools: [tonleitern, kadenzen, rhythmus, blattspiel, griffe, metronom] },
   { id: "gehoer",  label: "Gehör",   tools: [hoertest, gehoer, nachspielen] },
   { id: "impro",   label: "Impro",   tools: [grundlagen, improvisation, leadsheets, lickwoche, callresponse] },

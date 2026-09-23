@@ -1,10 +1,10 @@
 /* ==========================================================================
    Messungen für das Pop-Vokabular
 
-   Was das Mikrofon an Scoop, Fall, Bend und Subtone wirklich messen kann —
-   und nur das. Growl, Ghost Notes und Shake stehen hier nicht: dafür gäbe
-   es Zahlen, aber keine, die ein Urteil tragen. Lieber keine Messung als
-   eine, die „gut“ sagt, wenn es schlecht klang.
+   Was das Mikrofon an Scoop, Fall, Bend, Subtone, Pop-Vibrato und Shake
+   wirklich messen kann — und nur das. Growl und Ghost Notes stehen hier
+   nicht: dafür gäbe es Zahlen, aber keine, die ein Urteil tragen. Lieber
+   keine Messung als eine, die „gut“ sagt, wenn es schlecht klang.
 
    Eingabe ist ein Versuch als Folge von Messpunkten, wie sie die
    Tonhöhenerkennung liefert: `{ t }` in Millisekunden ab Versuchsbeginn,
@@ -19,6 +19,8 @@
    ========================================================================== */
 
 "use strict";
+
+import { analysiere, urteil as vibratoUrteil, ohneAusreisser, ohneRaender } from "./vibrato.js";
 
 export const SCHWELLEN = {
   scoop: { minTiefe: 40, maxTiefe: 300, maxDauer: 350, landen: 20, ueber: 25 },
@@ -131,4 +133,15 @@ export function subtone(normal, sub) {
 function urteil(gut, text, werte) { return { gut, text, werte }; }
 function zuKurz() { return { gut: false, text: "Zu kurz gemessen. Länger spielen, und näher ans Telefon.", werte: {} }; }
 
-export const MESSUNGEN = { scoop, fall, bend };
+/* Pop-Vibrato und Shake misst die Vibrato-Analyse; hier nur das Urteil
+   im Stil des Pop-Lehrgangs. */
+function mitVibrato(stil) {
+  return punkte => {
+    const kern = ohneRaender(punkte);
+    const a = analysiere(stil === "shake" ? kern : ohneAusreisser(kern));
+    const u = vibratoUrteil(a, stil);
+    return { gut: u.gut, text: u.text, werte: a?.vibrato ? { rate: a.rate, tiefe: a.tiefe, einsatz: a.einsatz } : {} };
+  };
+}
+
+export const MESSUNGEN = { scoop, fall, bend, vibrato: mitVibrato("pop"), shake: mitVibrato("shake") };

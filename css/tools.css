@@ -1305,3 +1305,14 @@ svg.klaviatur{ display: block; width: 100%; height: auto; max-height: 190px; }
 /* --- Lick der Woche ------------------------------------------------------------- */
 #lw-sitzt{ width: 100%; min-height: 44px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
 #lw-sitzt.weiter{ background: var(--brass); color: #12242A; border-color: var(--brass); }
+
+/* --- Vibrato ------------------------------------------------------------------- */
+.vb-karte{ border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-top: 14px; background: var(--surface); }
+.vb-karte.gut{ border-color: var(--brass-dim); }
+.vb-werte{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 14px; margin: 10px 0; }
+.vb-wert span{ display: block; font-size: 12.5px; color: var(--cane-dim); }
+.vb-wert b{ font-family: var(--serif); font-size: 26px; font-weight: 400; }
+svg.vb-kurve{ display: block; width: 100%; height: 110px; margin: 6px 0; }
+.vb-pfad{ fill: none; stroke: var(--brass); stroke-width: 1.6; stroke-linejoin: round; }
+.vb-tonlinie{ stroke: var(--cane-dim); stroke-width: 1; stroke-dasharray: 4 4; }
+.vb-einsatz{ stroke: var(--line); stroke-width: 1; }

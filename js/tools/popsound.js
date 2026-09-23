@@ -6,9 +6,9 @@
    Technik mit dem Warum, den Schritten, den typischen Fehlern, einem
    „fertig, wenn“ und einer Übung über den Groove, in dem sie zu Hause ist.
 
-   Vier davon lassen sich messen, und dann wird gemessen: Scoop, Fall und
-   Bend am Tonhöhenverlauf, Subtone an der Helligkeit gegen den eigenen
-   normalen Ton. Gemessen wird ohne Band — das Mikrofon würde sonst den
+   Sechs davon lassen sich messen, und dann wird gemessen: Scoop, Fall und
+   Bend am Tonhöhenverlauf, Pop-Vibrato und Shake mit der Vibrato-Analyse,
+   Subtone an der Helligkeit gegen den eigenen normalen Ton. Gemessen wird ohne Band — das Mikrofon würde sonst den
    Bass verfolgen statt des Saxophons.
 
    Die Inhalte stehen in js/data/popvokabular.js, die Messungen in
@@ -152,6 +152,8 @@ const ANLEITUNG = {
   scoop: "Mikrofon an, dann einzelne Töne mit Scoop spielen, jeweils eine Sekunde halten und absetzen. Jeder Ton wird einzeln bewertet.",
   fall: "Mikrofon an, dann einen Ton halten und am Ende fallen lassen. Absetzen, nächster Versuch.",
   bend: "Mikrofon an, dann einen Ton halten, hinunterbiegen und zurück, noch einen Moment halten, absetzen.",
+  vibrato: "Mikrofon an, dann lange Töne: zwei Schläge gerade ansetzen, dann Vibrato dazu, absetzen. Jeder Ton wird einzeln bewertet.",
+  shake: "Mikrofon an, dann einen hohen Ton halten und schütteln, eine Sekunde oder länger, absetzen.",
   subtone: "Zwei Messungen auf demselben Ton, am besten tief D gegriffen: erst dein normaler leiser Ton, dann Subtone. Jeweils drei Sekunden.",
 };
 
@@ -215,7 +217,9 @@ const griffName = midi => { const p = fromMidi(Math.round(midi) + 9, "flat"); re
 async function starteMikro(t, spektrum) {
   if (band.isRunning()) { band.stop(); releaseScreen(); toast("Band aus — sonst misst das Mikrofon den Bass"); }
   try {
-    await pitch.start({ spektrum });
+    // Vibrato und Shake brauchen 60 Punkte je Sekunde, sonst hat eine
+    // Welle nur fünf.
+    await pitch.start({ spektrum, hz: ["vibrato", "shake"].includes(t.messung) ? 60 : 30 });
   } catch (e) {
     toast("Mikrofon nicht verfügbar");
     return false;

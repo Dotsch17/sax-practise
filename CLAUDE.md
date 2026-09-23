@@ -142,7 +142,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 | Bereich | Werkzeuge |
 |---|---|
 | Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block. Prüfung: Countdown, alle Prüfungspunkte mit Stufen, Zeitplan rückwärts. Aufnahme: aufnehmen, nach Titel ablegen, erste gegen letzte hören |
-| Ton | Stimmgerät mit Intonationskarte, Obertonübung, Tonanalyse, Bordun |
+| Ton | Stimmgerät mit Intonationskarte, Obertonübung, Vibrato-Analyse, Tonanalyse, Bordun |
 | Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Kadenzen fürs Klavier, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Hörtest (Melodie- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
 | Impro | Grundlagen, Begleitband, Eigene Stücke (Band zu den eigenen Leadsheets), Lick der Woche, Call and Response |
@@ -609,8 +609,8 @@ braucht eigene Werkzeuge.
   Keine davon am Travel Sax.
 - `music/popmessung.js`: Scoop, Fall und Bend werden am Tonhöhenverlauf
   gemessen, Subtone an der Helligkeit gegen den eigenen normalen Ton. Jede
-  Ablehnung sagt, was zu ändern ist. Growl, Ghost Notes und Shake werden
-  bewusst nicht gemessen: dafür gäbe es Zahlen, aber keine, die ein Urteil
+  Ablehnung sagt, was zu ändern ist. Growl und Ghost Notes werden
+  bewusst nicht gemessen (Shake seit Phase 15 schon): dafür gäbe es Zahlen, aber keine, die ein Urteil
   tragen. Gemessen wird ohne Band, sonst verfolgt das Mikrofon den Bass.
 - Der Wissensartikel „Vibrato“ lehrte Lippen- statt Kiefervibrato und
   nannte Kiefervibrato unter „Ansatz“ ein Symptom für zu viel Druck. Beides
@@ -645,19 +645,49 @@ braucht eigene Werkzeuge.
   `bandFuer()` buchstabiert jetzt in der gegriffenen Tonart über Stufen und
   überträgt dann nach klingend; getestet über alle zwölf Tonarten.
 
+**Phase 15 — Vibrato-Analyse, umgesetzt (v20).**
+- `music/vibrato.js`: Geschwindigkeit in Wellen je Sekunde, Tiefe in Cent
+  (Gipfel bis Tal), Gleichmäßigkeit, Einsatz und ob die Welle unter dem
+  Ton bleibt. Die Tonlinie wird mit einem gleitenden Mittel von einer
+  Sekunde herausgerechnet, Umkehrpunkte mit Hysterese gesucht und ihre
+  Zeit per Parabel zwischen den Messpunkten bestimmt — sonst rastet die
+  Geschwindigkeit auf das 60-Hz-Raster der Messung ein. Gleichmäßigkeit
+  ist eins minus die Summe der Variationskoeffizienten von Dauer und
+  Tiefe der halben Wellen.
+- **Der Einsatz ist dort, wo drei halbe Wellen hintereinander tragen und
+  ungefähr gleich lang sind.** Mit echter Tonhöhenerkennung findet die
+  Suche im geraden Ton davor winzige Umkehrpunkte; ohne diese Regel
+  zählte eine doppelt so lange „halbe Welle“ mit, und ein sauberes spätes
+  Vibrato hieß ungleichmäßig. Der Dauerfilter dient nur der Suche nach
+  dem Anfang: ab dort zählt jede tragende Welle, auch eine unregelmäßige,
+  denn genau die soll die Gleichmäßigkeit zeigen.
+- Vier Stile mit eigenen Grenzen (`GRENZEN`): klassisch (4,5 bis 6,5 je
+  Sekunde, 15 bis 45 Cent), Pop (breiter, und ein sofortiges Vibrato wird
+  angemerkt), Metronom (Ziel aus Tempo mal Wellen je Schlag) und Shake.
+  `ohneRaender()` wirft Ansatz und Absetzen weg, `ohneAusreisser()`
+  Oktavsprünge der Erkennung — beim Shake nicht, da ist der große Sprung
+  die Sache selbst.
+- `tools/vibrato.js` unter Ton: Stil wählen, langen Ton spielen, absetzen;
+  Werte, Kurve mit gestrichelter Tonlinie, Verlauf unter
+  `drills["vibrato:<stil>"]`. Die Metronom-Übung aus dem Wissensartikel
+  hat hier ihren Platz, mit `settings.vibratoBpm`.
+- `pitch.js` nimmt `hz` (10 bis 60 Messungen je Sekunde); die
+  Vibrato-Messung braucht 60, sonst glättet sie weg, was sie messen soll.
+  Dabei fiel ein Wettlauf auf: zwei schnelle `start()` legten zwei
+  Messschleifen an. Jetzt wartet der zweite Aufruf auf den ersten.
+- Pop-Sound misst damit sechs Techniken: Pop-Vibrato und Shake kommen
+  über `MESSUNGEN` in `popmessung.js` dazu.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Vibrato-Analyse**: Geschwindigkeit in Hz und Tiefe in Cent aus dem
-   Tonhöhenverlauf; die Messung für Pop-Vibrato und Shake käme damit gleich
-   mit.
-2. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
-3. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
+1. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
+2. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
    dazu Zweistimmigkeit, falls die mdw sie verlangt — vorher bei
    MusicCoach nachsehen, wie die Aufgaben dort aussehen.
-4. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
+3. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
    der Klavierprüfung. Für die Stücke reicht vorerst das Cockpit; fürs
    Blattspiel ließe sich der Melodiegenerator zweihändig machen.
-5. **Buchstabierung der gegriffenen Akkorde in „Improvisation“ prüfen.**
+4. **Buchstabierung der gegriffenen Akkorde in „Improvisation“ prüfen.**
    Dort wird gegriffen über `fromMidi` mit Vorzeichen-Vorliebe gerechnet,
    nicht über Stufen wie in `leadsheet.js` und `lickwoche.js`. Ob dabei in
    entlegenen Tonarten dieselbe Verwechslung wie oben entsteht, ist nicht
@@ -695,11 +725,11 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute neunzehn Suiten mit zusammen rund 43 700
+alle Testsuiten. Stand heute zwanzig Suiten mit zusammen rund 43 900
 Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
 Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
 Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Kadenzen, Leadsheets,
-Grooves, Pop-Vokabular, Lick der Woche und Setlist, Tonhöhenerkennung. Dazu die
+Grooves, Pop-Vokabular, Lick der Woche und Setlist, Vibrato, Tonhöhenerkennung. Dazu die
 Rechtschreibprüfung aus Abschnitt 9.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`
