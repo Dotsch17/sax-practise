@@ -70,7 +70,9 @@ for (const [id, q] of Object.entries(H.QUALITIES)) {
       ok(skPcs.has(toMidi(ct) % 12),
          `${id} auf ${spell(root)}: Akkordton ${spell(ct)} liegt in der Skala`);
     }
-    if (q.skala.length === 7) {
+    // Die alterierte Skala steht bewusst mit ♯9 als ♭3 und der Terz auf
+    // demselben Buchstaben (C Des Es E …), wie in den Lehrbüchern.
+    if (q.skala.length === 7 && !q.buchstaben) {
       ok(new Set(sk.map(p => p.step)).size === 7,
          `${id} auf ${spell(root)}: siebenstufige Skala benutzt jeden Buchstaben einmal`);
     }
@@ -151,6 +153,23 @@ for (const prog of H.PROGRESSIONS) {
 eq(H.PROGRESSIONS.find(p => p.id === "moll251").sigVersatz, -3, "Moll-II-V-I");
 eq(H.PROGRESSIONS.find(p => p.id === "dorisch_vamp").sigVersatz, -2, "dorischer Vamp");
 eq(H.PROGRESSIONS.find(p => p.id === "dur251").sigVersatz, 0, "Dur-II-V-I");
+
+console.log("\nSkalen über Akkorden, so geschrieben wie im Lehrbuch");
+{
+  const namen2 = ps => ps.map(p => spell(p)).join(" ");
+  const C = chromatic(60), Fis = chromatic(66);
+  eq(namen2(H.scalePitches(C, "dom7_alt")), "C Des Es E Ges As B", "C7alt: die Terz heißt E, nicht Fes");
+  eq(namen2(H.scalePitches(Fis, "dom7_alt")), "Fis G A Ais C D E", "Fis7alt: Ais ist die Terz, nicht B");
+  eq(namen2(H.scalePitches({ step: 6, alter: -1, octave: 4 }, "dom7_alt")), "B Ces Des D E Ges As", "B7alt");
+  eq(namen2(H.scalePitches(C, "dim7")), "C D Es F Ges As A H", "C°7: ganz-halb");
+  for (let pc = 0; pc < 12; pc++) {
+    const r = chromatic(60 + pc);
+    const alt = H.scalePitches(r, "dom7_alt");
+    const terz = H.chordPitches(r, "dom7")[1];
+    ok(alt.some(p => p.step === terz.step && p.alter === terz.alter), `${spell(r)}7alt enthält die Terz des Akkords so geschrieben wie im Akkord`);
+    ok(alt.every(p => Math.abs(p.alter) <= 2), `${spell(r)}7alt ohne dreifache Vorzeichen`);
+  }
+}
 
 console.log("\nGegriffene Akkorde in der Tonart der Folge");
 {

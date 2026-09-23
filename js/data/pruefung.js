@@ -172,10 +172,10 @@ export const TEILE = [
         werkzeug: { tab: "gehoer", tool: "hoertest", modus: "ergaenzen", name: "Hörtest: Melodie ergänzen" } },
       { id: "akkorde", art: "pruefpunkt", titel: "Intervalle und Akkorde",
         was: "Intervalle, Dur- und Molldreiklänge, Septakkorde, jeweils mit Umkehrungen.",
-        werkzeug: { tab: "gehoer", tool: "hoertest", modus: "akkorde", name: "Hörtest: Akkorde" } },
+        werkzeug: { tab: "gehoer", tool: "hoertest", modus: "intervall", name: "Hörtest: Intervall ergänzen" } },
       { id: "fehler", art: "pruefpunkt", titel: "Fehler erkennen",
         was: "Einen veränderten Ton im Akkord hören, Gehörtes mit Notiertem vergleichen und zuordnen.",
-        werkzeug: { tab: "gehoer", tool: "hoertest", modus: "fehler", name: "Hörtest: Fehler finden" } },
+        werkzeug: { tab: "gehoer", tool: "hoertest", modus: "akkordneu", name: "Hörtest: Akkord verändert" } },
     ],
   },
 ];

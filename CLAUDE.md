@@ -165,7 +165,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 | Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block. Prüfung: Countdown, alle Prüfungspunkte mit Stufen, Zeitplan rückwärts. Simulation: das ganze Programm am Stück mit Aufnahme. Aufnahme: aufnehmen, nach Titel ablegen, erste gegen letzte hören |
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Vibrato-Analyse, Tonanalyse, Bordun |
 | Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Kadenzen fürs Klavier, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
-| Gehör | Hörtest (Melodie ergänzen wie im Mustertest, Tonhöhen- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
+| Gehör | Hörtest (alle sieben Aufgaben des Mustertests der mdw, dazu Tonhöhen- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
 | Impro | Grundlagen, Begleitband, Eigene Stücke (Band zu den eigenen Leadsheets), Lick der Woche, Call and Response |
 | Gig | Setlist mit Bühnenansicht, Zum Song spielen, Tonart finden, Gig-Training, Pop-Sound |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
@@ -376,6 +376,14 @@ Vorversion schreiben — der Nutzer hat dann echte Übungsdaten drin.
   eine große Terz über Fis ist ein Ais, kein B. Beides klingt gleich und
   liest sich falsch. Dafür gibt es `buildScale()`, `buildChord()` und
   `intervalFrom()`.
+- **Auch Skalen mit weniger oder mehr als sieben Tönen werden über
+  Stufen geschrieben** (`buchstaben` in `SCALES` und `QUALITIES`), nie
+  nach Kreuz- oder Be-Vorliebe. Wo zwei Schreibweisen richtig sind (♯9/♭3,
+  ♯11/♭5, die Blue Note), gewinnt die mit weniger Vorzeichen
+  (`aufBuchstaben()`).
+- **Akkordnamen auf Deutsch:** Dur groß, Moll klein (C-Dur, c-Moll), Akkorde
+  ohne Tongeschlecht „auf“ dem Grundton. `akkordName()` in
+  `music/mustertest.js`.
 - **Akkorde einer Folge werden in der Tonart der Folge buchstabiert**
   (`inTonart()` in `harmonie.js`), nicht nach ihrem eigenen Grundton und
   nicht nach Kreuz- oder B-Vorliebe. Die Folgen selbst sind nach Tonhöhe
@@ -816,13 +824,75 @@ braucht eigene Werkzeuge.
   Übung. Klasse `passend` in `tools.css`.
 - Das Cockpit führt beim Diktat jetzt direkt zu „Melodie ergänzen“.
 
+**Phase 20 — Alle Aufgaben des Mustertests und ein Theorie-Audit, umgesetzt (v25).**
+- Der Hörtest ist jetzt nach dem Mustertest geordnet: sieben Chips
+  „1 Intervall“ bis „7 Akkordtyp“ in dessen Reihenfolge, darunter die
+  Grundlagen (Tonhöhen, Rhythmus, Akkorde mit Lage, Fehler finden,
+  Wiedererkennen). Generatoren und Auswertung in `music/mustertest.js`,
+  mit gut 20 000 Prüfungen in `tools/test-mustertest.mjs`.
+  1. Intervall ergänzen: Ton gegeben, ▲/▼, Violin- oder Bassschlüssel.
+     Der eingetippte Buchstabe landet auf der nächsten Stufe in der
+     angegebenen Richtung. Richtig ist nur die Schreibweise des
+     Intervalls (kleine Terz über H ist D, nicht Cisis); beim Tritonus
+     gelten übermäßige Quarte und verminderte Quinte. Wer richtig hört und
+     falsch schreibt, bekommt gesagt, welches Intervall er notiert hat
+     (`intervallName()`).
+  2. Rhythmus zu Tonhöhen: Notenköpfe ohne Hals, Werte und Taktstriche
+     eintragen, manchmal mit Auftakt (dann ist der Schlusstakt um den
+     Auftakt kürzer). Zweimal Melodie, zweimal mit Begleitung; die
+     Begleitung (`satzFuer()`) nimmt je Takt I, IV oder V, je nachdem,
+     welcher Akkord die meisten Melodietöne enthält — sie soll nur zeigen,
+     wo die Eins liegt. Punkte: drei für den Rhythmus anteilig, einer für
+     die Taktstriche. Die Aufteilung ist eine eigene Annahme, die mdw
+     nennt nur vier Punkte je Melodie.
+  4. Akkord verändert: vierstimmig in enger Lage, der zweite an genau
+     einer Stelle um einen Halbton anders, per Vorzeichen oder
+     Nachbarton. Beide müssen richtig geschriebene Terzenstapel sein
+     (`erkenneAkkord()` prüft Buchstaben und Halbtöne zugleich).
+  5. Basston gegeben: Dreiklänge in allen drei Lagen, beide Schlüssel,
+     die zwei Töne darüber in enger Lage.
+  6. Versetzungszeichen: Dur und Moll bis ein Vorzeichen. In Moll wird
+     der Leitton erhöht, wo er sich in den Grundton auflöst; kommt er
+     schrittweise von der sechsten Stufe, wird die mit erhöht
+     (melodisches Moll). Dazu chromatische Leittöne und in Moll das ♭2
+     vor dem Grundton (B vor A, wie im Mustertest). Jede Änderung wird
+     zurückgenommen, wenn sie zu einem Nachbarton eine übermäßige Sekunde
+     oder eine enharmonische Tonwiederholung ergäbe — die Tests hatten
+     vorher C–Dis und F–Gis gefunden.
+  7. Akkordtyp: Dur, Moll, vermindert, übermäßig, D7, m7 mit den Kürzeln
+     des Mustertests, ohne Lage.
+- Der Notensatz kann jetzt Akkorde übereinander (`{ chord: [...] }`):
+  Sekunden versetzt, Vorzeichen in Spalten nach der Sextenregel. Dazu
+  Notenköpfe ohne Hals (`kopf: true`). Beides steht im Test.
+- **Theorie-Audit**, weil der Nutzer nichts Falsches lernen will. Alle
+  Skalen und Akkorde in allen Tonarten ausgegeben und gelesen, die Texte
+  in Wissen und Impro-Wissen gelesen. Gefunden und behoben:
+  - Pentatoniken und Blues-Skala wurden nach Kreuz- oder Be-Vorliebe
+    geschrieben: C-Blues mit Dis und Ais, f-Moll-Pentatonik mit Gis. Jetzt
+    über Stufen (`buchstaben` in `SCALES`), Blues mit ♭5 oder ♯4, je
+    nachdem, was weniger Vorzeichen braucht (C–Es–F–Ges–G–B, F-Blues mit H).
+  - Die alterierte Skala schrieb über C7 ein Fes, wo die Terz E liegt, und
+    über Fis7 ein B statt Ais. Jetzt C–Des–Es–E–Ges–As–B wie bei Levine.
+  - Die Ganz-Halbton-Skala über °7 war nach Tonhöhe geschrieben.
+  - Jazz-Blues in der Begleitband hatte Cm7 in Takt 4 statt Gm7–C7 und
+    keine der Zwischendominanten, von denen der Text sprach. Jetzt die
+    Standardform wie in der Leadsheet-Vorlage.
+  - Quintfall: „sieben Dominanten“, es sind acht.
+  - Vorzeichnung im Bassschlüssel stand zwei Oktaven zu hoch.
+  - Akkordnamen im Hörtest („D Moll“) jetzt deutsch richtig:
+    d-Moll-Dreiklang, Dominantseptakkord auf G.
+  - Impro-Wissen: „Dur-Pentatonik drei Halbtöne tiefer gedacht“
+    missverständlich, „auf ihrer dritten Stufe beginnen“ doppeldeutig,
+    eine unbelegte Behauptung über die Tonarten der Tanzmusik gestrichen.
+  Geprüft und in Ordnung: Dur, alle Moll, alle Modi, alle Drei- und
+  Septakkorde in allen Tonarten, Intervallnamen, Namen der Umkehrungen,
+  Vorzeichnungen, die Wissensartikel (Ansatz bis Vorspielen).
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Die übrigen Aufgaben des Mustertests** (Aufbau siehe Phase 19):
-   Rhythmus und Taktstriche zu gegebenen Tonhöhen, Versetzungszeichen
-   ergänzen, Intervall zur Zweistimmigkeit ergänzen, Bass gegeben und
-   zwei Töne darüber notieren, veränderten Akkord notieren. Danach ein
-   ganzer Probe-Gehörtest im Format der mdw, mit Punkten.
+1. **Ein ganzer Probe-Gehörtest** im Format der mdw: alle sieben Aufgaben
+   hintereinander, mit den Punkten des Mustertests (31,5, 16 zum
+   Bestehen) und je Aufgabe so oft vorgespielt wie dort.
 2. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
    der Klavierprüfung. Für die Stücke reicht vorerst das Cockpit; fürs
    Blattspiel ließe sich der Melodiegenerator zweihändig machen.
@@ -859,11 +929,11 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute zweiundzwanzig Suiten mit zusammen rund 52 600
+alle Testsuiten. Stand heute dreiundzwanzig Suiten mit zusammen rund 73 500
 Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
 Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
 Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Kadenzen, Leadsheets,
-Grooves, Pop-Vokabular, Lick der Woche und Setlist, Vibrato, Abgleich und Verzug, Prüfungssimulation, Tonhöhenerkennung. Dazu die
+Grooves, Pop-Vokabular, Lick der Woche und Setlist, Vibrato, Abgleich und Verzug, Prüfungssimulation, Mustertest Gehörbildung, Tonhöhenerkennung. Dazu die
 Rechtschreibprüfung aus Abschnitt 9.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`

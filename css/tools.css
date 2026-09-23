@@ -1383,3 +1383,16 @@ svg.vb-kurve{ display: block; width: 100%; height: 110px; margin: 6px 0; }
 .sim-urteil{ padding: 12px 0; border-bottom: 1px solid var(--line); }
 .sim-urteil-kopf{ display:flex; justify-content:space-between; align-items:baseline; gap: 10px; margin-bottom: 6px; }
 .sim-urteil-kopf b{ font-family: var(--serif); font-weight: 400; font-size: 21px; }
+
+/* --- Hörtest: Aufgaben des Mustertests ------------------------------------- */
+.ht-gruppe{ margin: 10px 0 2px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--cane-dim); }
+.ht-richtung{ font-family: var(--serif); font-size: 34px; margin: 8px 0 0; color: var(--brass); }
+.ht-stimmen{ margin: 6px 0 4px; }
+.ht-vzgitter{ display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px; margin: 8px 0 12px; }
+.ht-vz{
+  min-height: 52px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--cane); font-size: 22px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;
+}
+.ht-vz small{ font-size: 11px; color: var(--cane-dim); margin-bottom: 3px; }
+.ht-vz.on{ border-color: var(--brass); color: var(--brass); }

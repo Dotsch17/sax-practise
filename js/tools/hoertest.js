@@ -25,7 +25,12 @@
    Ton. Der Wert bleibt gewählt, bis man einen anderen tippt — in einer
    Achtelkette tippt man also nur Töne.
 
-   Alles klingend, im Violinschlüssel. Die Logik steht in js/music/diktat.js.
+   Die Aufgaben sind nach dem Mustertest Gehörbildung der mdw geordnet und
+   nummeriert wie dort (1 Intervall bis 7 Akkordtyp); darunter stehen die
+   Grundlagen, mit denen man sich auf sie vorbereitet.
+
+   Alles klingend. Die Logik steht in js/music/diktat.js und
+   js/music/mustertest.js.
    ========================================================================== */
 
 "use strict";
@@ -41,19 +46,36 @@ import {
   fehlerMelodie, fehlerAkkord, wiedererkennen, zeitplan,
   ERGAENZEN_STUFEN, melodieErgaenzen, notenwerte, eingabeZuNoten, vergleicheErgaenzung, ergaenzungsHinweise,
 } from "../music/diktat.js";
+import {
+  intervallAufgabe, lageInRichtung, pruefeIntervall,
+  RHYTHMUS_STUFEN, rhythmusZuToenen, pruefeRhythmusZuToenen, satzFuer,
+  akkordVeraendert, pruefeAkkord, akkordName, bassUndZwei, lageName,
+  vorzeichenAufgabe, pruefeVorzeichen, erkenneAkkord,
+} from "../music/mustertest.js";
 import { audio } from "../audio/context.js";
 import { playAt, playChord, playMelody, ok as sigOk, nope as sigNope } from "../audio/signals.js";
 
+/* Die sieben Aufgaben des Mustertests, in seiner Reihenfolge und mit
+   seinen Nummern; darunter die Grundlagen. */
 const MODI = [
-  { id: "ergaenzen", label: "Melodie ergänzen" },
-  { id: "melodie",  label: "Tonhöhen" },
-  { id: "rhythmus", label: "Rhythmus" },
-  { id: "akkorde",  label: "Akkorde" },
-  { id: "fehler",   label: "Fehler finden" },
-  { id: "wieder",   label: "Wiedererkennen" },
+  { id: "intervall",   label: "1 Intervall",          gruppe: "mt" },
+  { id: "tonrhythmus",  label: "2 Rhythmus",           gruppe: "mt" },
+  { id: "ergaenzen",   label: "3 Melodie",            gruppe: "mt" },
+  { id: "akkordneu",   label: "4 Akkord verändert",   gruppe: "mt" },
+  { id: "bass",        label: "5 Basston",            gruppe: "mt" },
+  { id: "vorzeichen",  label: "6 Versetzungszeichen", gruppe: "mt" },
+  { id: "typ",         label: "7 Akkordtyp",          gruppe: "mt" },
+  { id: "melodie",  label: "Tonhöhen",       gruppe: "gl" },
+  { id: "rhythmus", label: "Rhythmus",       gruppe: "gl" },
+  { id: "akkorde",  label: "Akkorde mit Lage", gruppe: "gl" },
+  { id: "fehler",   label: "Fehler finden",  gruppe: "gl" },
+  { id: "wieder",   label: "Wiedererkennen", gruppe: "gl" },
 ];
 
-let sel = { modus: "ergaenzen", ergStufe: 2, melArt: "tonal", melStufe: 1, rhyStufe: 2, akkStufe: "drei", fehlerArt: "melodie" };
+/* Wie oft der Mustertest vorspielt. Mehr geht beim Üben, mit Hinweis. */
+const VORSPIELE = { intervall: 3, ergaenzen: 3, akkordneu: 3, bass: 3, vorzeichen: 3, typ: 3 };
+
+let sel = { modus: "ergaenzen", ergStufe: 2, rzStufe: 2, melArt: "tonal", melStufe: 1, rhyStufe: 2, akkStufe: "drei", fehlerArt: "melodie" };
 let wert = { dur: 1, dots: 0 };   // Melodie ergänzen: der gewählte Notenwert
 let root = null;
 let aufgabe = null;
@@ -62,6 +84,8 @@ let vorz = null;           // vorgewähltes Vorzeichen für den nächsten Ton
 let gehoert = 0;
 let ergebnis = null;       // nach dem Prüfen
 let akkWahl = { art: null, umk: null };
+let gehoertSatz = 0;       // Rhythmus zu Tönen: wie oft mit Begleitung
+let stimme = null;         // Akkord verändert: die gewählte Stimme
 let vorgewaehlt = null;
 
 /** Die Prüfung schickt mit einem Modus hierher. */
@@ -70,7 +94,8 @@ export function vorwaehlen(modus) { vorgewaehlt = modus; }
 const a4 = () => state().settings.a4;
 const deutsch = () => state().settings.naming !== NAMING.EN;
 const variante = () => ({
-  ergaenzen: String(sel.ergStufe),
+  ergaenzen: String(sel.ergStufe), tonrhythmus: String(sel.rzStufe),
+  intervall: "1", akkordneu: "1", bass: "1", vorzeichen: "1", typ: "mustertest",
   melodie: `${sel.melArt}:${sel.melStufe}`, rhythmus: String(sel.rhyStufe),
   akkorde: sel.akkStufe, fehler: sel.fehlerArt, wieder: "3",
 })[sel.modus];
@@ -83,7 +108,7 @@ const BPM = { 1: 66, 2: 72, 3: 80 };
    Gehörbildung. Sonst übt man den Dur-Sextakkord, den man kann, und nie den
    Terzquartakkord. */
 function waehleAkkord() {
-  const arten = AKKORD_STUFEN.find(s => s.id === sel.akkStufe).arten;
+  const arten = AKKORD_STUFEN.find(s => s.id === (sel.modus === "typ" ? "mustertest" : sel.akkStufe)).arten;
   const fehler = drill("hoertest:fehler:akkorde", {});
   const kandidaten = [];
   for (const art of arten) {
@@ -101,7 +126,12 @@ function neueAufgabe() {
   if (sel.modus === "ergaenzen") { aufgabe = melodieErgaenzen({ stufe: sel.ergStufe }); wert = { dur: 1, dots: 0 }; }
   else if (sel.modus === "melodie") aufgabe = melodieDiktat({ art: sel.melArt, stufe: sel.melStufe });
   else if (sel.modus === "rhythmus") aufgabe = rhythmusDiktat({ stufe: sel.rhyStufe });
-  else if (sel.modus === "akkorde") { const k = waehleAkkord(); aufgabe = baueAkkord(k.art, k.u); }
+  else if (sel.modus === "akkorde" || sel.modus === "typ") { const k = waehleAkkord(); aufgabe = baueAkkord(k.art, k.u); }
+  else if (sel.modus === "intervall") aufgabe = intervallAufgabe();
+  else if (sel.modus === "tonrhythmus") { aufgabe = rhythmusZuToenen({ stufe: sel.rzStufe }); eingabe = { werte: [], striche: [], schritte: [] }; gehoertSatz = 0; }
+  else if (sel.modus === "akkordneu") { aufgabe = akkordVeraendert(); eingabe = aufgabe.erster.map(p => ({ ...p })); stimme = null; }
+  else if (sel.modus === "bass") aufgabe = bassUndZwei();
+  else if (sel.modus === "vorzeichen") { aufgabe = vorzeichenAufgabe(); eingabe = aufgabe.grund.map(p => p.alter); }
   else if (sel.modus === "fehler") aufgabe = sel.fehlerArt === "melodie" ? fehlerMelodie() : fehlerAkkord();
   else aufgabe = wiedererkennen();
 }
@@ -152,8 +182,49 @@ function spieleRhythmus() {
   playAt(z.noten.map(n => ({ ...n, midi: 69 })), { a4: a4(), amp: 0.22 });
 }
 
+/* Aufgabe 2: zweimal nur die Melodie, zweimal mit Satz. */
+function spieleRhythmusZu(mitSatz) {
+  const ctx = audio();
+  const bpm = aufgabe.schlaege === 2 ? 72 : 84, viertel = 60 / bpm;
+  const t0 = ctx.currentTime + 0.15;
+  const z = zeitplan(aufgabe.noten, bpm, t0);
+  playAt(z.noten, { a4: a4() });
+  if (mitSatz) {
+    playAt(satzFuer(aufgabe).map(e => ({ midi: e.midi, zeit: t0 + e.zeit * viertel, dauer: e.dauer * viertel * 0.95 })),
+      { a4: a4(), amp: 0.06 });
+  }
+}
+
 function spiele(extra = null) {
   if (!aufgabe) return;
+  if (sel.modus === "tonrhythmus") {
+    const satz = extra === "satz";
+    spieleRhythmusZu(satz);
+    satz ? gehoertSatz++ : gehoert++;
+    const z = $("#ht-gehoert", root);
+    if (z) z.textContent = zaehlerRhythmus();
+    return;
+  }
+  if (["intervall", "akkordneu", "bass", "vorzeichen", "typ"].includes(sel.modus)) {
+    const midis = sel.modus === "intervall" ? [toMidi(aufgabe.gegeben), toMidi(aufgabe.ziel)]
+      : sel.modus === "bass" ? aufgabe.toene.map(toMidi)
+      : sel.modus === "typ" ? aufgabe.midis : null;
+    if (sel.modus === "akkordneu") {
+      const ctx = audio();
+      const t = ctx.currentTime + 0.1;
+      playAt(aufgabe.erster.map(p => ({ midi: toMidi(p), zeit: t, dauer: 1.3 })), { a4: a4(), amp: 0.09 });
+      playAt(aufgabe.zweiter.map(p => ({ midi: toMidi(p), zeit: t + 1.6, dauer: 1.6 })), { a4: a4(), amp: 0.09 });
+    } else if (sel.modus === "vorzeichen") {
+      const z = zeitplan(aufgabe.noten, 80, audio().currentTime + 0.12);
+      playAt(z.noten, { a4: a4() });
+    } else if (extra === "gebrochen") playMelody(midis, { noteDur: 0.5, gap: 0.02, a4: a4() });
+    else playChord(midis, { a4: a4(), dur: 2 });
+    if (extra === "gebrochen") return;
+    gehoert++;
+    const z = $("#ht-gehoert", root);
+    if (z) z.textContent = gehoert <= VORSPIELE[sel.modus] ? `${gehoert} von ${VORSPIELE[sel.modus]}` : `${gehoert}× — in der Prüfung nur ${VORSPIELE[sel.modus]}×`;
+    return;
+  }
   if (sel.modus === "ergaenzen") {
     spieleErgaenzung(extra === "kadenz");
     if (extra === "kadenz") return;
@@ -190,7 +261,10 @@ function render() {
     : `<span><b>${gesamt ? Math.round(100 * d.right / gesamt) : 0}</b> %</span>`;
 
   root.innerHTML = `
-    <div class="chips scroll" id="ht-modi" role="group" aria-label="Aufgabe"></div>
+    <p class="ht-gruppe">Wie im Mustertest der mdw</p>
+    <div class="chips scroll" id="ht-modi" role="group" aria-label="Aufgabe aus dem Mustertest"></div>
+    <p class="ht-gruppe">Grundlagen</p>
+    <div class="chips scroll" id="ht-modi-gl" role="group" aria-label="Grundlagen"></div>
     <div class="chips scroll" id="ht-var" role="group" aria-label="Stufe"></div>
 
     <div class="quiz">
@@ -214,10 +288,10 @@ function render() {
 }
 
 function renderModi() {
-  const host = $("#ht-modi", root);
-  host.innerHTML = "";
+  const host = $("#ht-modi", root), gl = $("#ht-modi-gl", root);
+  host.innerHTML = ""; gl.innerHTML = "";
   for (const m of MODI) {
-    host.append(el("button", {
+    (m.gruppe === "gl" ? gl : host).append(el("button", {
       class: "chip" + (m.id === sel.modus ? " on" : ""), text: m.label,
       on: { click: () => { if (m.id === sel.modus) return; sel.modus = m.id; neueAufgabe(); render(); } },
     }));
@@ -231,7 +305,26 @@ function renderVarianten() {
     class: "chip" + (an ? " on" : ""), text: label, on: { click: () => { fn(); neueAufgabe(); render(); } },
   }));
   let was = "";
-  if (sel.modus === "ergaenzen") {
+  if (sel.modus === "intervall") {
+    was = "Ein Ton steht da, der zweite liegt darüber (▲) oder darunter (▼). Beide klingen zugleich, dreimal. " +
+      "Erst das Intervall benennen, dann schreiben — die Schreibweise ergibt sich aus dem Namen: eine kleine Terz über H ist D, nicht Cisis.";
+  } else if (sel.modus === "tonrhythmus") {
+    for (const s of RHYTHMUS_STUFEN) chip(s.label, sel.rzStufe === s.id, () => { sel.rzStufe = s.id; });
+    const st = RHYTHMUS_STUFEN.find(s => s.id === sel.rzStufe);
+    was = `${st.was}. Die Töne stehen als Notenköpfe da; ergänze die Werte und setz die Taktstriche. ` +
+      "Zweimal nur die Melodie, zweimal mit Begleitung — die Begleitung zeigt, wo die Eins liegt.";
+  } else if (sel.modus === "akkordneu") {
+    was = "Zwei Akkorde, der erste steht da. Im zweiten ist genau ein Ton anders — ein Vorzeichen oder ein Nachbarton. " +
+      "Hör auf die Stimme, die sich bewegt: meist ist es die oberste oder die unterste, die man zuerst wahrnimmt.";
+  } else if (sel.modus === "bass") {
+    was = "Ein dreistimmiger Akkord, der Basston steht da. Notiere die zwei Töne darüber, in enger Lage. " +
+      "Erst das Tongeschlecht hören (Dur, Moll, vermindert, übermäßig), dann die Lage: liegt über dem Bass eine Terz und eine Quinte, eine Terz und eine Sexte oder eine Quarte und eine Sexte?";
+  } else if (sel.modus === "vorzeichen") {
+    was = "Die Melodie steht ohne Versetzungszeichen da. Tipp die Töne an, die anders klingen, als sie dastehen. " +
+      "In Moll: aufwärts zum Grundton die erhöhte sechste und siebte Stufe, abwärts die natürlichen.";
+  } else if (sel.modus === "typ") {
+    was = "Drei- oder Vierklang, in irgendeiner Lage: nur den Typ bestimmen. Die Kürzel sind die aus dem Mustertest.";
+  } else if (sel.modus === "ergaenzen") {
     for (const s of ERGAENZEN_STUFEN) chip(s.label, sel.ergStufe === s.id, () => { sel.ergStufe = s.id; });
     const st = ERGAENZEN_STUFEN.find(s => s.id === sel.ergStufe);
     was = `${st.was}. Vier Takte stehen da, die nächsten vier schreibst du — Töne und Rhythmus. ` +
@@ -267,9 +360,12 @@ function renderNeben() {
   let k = "";
   if (sel.modus === "melodie" && sel.melArt === "tonal") k = knopf("Kadenz und Melodie", "kadenz");
   if (sel.modus === "ergaenzen") k = knopf("Nur Kadenz (Übung)", "kadenz");
+  if (["intervall", "bass", "typ"].includes(sel.modus)) k = knopf("Gebrochen (Übung)", "gebrochen");
+  if (sel.modus === "tonrhythmus") k = knopf("Mit Begleitung", "satz");
   if (sel.modus === "akkorde") k = knopf("Gebrochen", "gebrochen");
   if (sel.modus === "fehler" && sel.fehlerArt === "akkord") k = knopf("Gebrochen", "gebrochen");
-  const zaehler = sel.modus === "ergaenzen" ? `${gehoert} von 3` : `${gehoert}× gehört`;
+  const zaehler = sel.modus === "tonrhythmus" ? zaehlerRhythmus()
+    : VORSPIELE[sel.modus] ? `${gehoert} von ${VORSPIELE[sel.modus]}` : `${gehoert}× gehört`;
   host.innerHTML = `<div class="row2">${k}<span class="ht-gehoert" id="ht-gehoert">${zaehler}</span></div>`;
   $$("button[data-extra]", host).forEach(b => b.addEventListener("click", () => spiele(b.dataset.extra)));
 }
@@ -382,6 +478,271 @@ function melodieText() {
   };
 }
 
+/* --- Mustertest: gemeinsame Teile ---------------------------------------------------- */
+
+const zaehlerRhythmus = () => `Melodie ${gehoert} von 2 · mit Begleitung ${gehoertSatz} von 2`;
+const tonName = p => spell(p, state().settings.naming) + p.octave;
+const akkordNote = (toene, zustaende = null) => ({
+  chord: toene.map((p, i) => ({ pitch: p, accidental: p.alter !== 0, state: zustaende?.[i] })), dur: DUR.ganze,
+});
+
+/* Buchstaben, Vorzeichen, Oktave, Löschen — dasselbe Feld wie beim Diktat. */
+function padHtml({ gesperrt = false, oktave = false, weg = false, pruefen = false, extra = "" } = {}) {
+  const buchstaben = deutsch() ? ["C", "D", "E", "F", "G", "A", "H"] : ["C", "D", "E", "F", "G", "A", "B"];
+  return `
+    <div class="pad">
+      <div class="pad-vz">
+        ${[[-1, "♭"], [0, "♮"], [1, "♯"]].map(([v, z]) =>
+          `<button class="vz${vorz === v ? " on" : ""}" data-vz="${v}" aria-label="Vorzeichen ${z}">${z}</button>`).join("")}
+      </div>
+      <div class="pad-toene">${buchstaben.map((b, step) =>
+        `<button class="ton" data-step="${step}"${gesperrt ? " disabled" : ""}>${b}</button>`).join("")}</div>
+      <div class="pad-vz">
+        <button id="ht-okt-ab" ${oktave ? "" : "disabled"}>Oktave ↓</button>
+        <button id="ht-okt-auf" ${oktave ? "" : "disabled"}>Oktave ↑</button>
+        <button id="ht-weg" ${weg ? "" : "disabled"}>Löschen</button>
+      </div>
+      ${extra}
+      <button class="wide primary" id="ht-pruefen" ${pruefen ? "" : "disabled"}>Prüfen</button>
+    </div>`;
+}
+
+function padVerdrahten(host, { onTon, onOktave, onWeg, onPruefen }) {
+  $$(".vz", host).forEach(b => b.addEventListener("click", () => {
+    const v = Number(b.dataset.vz);
+    vorz = vorz === v ? null : v;
+    renderAufgabe();
+  }));
+  $$(".ton", host).forEach(b => b.addEventListener("click", () => {
+    onTon(Number(b.dataset.step), vorz);
+    vorz = null;
+    renderAufgabe();
+  }));
+  $("#ht-okt-ab", host)?.addEventListener("click", () => { onOktave(-1); renderAufgabe(); });
+  $("#ht-okt-auf", host)?.addEventListener("click", () => { onOktave(1); renderAufgabe(); });
+  $("#ht-weg", host)?.addEventListener("click", () => { onWeg(); renderAufgabe(); });
+  $("#ht-pruefen", host)?.addEventListener("click", onPruefen);
+}
+
+const oktaviere = (p, d) => {
+  const neu = { ...p, octave: p.octave + d };
+  return toMidi(neu) < 28 || toMidi(neu) > 96 ? p : neu;
+};
+
+/* --- 1. Intervall ergänzen ----------------------------------------------------------- */
+
+function renderIntervall(host) {
+  const a = aufgabe, ton = eingabe[0];
+  const zustand = ergebnis ? [undefined, ergebnis.richtig ? "richtig" : "falsch"] : null;
+  host.innerHTML = `
+    <p class="ht-richtung">${a.richtung > 0 ? "▲ darüber" : "▼ darunter"}</p>
+    <div class="staff-wrap">${renderStaff({ clef: a.clef, notes: [akkordNote(ton ? [a.gegeben, ton] : [a.gegeben], zustand)],
+      rightPad: 30, ariaLabel: "Gegebener Ton" })}</div>
+    ${ergebnis ? "" : padHtml({ oktave: !!ton, weg: !!ton, pruefen: !!ton })}`;
+  if (ergebnis) return;
+  padVerdrahten(host, {
+    onTon: (step, v) => { eingabe[0] = lageInRichtung(step, v ?? 0, a.gegeben, a.richtung); },
+    onOktave: d => { if (ton) eingabe[0] = oktaviere(ton, d); },
+    onWeg: () => { eingabe = []; },
+    onPruefen: () => {
+      ergebnis = pruefeIntervall(a, eingabe[0]);
+      werte(ergebnis.richtig);
+      renderAufgabe();
+      zeigeErgebnis({
+        titel: ergebnis.richtig ? `Richtig: ${a.name}` : `Das war eine ${a.name}`,
+        text: ergebnis.text,
+        loesung: renderStaff({ clef: a.clef, notes: [akkordNote([a.gegeben, a.ziel])], rightPad: 30, ariaLabel: "Lösung" }),
+      });
+    },
+  });
+}
+
+/* --- 2. Rhythmus zu Tonhöhen --------------------------------------------------------- */
+
+function renderRhythmusZu(host) {
+  const a = aufgabe;
+  const n = eingabe.werte.length;
+  const noten = [];
+  a.toene.forEach((p, i) => {
+    const w = eingabe.werte[i];
+    const st = ergebnis ? (ergebnis.einzeln[i] ? "richtig" : "falsch") : (i === n ? "aktiv" : undefined);
+    noten.push(w ? { pitch: p, dur: w.dur, dots: w.dots, state: st } : { pitch: p, dur: DUR.viertel, kopf: true, state: st });
+    if (eingabe.striche.includes(i)) noten.push({ barline: true });
+  });
+  noten.push({ barline: "end" });
+  const werteListe = notenwerte(3, 4).filter(w => w.laenge <= 3 && (sel.rzStufe >= 3 || w.dur >= 0.5) && (sel.rzStufe >= 2 || !w.dots));
+  const mini = w => renderStaff({ notes: [{ pitch: { step: 6, alter: 0, octave: 4 }, dur: w.dur, dots: w.dots }], showClef: false,
+    leftPad: 10, rightPad: 10, padTop: 12, padBottom: 12, extraClass: "mini", ariaLabel: wertName(w) });
+  const fertig = n === a.toene.length;
+  host.innerHTML = `
+    <p class="hint">${escapeHtml(a.tonart.name)} · ${a.schlaege}/4${a.auftakt ? " · mit Auftakt" : ""}</p>
+    <div class="staff-wrap">${massstab(renderStaff({ notes: autoBeam(setzeVorzeichen(noten, a.keySig)), keySig: a.keySig,
+      timeSig: [a.schlaege, 4], ariaLabel: "Tonhöhen, Rhythmus gesucht", extraClass: "passend" }), true)}</div>
+    ${ergebnis ? "" : `
+    <p class="hint">${fertig ? "Alle Werte eingetragen." : `Ton ${n + 1} von ${a.toene.length}: welcher Wert?`}</p>
+    <div class="palette ht-werte">${werteListe.map(w => `
+      <button class="zelle" data-dur="${w.dur}" data-dots="${w.dots}" ${fertig ? "disabled" : ""} aria-label="${wertName(w)}">${mini(w)}</button>`).join("")}</div>
+    <div class="row2">
+      <button id="ht-strich" ${n === 0 || n >= a.toene.length ? "disabled" : ""}>${eingabe.striche.includes(n - 1) ? "Taktstrich weg" : "Taktstrich"}</button>
+      <button id="ht-weg" ${eingabe.schritte.length ? "" : "disabled"}>Löschen</button>
+    </div>
+    <button class="wide primary" id="ht-pruefen" ${fertig ? "" : "disabled"}>Prüfen</button>`}`;
+  if (ergebnis) return;
+  $$(".zelle", host).forEach(b => b.addEventListener("click", () => {
+    eingabe.werte.push({ dur: Number(b.dataset.dur), dots: Number(b.dataset.dots) });
+    eingabe.schritte.push("wert");
+    renderAufgabe();
+  }));
+  $("#ht-strich", host).addEventListener("click", () => {
+    const i = n - 1;
+    if (eingabe.striche.includes(i)) eingabe.striche = eingabe.striche.filter(x => x !== i);
+    else { eingabe.striche.push(i); eingabe.schritte.push("strich"); }
+    renderAufgabe();
+  });
+  $("#ht-weg", host).addEventListener("click", () => {
+    const letzt = eingabe.schritte.pop();
+    if (letzt === "strich") eingabe.striche.pop(); else eingabe.werte.pop();
+    renderAufgabe();
+  });
+  $("#ht-pruefen", host).addEventListener("click", () => {
+    ergebnis = pruefeRhythmusZuToenen(a, eingabe);
+    const d = drill(drillId(), { right: 0, wrong: 0, streak: 0, bestStreak: 0 });
+    d.punkte = (d.punkte || 0) + ergebnis.punkte; d.aufgaben = (d.aufgaben || 0) + 1;
+    werte(ergebnis.punkte >= 3);
+    renderAufgabe();
+    const komma = x => String(x).replace(".", ",");
+    const fehlende = a.striche.filter(x => !eingabe.striche.includes(x)).map(x => x + 1);
+    const zuviel = eingabe.striche.filter(x => !a.striche.includes(x)).map(x => x + 1);
+    const strichText = ergebnis.stricheOk ? "Taktstriche richtig."
+      : `Taktstriche: ${fehlende.length ? `es fehlt einer nach Ton ${fehlende.join(", ")}` : ""}${fehlende.length && zuviel.length ? "; " : ""}${zuviel.length ? `keiner nach Ton ${zuviel.join(", ")}` : ""}.`;
+    zeigeErgebnis({
+      titel: `${komma(ergebnis.punkte)} von 4 Punkten`,
+      text: `${ergebnis.richtig} von ${ergebnis.gesamt} Werten richtig. ${strichText}` +
+        (a.auftakt ? " Die Melodie beginnt mit Auftakt — der letzte Takt ist um genau diesen Auftakt kürzer." : ""),
+      loesung: massstab(renderStaff({ notes: autoBeam(setzeVorzeichen(a.noten.map(x => ({ ...x })), a.keySig)), keySig: a.keySig,
+        timeSig: [a.schlaege, 4], ariaLabel: "Lösung", extraClass: "passend" }), true),
+    });
+  });
+}
+
+/* --- 4. Veränderter Akkord ---------------------------------------------------------- */
+
+function renderAkkordNeu(host) {
+  const a = aufgabe;
+  const zustaende = ergebnis ? ergebnis.einzeln.map(e => e === "richtig" ? "richtig" : "falsch")
+    : eingabe.map((_, i) => i === stimme ? "aktiv" : undefined);
+  host.innerHTML = `
+    <div class="staff-wrap">${renderStaff({ notes: [akkordNote(a.erster), { barline: true }, akkordNote(eingabe, zustaende)],
+      rightPad: 30, ariaLabel: "Erster Akkord und dein zweiter" })}</div>
+    ${ergebnis ? "" : `
+    <p class="hint">Welche Stimme ist anders? Wähl sie, dann den neuen Ton.</p>
+    <div class="chips ht-stimmen">${eingabe.map((p, i) => `<button class="chip${stimme === i ? " on" : ""}" data-stimme="${i}">${i === 0 ? "unten" : i === eingabe.length - 1 ? "oben" : `${i + 1}. von unten`}</button>`).reverse().join("")}</div>
+    ${padHtml({ gesperrt: stimme === null, oktave: stimme !== null, weg: true, pruefen: true,
+      extra: "" })}`}`;
+  if (ergebnis) return;
+  $$("[data-stimme]", host).forEach(b => b.addEventListener("click", () => { stimme = Number(b.dataset.stimme); renderAufgabe(); }));
+  padVerdrahten(host, {
+    onTon: (step, v) => {
+      if (stimme === null) return;
+      const alt = a.erster[stimme];
+      // Der neue Ton liegt nahe am alten — verändert wird um einen Halbton.
+      const kandidaten = [alt.octave - 1, alt.octave, alt.octave + 1].map(octave => ({ step, alter: v ?? 0, octave }));
+      eingabe[stimme] = kandidaten.sort((x, y) => Math.abs(toMidi(x) - toMidi(alt)) - Math.abs(toMidi(y) - toMidi(alt)))[0];
+    },
+    onOktave: d => { if (stimme !== null) eingabe[stimme] = oktaviere(eingabe[stimme], d); },
+    onWeg: () => { eingabe = a.erster.map(p => ({ ...p })); stimme = null; },
+    onPruefen: () => {
+      ergebnis = pruefeAkkord(a.zweiter, eingabe);
+      werte(ergebnis.alles);
+      renderAufgabe();
+      const alt = a.erster[a.stimme], neu = a.zweiter[a.stimme];
+      const enh = ergebnis.einzeln.includes("enharmonisch") ? " Ein Ton klingt richtig, ist aber anders geschrieben — im Akkord zählt die Schreibweise." : "";
+      zeigeErgebnis({
+        titel: ergebnis.alles ? "Richtig" : "Daneben",
+        text: `Verändert war ${tonName(alt)}: daraus wird ${tonName(neu)}${a.nurVorzeichen ? " (nur das Vorzeichen)" : ""}. ` +
+          `Vorher ${akkordName(a.artVorher, erkenneAkkord(a.erster)?.grund || a.erster[0])}, nachher ${akkordName(a.artNachher, a.grundNachher)}.${enh}`,
+        loesung: renderStaff({ notes: [akkordNote(a.erster), { barline: true }, akkordNote(a.zweiter)], rightPad: 30, ariaLabel: "Lösung" }),
+      });
+    },
+  });
+}
+
+/* --- 5. Basston gegeben ------------------------------------------------------------- */
+
+function renderBass(host) {
+  const a = aufgabe;
+  const toene = [a.bass, ...eingabe];
+  const zustaende = ergebnis ? [undefined, ...ergebnis.einzeln.map(e => e === "richtig" ? "richtig" : "falsch")] : null;
+  host.innerHTML = `
+    <div class="staff-wrap">${renderStaff({ clef: a.clef, notes: [akkordNote(toene, zustaende)], rightPad: 30, ariaLabel: "Basston und deine Töne" })}</div>
+    ${ergebnis ? "" : `
+    <p class="hint">${eingabe.length < 2 ? `Ton ${eingabe.length + 1} über dem Bass` : "Beide Töne eingetragen."}</p>
+    ${padHtml({ gesperrt: eingabe.length >= 2, oktave: eingabe.length > 0, weg: eingabe.length > 0, pruefen: eingabe.length === 2 })}`}`;
+  if (ergebnis) return;
+  padVerdrahten(host, {
+    onTon: (step, v) => { if (eingabe.length < 2) eingabe.push(lageInRichtung(step, v ?? 0, toene[toene.length - 1], 1)); },
+    onOktave: d => { const i = eingabe.length - 1; if (i >= 0) eingabe[i] = oktaviere(eingabe[i], d); },
+    onWeg: () => { eingabe.pop(); },
+    onPruefen: () => {
+      ergebnis = pruefeAkkord(a.oben, eingabe);
+      werte(ergebnis.alles);
+      renderAufgabe();
+      const enh = ergebnis.einzeln.includes("enharmonisch") ? " Ein Ton klingt richtig, ist aber anders geschrieben: im Dreiklang stehen die Töne im Terzabstand, danach richtet sich der Buchstabe." : "";
+      zeigeErgebnis({
+        titel: `${ergebnis.alles ? "Richtig: " : "Das war "}${akkordName(a.art, a.root)}, ${lageName(a.art, a.umkehrung)}`,
+        text: `Über ${tonName(a.bass)}: ${a.oben.map(tonName).join(" und ")}.${enh}`,
+        loesung: renderStaff({ clef: a.clef, notes: [akkordNote(a.toene)], rightPad: 30, ariaLabel: "Lösung" }),
+      });
+    },
+  });
+}
+
+/* --- 6. Versetzungszeichen ---------------------------------------------------------- */
+
+const VZ_ZEICHEN = { [-1]: "♭", 0: "♮", 1: "♯" };
+
+function renderVorzeichen(host) {
+  const a = aufgabe;
+  let i = 0;
+  const noten = a.noten.map(n => {
+    if (n.barline) return { ...n };
+    const k = i++;
+    const st = ergebnis ? (ergebnis.einzeln[k] ? "richtig" : "falsch") : undefined;
+    return { ...n, pitch: { ...n.pitch, alter: eingabe[k] }, label: String(k + 1), state: st };
+  });
+  host.innerHTML = `
+    <p class="hint">${ergebnis ? escapeHtml(a.tonart.name) : `Vorzeichnung wie notiert${a.keySig ? "" : ", also keine"}; die Tonart musst du selbst hören`} · ${a.schlaege}/4</p>
+    ${zeilen(setzeVorzeichen(noten, a.keySig), { keySig: a.keySig, timeSig: [a.schlaege, 4], label: "Melodie" })}
+    ${ergebnis ? "" : `
+    <p class="hint">Tipp auf einen Ton, um sein Vorzeichen zu wechseln: ohne, ♯, ♭.</p>
+    <div class="ht-vzgitter">${a.toene.map((p, k) => {
+      const anders = eingabe[k] !== a.grund[k].alter;
+      return `<button class="ht-vz${anders ? " on" : ""}" data-i="${k}"><small>${k + 1}</small>${anders ? VZ_ZEICHEN[eingabe[k]] : "·"}</button>`;
+    }).join("")}</div>
+    <button class="wide primary" id="ht-pruefen">Prüfen</button>`}`;
+  if (ergebnis) return;
+  $$(".ht-vz", host).forEach(b => b.addEventListener("click", () => {
+    const k = Number(b.dataset.i);
+    const g = a.grund[k].alter;
+    const folge = [g, ...[1, -1, 0].filter(x => x !== g)];
+    eingabe[k] = folge[(folge.indexOf(eingabe[k]) + 1) % folge.length];
+    renderAufgabe();
+  }));
+  $("#ht-pruefen", host).addEventListener("click", () => {
+    ergebnis = pruefeVorzeichen(a, eingabe);
+    const d = drill(drillId(), { right: 0, wrong: 0, streak: 0, bestStreak: 0 });
+    d.punkte = (d.punkte || 0) + ergebnis.punkte; d.aufgaben = (d.aufgaben || 0) + 1;
+    werte(ergebnis.alles);
+    renderAufgabe();
+    const falsch = a.toene.map((p, k) => ergebnis.einzeln[k] ? null : `Ton ${k + 1} ist ${spell(p, state().settings.naming)}`).filter(Boolean);
+    zeigeErgebnis({
+      titel: ergebnis.alles ? "Alles richtig" : `${ergebnis.richtig} von ${ergebnis.gesamt} Tönen richtig`,
+      text: `${a.tonart.name}. ${falsch.join(", ")}${falsch.length ? "." : ""}`,
+      loesung: zeilen(setzeVorzeichen(a.noten.map(x => ({ ...x })), a.keySig), { keySig: a.keySig, timeSig: [a.schlaege, 4], label: "Lösung" }),
+    });
+  });
+}
+
 /* --- Melodie ergänzen --------------------------------------------------------------- */
 
 const H4 = { step: 6, alter: 0, octave: 4 };
@@ -391,7 +752,7 @@ const wertName = w => ({ "4:0": "Ganze", "2:1": "punktierte Halbe", "2:0": "Halb
 
 /* Vier Takte in einer Zeile, am schmalen Telefon zwei Zeilen zu je zwei.
    Eine Sechzehntelkette auf vier Takten wäre dort sonst zu klein zum Lesen. */
-function zeilen(noten, { keySig, timeSig = null, label }) {
+function zeilen(noten, { keySig, timeSig = null, label, breite = null }) {
   const jeZeile = (root?.clientWidth || 800) < 520 ? 2 : 4;
   const teile = [[]];
   let takt = 0;
@@ -405,23 +766,28 @@ function zeilen(noten, { keySig, timeSig = null, label }) {
   const svgs = teile.filter(t => t.some(n => !n.barline)).map((t, i) => renderStaff({
     notes: autoBeam(t), keySig, timeSig: i === 0 ? timeSig : null, ariaLabel: label, extraClass: "passend",
   }));
-  return svgs.map(svg => `<div class="staff-wrap">${massstab(svg)}</div>`).join("");
+  const b = breite ?? Math.max(300, ...svgs.map(breiteVon));
+  return svgs.map(svg => `<div class="staff-wrap">${massstab(svg, b)}</div>`).join("");
 }
+
+const breiteVon = svg => Number(svg.match(/viewBox="[-\d.]+ [-\d.]+ ([\d.]+)/)?.[1] || 0);
 
 /* Alle Notenzeilen eines Diktats im selben Maßstab: so groß wie möglich,
    aber so, dass die breiteste Zeile ganz hineinpasst. Jede Zeile einzeln
    auf die Breite zu ziehen machte eine Zeile mit zwei Noten riesig und
    eine Sechzehntelkette winzig. */
 const BREITESTE = 900;     // viewBox-Breite, bis zu der noch gemeinsam skaliert wird
-function massstab(svg) {
+function massstab(svg, bezug = true) {
   const m = svg.match(/viewBox="[-\d.]+ [-\d.]+ ([\d.]+) ([\d.]+)"/);
   if (!m) return svg;
   const platz = Math.max(200, (root?.clientWidth || 600) - 24);
-  const jeEinheit = Math.min(128 / Number(m[2]), platz / Math.min(BREITESTE, zeilenBreite));
+  // `bezug` ist die Breite, die ganz hineinpassen muss; true heißt: diese Zeile selbst.
+  const b = bezug === true ? Number(m[1]) : bezug;
+  const jeEinheit = Math.min(128 / Number(m[2]), platz / Math.min(BREITESTE, b));
   const breite = Math.min(platz, Number(m[1]) * jeEinheit);
   return svg.replace("<svg ", `<svg style="width:${breite.toFixed(0)}px" `);
 }
-let zeilenBreite = 600;
+let zeilenBreite = 600;    // Melodie ergänzen: aus der Vorgabe, damit Vorgabe und Eingabe gleich groß stehen
 
 function renderErgaenzen(host) {
   const stand = eingabeZuNoten(eingabe, aufgabe.schlaege);
@@ -445,9 +811,9 @@ function renderErgaenzen(host) {
   host.innerHTML = `
     <p class="hint">${escapeHtml(aufgabe.tonart.name)}${aufgabe.moll ? " (harmonisch)" : ""} · ${aufgabe.schlaege}/4 · Takt 1 bis 4</p>
     ${zeilen(setzeVorzeichen(aufgabe.vorgabe.map(n => ({ ...n })), aufgabe.keySig),
-      { keySig: aufgabe.keySig, timeSig: [aufgabe.schlaege, 4], label: "Vorgegeben, Takt 1 bis 4" })}
+      { keySig: aufgabe.keySig, timeSig: [aufgabe.schlaege, 4], label: "Vorgegeben, Takt 1 bis 4", breite: zeilenBreite })}
     <p class="hint">Takt 5 bis 8${ergebnis ? "" : stand.voll ? " — vollständig" : ` · jetzt Takt ${stand.takt + 4}, Schlag ${stand.schlag}`}</p>
-    ${eingabe.length ? zeilen(setzeVorzeichen(eigene, aufgabe.keySig), { keySig: aufgabe.keySig, label: "Dein Diktat, Takt 5 bis 8" })
+    ${eingabe.length ? zeilen(setzeVorzeichen(eigene, aufgabe.keySig), { keySig: aufgabe.keySig, label: "Dein Diktat, Takt 5 bis 8", breite: zeilenBreite })
       : `<div class="staff-wrap"><p class="hint ht-leer">Erst den Notenwert, dann den Ton.</p></div>`}
     ${ergebnis ? "" : `
     <div class="palette ht-werte">${wertListe.map(w => `
@@ -514,7 +880,7 @@ function renderErgaenzen(host) {
       titel: ergebnis.alles ? "Alles richtig: 4 von 4 Punkten" : `${komma(ergebnis.punkte)} von 4 Punkten`,
       text: ergaenzungsHinweise(ergebnis).join(" "),
       loesung: zeilen(setzeVorzeichen(aufgabe.gesucht.map(n => ({ ...n })), aufgabe.keySig),
-        { keySig: aufgabe.keySig, label: "Lösung, Takt 5 bis 8" }),
+        { keySig: aufgabe.keySig, label: "Lösung, Takt 5 bis 8", breite: zeilenBreite }),
     });
   });
 }
@@ -560,8 +926,11 @@ function renderRhythmus(host) {
 
 /* --- Akkorde ------------------------------------------------------------------------- */
 
+const KUERZEL = { dur: "D", moll: "m", vermindert: "v", uebermaessig: "ü", dom7: "D7", moll7: "m7" };
+
 function renderAkkorde(host) {
-  const arten = AKKORD_STUFEN.find(s => s.id === sel.akkStufe).arten.map(akkordArtOf);
+  const nurArt = sel.modus === "typ";
+  const arten = AKKORD_STUFEN.find(s => s.id === (nurArt ? "mustertest" : sel.akkStufe)).arten.map(akkordArtOf);
   const zahl = akkWahl.art ? akkordArtOf(akkWahl.art).toene : Math.max(...arten.map(a => a.toene));
   const lagen = akkWahl.art ? UMKEHRUNGEN[zahl]
     : ["Grundstellung", "1. Umkehrung", "2. Umkehrung", "3. Umkehrung"].slice(0, zahl);
@@ -570,15 +939,16 @@ function renderAkkorde(host) {
     <h3>Art</h3>
     <div class="answers" id="ht-arten">${arten.map(a => `
       <button class="answer${akkWahl.art === a.id ? " gewaehlt" : ""}${zu && a.id === aufgabe.art ? " richtig" : ""}${zu && akkWahl.art === a.id && a.id !== aufgabe.art ? " falsch" : ""}"
-        data-art="${a.id}" ${zu ? "disabled" : ""}>${escapeHtml(a.label)}</button>`).join("")}</div>
-    <h3>Lage</h3>
+        data-art="${a.id}" ${zu ? "disabled" : ""}>${escapeHtml(nurArt ? `${a.label} [${KUERZEL[a.id]}]` : a.label)}</button>`).join("")}</div>
+    ${nurArt ? "" : `<h3>Lage</h3>`}
     <div class="answers" id="ht-lagen">${lagen.map((l, u) => `
       <button class="answer${akkWahl.umk === u ? " gewaehlt" : ""}${zu && u === aufgabe.umkehrung ? " richtig" : ""}${zu && akkWahl.umk === u && u !== aufgabe.umkehrung ? " falsch" : ""}"
         data-umk="${u}" ${zu ? "disabled" : ""}>${escapeHtml(l)}</button>`).join("")}</div>`;
+  if (nurArt) $("#ht-lagen", host).hidden = true;
   if (zu) return;
   const pruefe = () => {
-    if (akkWahl.art === null || akkWahl.umk === null) return;
-    const richtig = akkWahl.art === aufgabe.art && akkWahl.umk === aufgabe.umkehrung;
+    if (akkWahl.art === null || (akkWahl.umk === null && !nurArt)) return;
+    const richtig = akkWahl.art === aufgabe.art && (nurArt || akkWahl.umk === aufgabe.umkehrung);
     ergebnis = { alles: richtig };
     const f = drill("hoertest:fehler:akkorde", {});
     const k = `${aufgabe.art}:${aufgabe.umkehrung}`;
@@ -588,13 +958,10 @@ function renderAkkorde(host) {
     renderAufgabe();
     const art = akkordArtOf(aufgabe.art);
     const toene = aufgabe.toene.map(p => spell(p, state().settings.naming)).join(" – ");
-    const g = spell(aufgabe.root, state().settings.naming);
-    const grund = g.charAt(0).toUpperCase() + g.slice(1);
     zeigeErgebnis({
-      titel: `${richtig ? "Richtig: " : "Das war "}${grund} ${art.label}, ${UMKEHRUNGEN[art.toene][aufgabe.umkehrung]}`,
+      titel: `${richtig ? "Richtig: " : "Das war "}${akkordName(aufgabe.art, aufgabe.root)}, ${UMKEHRUNGEN[art.toene][aufgabe.umkehrung]}`,
       text: `Von unten: ${toene}.`,
-      loesung: renderStaff({ notes: aufgabe.toene.map(p => ({ pitch: p, dur: DUR.halbe, accidental: p.alter !== 0 })),
-        ariaLabel: "Lösung, von unten nach oben", extraClass: "compact" }),
+      loesung: renderStaff({ notes: [akkordNote(aufgabe.toene)], rightPad: 30, ariaLabel: "Lösung" }),
     });
   };
   $$("[data-art]", host).forEach(b => b.addEventListener("click", () => {
@@ -669,7 +1036,9 @@ function renderWieder(host) {
 function renderAufgabe() {
   const host = $("#ht-aufgabe", root);
   if (!host || !aufgabe) return;
-  ({ ergaenzen: renderErgaenzen, melodie: renderMelodie, rhythmus: renderRhythmus, akkorde: renderAkkorde,
+  ({ intervall: renderIntervall, tonrhythmus: renderRhythmusZu, akkordneu: renderAkkordNeu, bass: renderBass,
+     vorzeichen: renderVorzeichen, typ: renderAkkorde,
+     ergaenzen: renderErgaenzen, melodie: renderMelodie, rhythmus: renderRhythmus, akkorde: renderAkkorde,
      fehler: renderFehler, wieder: renderWieder })[sel.modus](host);
 }
 

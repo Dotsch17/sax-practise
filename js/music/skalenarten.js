@@ -59,7 +59,7 @@ export const ARTEN = [
   { id: "halbvermindert",         label: "Moll 7♭5",        gruppe: "Akkorde", chord: "halbvermindert", keys: "frei",  symbol: "m7♭5", pruefung: true },
 
   { id: "chromatisch", label: "Chromatisch", gruppe: "Weitere", scale: "chromatisch", keys: "major" },
-  { id: "blues",       label: "Blues",       gruppe: "Weitere", scale: "blues",       keys: "major" },
+  { id: "blues",       label: "Blues",       gruppe: "Weitere", scale: "blues",       keys: "frei" },
   { id: "ganzton",     label: "Ganzton",     gruppe: "Weitere", scale: "ganzton",     keys: "major" },
 ];
 

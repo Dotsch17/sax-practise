@@ -226,7 +226,9 @@ function gehoer(drills) {
     .map(x => ({ ...x, ziel: ZIEL.hoertest, was: "ht-" + x.id.split(":")[1], stufe: x.id.split(":")[2] }));
   teile.push(...hoertest);
   const NAME = { intervalle: "Intervalle", akkorde: "Akkorde", skalen: "Skalen",
-                 nachspielen: "Nachspielen", "ht-melodie": "Tonhöhendiktate", "ht-ergaenzen": "Melodie ergänzen", "ht-rhythmus": "Rhythmusdiktate",
+                 nachspielen: "Nachspielen", "ht-melodie": "Tonhöhendiktate", "ht-ergaenzen": "Melodie ergänzen",
+                 "ht-intervall": "Intervalle ergänzen", "ht-tonrhythmus": "Rhythmus zu Tonhöhen", "ht-akkordneu": "veränderte Akkorde",
+                 "ht-bass": "Akkorde über dem Basston", "ht-vorzeichen": "Versetzungszeichen", "ht-typ": "Akkordtypen", "ht-rhythmus": "Rhythmusdiktate",
                  "ht-akkorde": "Akkorde mit Lage", "ht-fehler": "Fehler finden", "ht-wieder": "Wiedererkennen" };
 
   const schwach = teile

@@ -305,6 +305,37 @@ const naechsterAus = (von, kandidaten, moll, r) => kandidaten
   .filter(k => !verboten(von, k, moll) && k >= r.lo && k <= r.hi)
   .sort((a, b) => Math.abs(a - von) - Math.abs(b - von))[0];
 
+/* Der Tonraum als Stufen-Index: alles, was mit etwas Luft in G3 bis A5
+   liegt, höchstens eine Quinte unter und eine None über dem Grundton. */
+function rahmenFuer(tonAus) {
+  const r = { lo: -5, hi: 9 };
+  while (toMidi(tonAus(r.lo)) < TIEF + 2) r.lo++;
+  while (toMidi(tonAus(r.hi)) > HOCH - 2) r.hi--;
+  r.lo = Math.max(r.lo, r.hi - 12);
+  return r;
+}
+
+/**
+ * Eine sangbare Linie in einer Tonart, die auf dem Grundton endet: dieselbe
+ * Gestalt wie im Melodiediktat, für die anderen Aufgaben des Mustertests.
+ * `skala` ist "dur", "moll_harmonisch" oder "moll_natur". Gibt die Töne
+ * und ihre Stufen-Indizes (0 Grundton, 4 Quinte, 7 Oktave) zurück.
+ */
+export function tonaleLinie({ key, skala = "dur", anzahl, rng = Math.random }) {
+  const harm = skala === "moll_harmonisch";
+  const leiter = buildScale({ ...key.tonic, octave: 3 }, skala, 3);
+  const tonAus = i => leiter[i + 7];
+  const r = rahmenFuer(tonAus);
+  const start = waehle([0, 2, 4].filter(x => x >= r.lo && x <= r.hi), rng);
+  const mitte = wanderung(start, Math.max(0, anzahl - 3), harm, rng, r);
+  const letzter = mitte.length ? mitte[mitte.length - 1] : start;
+  const vorletzter = naechsterAus(letzter, r.hi >= 7 ? [1, -1, 8, 6] : [1, -1], harm, r) ?? 1;
+  const ende = vorletzter === 1 || vorletzter === -1 ? 0 : 7;
+  let indizes = [start, ...mitte, vorletzter, ende];
+  if (anzahl < indizes.length) indizes = [...indizes.slice(0, anzahl - 1), ende];
+  return { indizes, toene: indizes.map(tonAus) };
+}
+
 /**
  * Eine Aufgabe „Melodie ergänzen“. Gibt die ganze Melodie, die vier
  * vorgegebenen Takte und die vier gesuchten, jeweils im Format von
@@ -338,10 +369,7 @@ export function melodieErgaenzen({ stufe = 2, rng = Math.random } = {}) {
   // Grundton.
   const leiter = buildScale({ ...key.tonic, octave: 3 }, moll ? "moll_harmonisch" : "dur", 3);
   const tonAus = i => leiter[i + 7];
-  const r = { lo: -5, hi: 9 };
-  while (toMidi(tonAus(r.lo)) < TIEF + 2) r.lo++;
-  while (toMidi(tonAus(r.hi)) > HOCH - 2) r.hi--;
-  r.lo = Math.max(r.lo, r.hi - 12);
+  const r = rahmenFuer(tonAus);
   const anzahl = takte.map(tk => tk.filter(x => !x.pause).length);
   const vorder = anzahl.slice(0, 4).reduce((a, b) => a + b, 0);
   const start = waehle([0, 2, 4].filter(x => x >= r.lo && x <= r.hi), rng);
@@ -576,6 +604,8 @@ export const AKKORD_STUFEN = [
   { id: "drei", label: "Dreiklänge", arten: ["dur", "moll", "vermindert", "uebermaessig"] },
   { id: "vier", label: "Septakkorde", arten: ["dom7", "dur7", "moll7", "halbvermindert", "vermindert7"] },
   { id: "alle", label: "Alle", arten: AKKORD_ARTEN.map(a => a.id) },
+  // Aufgabe 7 des Mustertests: nur der Typ, mit den Kürzeln D, m, v, ü, D7, m7.
+  { id: "mustertest", label: "Mustertest", arten: ["dur", "moll", "vermindert", "uebermaessig", "dom7", "moll7"], nurArt: true },
 ];
 
 export const akkordArtOf = id => AKKORD_ARTEN.find(a => a.id === id);

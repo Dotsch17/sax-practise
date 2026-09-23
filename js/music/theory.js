@@ -177,6 +177,16 @@ export function keySignature(tonicPc, mode = "major") {
 
 // Halbtonschritte ab dem Grundton. Bewusst als reine Daten, damit später
 // weitere Skalen dazukommen können, ohne Code anzufassen.
+//
+// `buchstaben` sagt bei Skalen, die nicht sieben Töne haben, auf welchem
+// Buchstaben (Stufe über dem Grundton, 0 bis 6) jeder Ton steht. Ohne
+// diese Angabe wurde nach Kreuz- oder Be-Vorliebe geschrieben, und dann
+// stand in der C-Blues-Skala Dis statt Es und in f-Moll-Pentatonik Gis
+// statt As — die kleine Terz als übermäßige Sekunde.
+// Steht statt einer Zahl eine Liste, sind beide Schreibweisen richtig
+// (die Blue Note ist ♯4 oder ♭5), und es gewinnt die mit weniger
+// Vorzeichen, bei Gleichstand die mit Be: C-Blues mit Ges, F-Blues mit H
+// statt Ces. So stehen die Skalen auch in den Jazz-Lehrbüchern.
 export const SCALES = {
   dur:            { name: "Dur",                    steps: [0,2,4,5,7,9,11], group: "Grundlagen" },
   moll_natur:     { name: "Moll, natürlich",        steps: [0,2,3,5,7,8,10], group: "Grundlagen" },
@@ -190,10 +200,10 @@ export const SCALES = {
   mixolydisch:    { name: "Mixolydisch",            steps: [0,2,4,5,7,9,10], group: "Kirchentonarten" },
   aeolisch:       { name: "Äolisch",                steps: [0,2,3,5,7,8,10], group: "Kirchentonarten" },
   lokrisch:       { name: "Lokrisch",               steps: [0,1,3,5,6,8,10], group: "Kirchentonarten" },
-  blues:          { name: "Blues",                  steps: [0,3,5,6,7,10], group: "Moderne" },
-  pentatonik_dur: { name: "Pentatonik, Dur",        steps: [0,2,4,7,9], group: "Moderne" },
-  pentatonik_moll:{ name: "Pentatonik, Moll",       steps: [0,3,5,7,10], group: "Moderne" },
-  vermindert:     { name: "Vermindert, ganz-halb",  steps: [0,2,3,5,6,8,9,11], group: "Moderne" },
+  blues:          { name: "Blues",                  steps: [0,3,5,6,7,10], buchstaben: [0,2,3,[3,4],4,6], group: "Moderne" },
+  pentatonik_dur: { name: "Pentatonik, Dur",        steps: [0,2,4,7,9], buchstaben: [0,1,2,4,5], group: "Moderne" },
+  pentatonik_moll:{ name: "Pentatonik, Moll",       steps: [0,3,5,7,10], buchstaben: [0,2,3,4,6], group: "Moderne" },
+  vermindert:     { name: "Vermindert, ganz-halb",  steps: [0,2,3,5,6,8,9,11], buchstaben: [0,1,2,3,[3,4],[4,5],5,6], group: "Moderne" },
 };
 
 export const CHORDS = {
@@ -264,6 +274,16 @@ export function stufeInTonart(pc, tonikaPos) {
 const QUINT_STUFE = [3, 0, 4, 1, 5, 2, 6];   // F C G D A E H
 
 /**
+ * Schreibt eine Tonhöhe auf einen von mehreren erlaubten Buchstaben,
+ * gezählt ab dem Buchstaben des Grundtons. Gewinnt die Schreibweise mit
+ * weniger Vorzeichen, bei Gleichstand die mit Be.
+ */
+export function aufBuchstaben(midi, grundStep, erlaubt) {
+  const liste = [].concat(erlaubt).map(b => spellOnStep(midi, (grundStep + b) % 7));
+  return liste.sort((a, b) => Math.abs(a.alter) - Math.abs(b.alter) || a.alter - b.alter)[0];
+}
+
+/**
  * Baut eine Skala als Folge von Tripeln auf, ausgehend von einem
  * buchstabierten Grundton. Siebenstufige Skalen bekommen aufsteigende
  * Buchstaben, alles andere wird nach Kreuz- oder B-Vorliebe geschrieben.
@@ -272,11 +292,11 @@ export function buildScale(tonic, scaleKey, octaves = 1) {
   const def = SCALES[scaleKey];
   if (!def) throw new Error("Unbekannte Skala: " + scaleKey);
   const root = toMidi(tonic);
-  const diatonic = def.steps.length === 7;
+  const buchstaben = def.buchstaben || (def.steps.length === 7 ? [0, 1, 2, 3, 4, 5, 6] : null);
   const prefer = tonic.alter < 0 ? "flat" : "sharp";
 
-  const at = (semitones, degree) => diatonic
-    ? spellOnStep(root + semitones, (tonic.step + degree) % 7)
+  const at = (semitones, degree) => buchstaben
+    ? aufBuchstaben(root + semitones, tonic.step, buchstaben[degree])
     : fromMidi(root + semitones, prefer);
 
   const out = [];

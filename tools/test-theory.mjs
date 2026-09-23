@@ -159,6 +159,27 @@ eq(names(T.buildScale(P(4, 0), "mixolydisch")), ["G","A","H","C","D","E","F","G"
 eq(T.buildScale(P(0, 0), "dur", 2).length, 15, "zwei Oktaven sind 15 Töne");
 eq(T.buildScale(P(0, 0), "chromatisch").length, 13, "Chromatik hat 13 Töne");
 eq(T.buildScale(P(0, 0), "pentatonik_dur").length, 6, "Pentatonik hat 6 Töne mit Oktave");
+{
+  // Kleine Terz ist Es, nicht Dis: Pentatonik und Blues werden über
+  // Stufen geschrieben, nicht nach Kreuz- oder Be-Vorliebe.
+  const n = (t, s) => T.buildScale(t, s).slice(0, -1).map(p => T.spell(p)).join(" ");
+  eq(n(P(0, 0), "blues"), "C Es F Ges G B", "C-Blues");
+  eq(n(P(3, 0), "blues"), "F As B H C Es", "F-Blues: H statt Ces");
+  eq(n(P(6, -1), "blues"), "B Des Es E F As", "B-Blues: E statt Fes");
+  eq(n(P(5, 0), "blues"), "A C D Es E G", "A-Blues");
+  eq(n(P(3, 0), "pentatonik_moll"), "F As B C Es", "f-Moll-Pentatonik: As, nicht Gis");
+  eq(n(P(2, -1), "pentatonik_moll"), "Es Ges As B Des", "es-Moll-Pentatonik");
+  eq(n(P(1, -1), "pentatonik_dur"), "Des Es F As B", "Des-Dur-Pentatonik");
+  eq(n(P(6, 0), "pentatonik_dur"), "H Cis Dis Fis Gis", "H-Dur-Pentatonik");
+  for (const k of [...T.MAJOR_KEYS, ...T.MINOR_KEYS]) {
+    for (const s of ["pentatonik_dur", "pentatonik_moll", "blues"]) {
+      const ps = T.buildScale(k.tonic, s);
+      ok(ps.every(p => Math.abs(p.alter) <= 2), `${k.name} ${s}: höchstens Doppelvorzeichen`);
+      const kleineTerz = ps.find(p => T.toMidi(p) - T.toMidi(ps[0]) === 3);
+      if (kleineTerz) ok((kleineTerz.step - ps[0].step + 7) % 7 === 2, `${k.name} ${s}: die kleine Terz steht auf der dritten Stufe`);
+    }
+  }
+}
 
 console.log("\nJede Tonart durchbuchstabiert");
 for (const k of T.MAJOR_KEYS) {

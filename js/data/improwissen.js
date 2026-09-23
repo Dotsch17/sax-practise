@@ -46,7 +46,7 @@ export const SKALEN_WISSEN = [
     reihenfolge: 2,
     bau: "Moll-Pentatonik plus die verminderte Quinte. In A: A – C – D – Es – E – G.",
     warum: [
-      "Der zusätzliche Ton — die Blue Note — gehört zu keiner Tonart und genau deshalb funktioniert er. Er ist ein Durchgang, kein Ziel.",
+      "Der zusätzliche Ton — die Blue Note — gehört nicht zur Tonart, und genau deshalb funktioniert er. Er ist ein Durchgang, kein Ziel.",
       "Er macht aus fünf braven Tönen einen Ausdruck.",
     ],
     wann: [
@@ -60,7 +60,7 @@ export const SKALEN_WISSEN = [
   {
     id: "dur_pentatonik",
     titel: "Dur-Pentatonik",
-    kurz: "Dieselben fünf Töne, drei Halbtöne tiefer gedacht.",
+    kurz: "Dieselben fünf Töne wie die Moll-Pentatonik eine kleine Terz tiefer, nur mit anderem Zentrum.",
     reihenfolge: 3,
     bau: "Grundton, Sekunde, große Terz, Quinte, Sexte. In C: C – D – E – G – A. Das sind dieselben Töne wie die a-Moll-Pentatonik, nur mit anderem Zentrum.",
     warum: [
@@ -72,7 +72,7 @@ export const SKALEN_WISSEN = [
       "Über die Tonika einer Popfolge, wenn die Mollpentatonik zu dunkel klingt.",
     ],
     achtung: "Über einen Dominantseptakkord klingt sie zu brav — dort fehlt ihr die kleine Septime.",
-    ersterSchritt: "Spiel eine Mollpentatonik, die du kennst, und beginne stattdessen auf ihrer dritten Stufe. Derselbe Griff, anderes Zentrum, völlig anderer Charakter.",
+    ersterSchritt: "Spiel eine Mollpentatonik, die du kennst, und mach stattdessen ihre kleine Terz zum Grundton — aus a-Moll-Pentatonik wird so C-Dur-Pentatonik. Derselbe Griff, anderes Zentrum, völlig anderer Charakter.",
   },
 
   {
@@ -183,7 +183,7 @@ export const SONG_ANLEITUNG = {
       p: [
         "Lass den Song laufen und spiel einen einzelnen langen Ton. Passt er nicht, geh einen Halbton weiter. Nach spätestens zwölf Versuchen sitzt du richtig — und mit der Zeit brauchst du zwei.",
         "Schneller geht es über den Bass: der tiefste Ton am Anfang einer Schleife ist fast immer der Grundton des ersten Akkords. Sing ihn mit und such ihn auf dem Instrument.",
-        "Noch schneller: die meiste Tanzmusik steht in wenigen Tonarten. Probier zuerst klingend a-Moll, d-Moll, e-Moll, g-Moll, C-Dur und F-Dur — das deckt erstaunlich viel ab.",
+        "Noch schneller wird es mit Übung: unter Gig → Tonart finden misst die App, wie lange du brauchst, und die Zeit sinkt mit jeder Woche.",
       ],
     },
     {

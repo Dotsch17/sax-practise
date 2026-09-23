@@ -40,9 +40,13 @@ export function noteY(pitch, clef = "g") {
 // Der Schlüssel sitzt mit seinem Ursprung auf der Linie, die er benennt.
 const CLEF = { g: { glyph: "gClef", y: 3 * SP }, f: { glyph: "fClef", y: SP } };
 
-// Lage der Vorzeichen in der Vorzeichnung, Violinschlüssel.
+// Lage der Vorzeichen in der Vorzeichnung, Violinschlüssel. Im
+// Bassschlüssel stehen sie an derselben Stelle im System, also zwei
+// Oktaven tiefer — nicht an derselben Tonhöhe, sonst schweben sie über
+// dem System.
 const SIG_OCT_SHARP = { 3: 5, 0: 5, 4: 5, 1: 5, 5: 4, 2: 5, 6: 4 };  // Fis Cis Gis Dis Ais Eis His
 const SIG_OCT_FLAT  = { 6: 4, 2: 5, 5: 4, 1: 5, 4: 4, 0: 5, 3: 4 };  // B Es As Des Ges Ces Fes
+const SIG_VERSATZ = { g: 0, f: -2 };
 
 const ACC_GLYPH = { 2: "accDoubleSharp", 1: "accSharp", 0: "accNatural", [-1]: "accFlat", [-2]: "accDoubleFlat" };
 const REST_GLYPH = { 4: "restWhole", 2: "restHalf", 1: "restQuarter", 0.5: "rest8th", 0.25: "rest16th" };
@@ -88,6 +92,8 @@ export function spacingFor(dur) {
  *
  * notes: Folge aus
  *   { pitch, dur, dots, accidental, state, label, artic, dynamic, fermata, beam }
+ *   { chord: [{ pitch, accidental, state }], dur }   -> Akkord, Töne übereinander
+ *   { pitch, dur, kopf: true }   -> nur der Notenkopf, ohne Hals (Tonhöhen ohne Rhythmus)
  *   { dur }                      -> Pause
  *   { barline: true | "end" | "repeat" }
  *   { spacer: 20 }
@@ -127,7 +133,7 @@ export function renderStaff(opts = {}) {
   const sigSteps = keySignatureSteps(keySig);
   const sharp = keySig >= 0;
   for (const step of sigSteps) {
-    const octave = (sharp ? SIG_OCT_SHARP : SIG_OCT_FLAT)[step];
+    const octave = (sharp ? SIG_OCT_SHARP : SIG_OCT_FLAT)[step] + SIG_VERSATZ[clef];
     body += glyph(sharp ? "accSharp" : "accFlat", x, noteY({ step, octave }, clef));
     x += (sharp ? 6.2 : 6.6);
   }
@@ -152,6 +158,13 @@ export function renderStaff(opts = {}) {
     if (nt.spacer) { x += nt.spacer; continue; }
     if (nt.barline) { laid.push({ x, barline: nt.barline }); x += 12; continue; }
     // Vor einem Vorzeichen muss Luft sein, sonst klebt es am Vorgänger.
+    if (nt.chord) {
+      const lage = akkordLage(nt.chord);
+      x += lage.spalten * 8;
+      laid.push({ x, nt, lage });
+      x += (noteSpacing || spacingFor(nt.dur)) + (lage.versetzt ? 10 : 0);
+      continue;
+    }
     if (nt.accidental) x += 9;
     laid.push({ x, nt });
     x += noteSpacing || spacingFor(nt.dur);
@@ -161,8 +174,11 @@ export function renderStaff(opts = {}) {
 
   // Beschriftungen muessen unter die tiefste Note, sonst schneiden sie
   // Hilfslinien. Dasselbe gilt fuer die Dynamik.
-  const lowest = laid.reduce((m, L) =>
-    L.nt && L.nt.pitch ? Math.max(m, noteY(L.nt.pitch, clef)) : m, STAFF_H);
+  const tiefsterVon = L => L.nt?.chord ? Math.max(...L.nt.chord.map(c => noteY(c.pitch, clef)))
+    : L.nt?.pitch ? noteY(L.nt.pitch, clef) : null;
+  const hoechsterVon = L => L.nt?.chord ? Math.min(...L.nt.chord.map(c => noteY(c.pitch, clef)))
+    : L.nt?.pitch ? noteY(L.nt.pitch, clef) : null;
+  const lowest = laid.reduce((m, L) => tiefsterVon(L) != null ? Math.max(m, tiefsterVon(L)) : m, STAFF_H);
   const dynY = Math.max(lowest + 24, STAFF_H + 24);
   const labelY = dynY + (notes.some(n => n.dynamic) ? 20 : 0);
 
@@ -194,6 +210,11 @@ export function renderStaff(opts = {}) {
     const cls = nt.state ? ` class="nt-${esc(nt.state)}"` : "";
     let g = "";
 
+    if (nt.chord) {                                    // Akkord
+      body += akkordSvg(L, clef);
+      continue;
+    }
+
     if (!nt.pitch) {                                   // Pause
       const name = REST_GLYPH[nt.dur] || "restQuarter";
       g += glyph(name, L.x, REST_Y[nt.dur] ?? 2 * SP);
@@ -216,7 +237,7 @@ export function renderStaff(opts = {}) {
 
     g += glyph(head, L.x, y);
 
-    if (nt.dur < DUR.ganze) {
+    if (nt.dur < DUR.ganze && !nt.kopf) {
       const sx = up ? L.x + headW - STEM_W / 2 : L.x + STEM_W / 2;
       const sy = up ? y - STEM_LEN : y + STEM_LEN;
       g += line(sx, y, sx, sy, STEM_W);
@@ -297,14 +318,76 @@ export function renderStaff(opts = {}) {
     }
   }
 
-  const highest = laid.reduce((m, L) =>
-    L.nt && L.nt.pitch ? Math.min(m, noteY(L.nt.pitch, clef)) : m, 0);
+  const highest = laid.reduce((m, L) => hoechsterVon(L) != null ? Math.min(m, hoechsterVon(L)) : m, 0);
   const top = Math.min(-padTop, highest - 26);
   const bottom = Math.max(STAFF_H + padBottom, labelY + 10);
   const vb = `0 ${r(top)} ${r(totalW)} ${r(bottom - top)}`;
   return `<svg class="staff ${extraClass}" viewBox="${vb}" role="img" aria-label="${esc(ariaLabel)}"
      preserveAspectRatio="xMinYMid meet" fill="currentColor" stroke="currentColor"
      >${staff}${beams}${body}${marks}</svg>`;
+}
+
+/* --- Akkorde ----------------------------------------------------------------
+   Töne übereinander, wie gedruckt:
+   - Liegen zwei Töne eine Sekunde auseinander, steht der obere rechts
+     neben dem Hals (bei ganzen Noten: neben dem unteren), sonst
+     überdecken sich die Köpfe.
+   - Vorzeichen werden von oben nach unten gesetzt, jedes in die erste
+     Spalte links, in der es keinem anderen näher als eine Sexte kommt.
+     Das ist die übliche Stichregel; sie verhindert, dass sich die Zeichen
+     überschneiden. */
+
+function akkordLage(chord) {
+  const toene = chord.map((c, i) => ({ ...c, i, d: diatonic(c.pitch) })).sort((a, b) => a.d - b.d);
+  let vorher = null;
+  for (const t of toene) {
+    t.rechts = !!(vorher && t.d - vorher.d === 1 && !vorher.rechts);
+    vorher = t;
+  }
+  const mitVz = [...toene].filter(t => t.accidental).sort((a, b) => b.d - a.d);
+  const spalten = [];
+  for (const t of mitVz) {
+    let k = 0;
+    while (spalten[k] && spalten[k].some(d => Math.abs(d - t.d) < 6)) k++;
+    (spalten[k] ||= []).push(t.d);
+    t.spalte = k;
+  }
+  return { toene, spalten: spalten.length, versetzt: toene.some(t => t.rechts) };
+}
+
+function akkordSvg(L, clef) {
+  const { nt, lage } = L;
+  const head = HEAD_GLYPH(nt.dur);
+  const headW = ADVANCE[head];
+  let out = "";
+  const ys = lage.toene.map(t => noteY(t.pitch, clef));
+  const oben = Math.min(...ys), unten = Math.max(...ys);
+  const up = (oben + unten) / 2 > STAFF_H / 2;
+  for (const t of lage.toene) {
+    const y = noteY(t.pitch, clef);
+    // Bei Hals nach unten steht der versetzte Kopf links; bei Hals nach
+    // oben und bei ganzen Noten rechts.
+    const dx = t.rechts ? (nt.dur < DUR.ganze && !up ? -headW + STEM_W : headW - STEM_W) : 0;
+    let g = ledgerLines(L.x + dx, y, headW);
+    if (t.accidental) {
+      const a = ACC_GLYPH[t.pitch.alter] ?? "accNatural";
+      g += glyph(a, L.x - ADVANCE[a] - 3 - t.spalte * 8, y);
+    }
+    g += glyph(head, L.x + dx, y);
+    if (nt.dots) {
+      const dy = (y % SP === 0) ? y - SP / 2 : y;
+      g += glyph("augmentationDot", L.x + headW * (lage.versetzt ? 2 : 1) + 4, dy);
+    }
+    const cls = t.state ? ` class="nt-${esc(t.state)}"` : "";
+    out += `<g${cls}>${g}</g>`;
+  }
+  if (nt.dur < DUR.ganze) {
+    const sx = up ? L.x + headW - STEM_W / 2 : L.x + STEM_W / 2;
+    const y1 = up ? unten : oben;
+    const y2 = up ? oben - STEM_LEN : unten + STEM_LEN;
+    out += line(sx, y1, sx, y2, STEM_W);
+  }
+  return out;
 }
 
 /* --- Hilfen --------------------------------------------------------------- */

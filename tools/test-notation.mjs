@@ -163,5 +163,46 @@ ok(N.spacingFor(4) > N.spacingFor(1), "ganze Note bekommt mehr Platz als Viertel
 ok(N.spacingFor(1) > N.spacingFor(0.25), "Viertel mehr als Sechzehntel");
 ok(N.spacingFor(4) < 4 * N.spacingFor(1), "aber nicht proportional");
 
+console.log("\nBassschlüssel und Akkorde");
+{
+  // Wo stehen die Glyphen? translate(x,y) aus dem SVG lesen.
+  const lage = (svg, glyph) => [...svg.matchAll(new RegExp(`<path d="${GLYPH[glyph].replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}" transform="translate\\(([-\\d.]+),([-\\d.]+)\\)`, "g"))]
+    .map(m => ({ x: Number(m[1]), y: Number(m[2]) }));
+  // Vorzeichnung: im Bassschlüssel an derselben Stelle im System wie im
+  // Violinschlüssel, also zwei Oktaven tiefer. Fis steht auf der vierten
+  // Linie von unten (F3), B auf der zweiten (B2).
+  const fis = lage(N.renderStaff({ clef: "f", keySig: 1, notes: [] }), "accSharp");
+  eq(fis[0]?.y, N.noteY({ step: 3, octave: 3 }, "f"), "Bassschlüssel: Fis auf der F-Linie");
+  eq(fis[0]?.y, 10, "das ist die vierte Linie von unten");
+  const b = lage(N.renderStaff({ clef: "f", keySig: -1, notes: [] }), "accFlat");
+  eq(b[0]?.y, 30, "Bassschlüssel: B auf der zweiten Linie von unten");
+  const vier = lage(N.renderStaff({ clef: "f", keySig: 4, notes: [] }), "accSharp").map(x => x.y);
+  const vierG = lage(N.renderStaff({ clef: "g", keySig: 4, notes: [] }), "accSharp").map(x => x.y);
+  // Dieselben Töne zwei Oktaven tiefer — im System eine Linie tiefer als
+  // im Violinschlüssel (Fis auf der vierten statt der obersten Linie).
+  eq(JSON.stringify(vier), JSON.stringify(vierG.map(y => y + 10)), "vier Kreuze: im Bassschlüssel je eine Stufe tiefer im System, Fis C G D");
+
+  // Akkorde: Köpfe übereinander, bei Sekunden versetzt.
+  const P = (step, alter, octave) => ({ step, alter, octave });
+  const akk = (...ps) => N.renderStaff({ notes: [{ chord: ps.map(p => ({ pitch: p, accidental: p.alter !== 0 })), dur: 4 }] });
+  const cdur = lage(akk(P(0, 0, 4), P(2, 0, 4), P(4, 0, 4)), "noteheadWhole");
+  eq(cdur.length, 3, "C-Dur: drei Köpfe");
+  eq(new Set(cdur.map(x => x.x)).size, 1, "Terzen stehen genau übereinander");
+  const sek = lage(akk(P(4, 0, 4), P(5, 0, 4), P(0, 0, 5)), "noteheadWhole");
+  eq(new Set(sek.map(x => x.x)).size, 2, "G–A: die Sekunde wird versetzt");
+  const g = sek.find(x => x.y === N.noteY(P(4, 0, 4))), a = sek.find(x => x.y === N.noteY(P(5, 0, 4)));
+  ok(a.x > g.x, "der obere Ton der Sekunde steht rechts");
+  const cluster = lage(akk(P(2, 0, 4), P(3, 0, 4), P(4, 0, 4)), "noteheadWhole").sort((x, y) => y.y - x.y);
+  ok(cluster[0].x === cluster[2].x && cluster[1].x > cluster[0].x, "E–F–G: nur der mittlere Ton ausgelagert");
+  // Vorzeichen: näher als eine Sexte beieinander → versetzt.
+  const vz = lage(akk(P(4, 1, 4), P(6, 0, 4), P(1, 1, 5), P(3, 1, 5)), "accSharp");
+  eq(vz.length, 3, "Gis–H–Dis–Fis: drei Kreuze");
+  const fisX = vz.find(x => x.y === N.noteY(P(3, 1, 5))).x, disX = vz.find(x => x.y === N.noteY(P(1, 1, 5))).x, gisX = vz.find(x => x.y === N.noteY(P(4, 1, 4))).x;
+  ok(disX < fisX, "Dis kommt eine Terz unter Fis: weiter links");
+  eq(gisX, fisX, "Gis liegt eine Septime unter Fis: wieder in der ersten Spalte");
+  const kopf = N.renderStaff({ notes: [{ pitch: P(5, 0, 4), dur: 1, kopf: true }] });
+  ok(!/<line[^>]*y2="-?[\d.]+"[^>]*stroke-width="1\.2"/.test(kopf.replace(/<line x1="0"[^>]*>/g, "")), "Notenkopf ohne Hals hat keinen Hals");
+}
+
 console.log(fail ? `\n${fail} von ${n} Prüfungen fehlgeschlagen\n` : `\nAlle ${n} Prüfungen bestanden\n`);
 process.exit(fail ? 1 : 0);

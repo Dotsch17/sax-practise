@@ -17,7 +17,7 @@
 
 "use strict";
 
-import { spellOnStep, toMidi, chromatic, spell, NAMING, stufeInTonart, writtenKeySignature, TRANSPOSE_ALTO } from "./theory.js";
+import { spellOnStep, toMidi, chromatic, spell, NAMING, stufeInTonart, writtenKeySignature, TRANSPOSE_ALTO, aufBuchstaben } from "./theory.js";
 
 /* --- Akkordarten -----------------------------------------------------------
    `steps` sind die Halbtöne über dem Grundton.
@@ -53,6 +53,10 @@ export const QUALITIES = {
     symbol: "7alt", lang: "Alterierter Dominantseptakkord",
     steps: [0, 4, 8, 10], stufen: [0, 2, 4, 6],
     skala: [0, 1, 3, 4, 6, 8, 10], skalaName: "Alteriert",
+    // ♭9, ♯9, Terz, ♭5, ♭13, ♭7. Stufe für Stufe stünde über C7 ein Fes,
+    // wo die Terz E liegt. ♯9 (oder ♭3) und ♭5 (oder ♯11) werden mit
+    // weniger Vorzeichen geschrieben: C Des Es E Ges As B, wie bei Levine.
+    buchstaben: [0, 1, [1, 2], 2, [3, 4], 5, 6],
     ziel: [4, 10],
     farbe: "Maximale Spannung vor der Auflösung. Alles außer Grundton, Terz und Septime ist verbogen.",
   },
@@ -81,6 +85,7 @@ export const QUALITIES = {
     symbol: "°7", lang: "Verminderter Septakkord",
     steps: [0, 3, 6, 9], stufen: [0, 2, 4, 6],
     skala: [0, 2, 3, 5, 6, 8, 9, 11], skalaName: "Vermindert, ganz-halb",
+    buchstaben: [0, 1, 2, 3, [3, 4], [4, 5], 5, 6],
     ziel: [3, 9],
     farbe: "Symmetrisch. Alles wiederholt sich nach einer kleinen Terz — das gilt auch für deine Linien.",
   },
@@ -152,9 +157,9 @@ export function guidePitches(root, qualityId) {
 export function scalePitches(root, qualityId) {
   const q = QUALITIES[qualityId];
   const base = toMidi(root);
-  const siebenstufig = q.skala.length === 7;
-  return q.skala.map((s, i) => siebenstufig
-    ? spellOnStep(base + s, (root.step + i) % 7)
+  const buchstaben = q.buchstaben || (q.skala.length === 7 ? [0, 1, 2, 3, 4, 5, 6] : null);
+  return q.skala.map((s, i) => buchstaben
+    ? aufBuchstaben(base + s, root.step, buchstaben[i])
     : chromatic(base + s));
 }
 
@@ -213,17 +218,23 @@ export const PROGRESSIONS = [
   {
     id: "jazzblues", sigVersatz: 0, name: "Jazz-Blues", takt: 4, tempo: 130,
     was: "Der Blues mit Zwischendominanten und II–V. So wird er auf der Session gespielt.",
+    // | I7 | IV7 | I7 | v7 I7 | IV7 | #IV°7 | I7 | VI7 | ii7 | V7 | I7 VI7 | ii7 V7 |
+    // Takt 4 ist die II–V zur IV (in C: Gm7 C7), Takt 8 die Dominante zur
+    // II. Stand hier lange als Cm7 in Takt 4 — das ist keine Wendung,
+    // sondern ein Fehler.
     akkorde: [
       { grad: 0, q: "dom7", takte: 1 },
       { grad: 5, q: "dom7", takte: 1 },
       { grad: 0, q: "dom7", takte: 1 },
-      { grad: 0, q: "m7", takte: 1 },
-      { grad: 5, q: "dom7", takte: 2 },
-      { grad: 0, q: "dom7", takte: 2 },
+      { grad: 7, q: "m7", takte: 0.5 }, { grad: 0, q: "dom7", takte: 0.5 },
+      { grad: 5, q: "dom7", takte: 1 },
+      { grad: 6, q: "dim7", takte: 1 },
+      { grad: 0, q: "dom7", takte: 1 },
+      { grad: 9, q: "dom7", takte: 1 },
       { grad: 2, q: "m7", takte: 1 },
       { grad: 7, q: "dom7", takte: 1 },
-      { grad: 0, q: "dom7", takte: 1 },
-      { grad: 7, q: "dom7", takte: 1 },
+      { grad: 0, q: "dom7", takte: 0.5 }, { grad: 9, q: "dom7", takte: 0.5 },
+      { grad: 2, q: "m7", takte: 0.5 }, { grad: 7, q: "dom7", takte: 0.5 },
     ],
   },
   {
@@ -252,7 +263,7 @@ export const PROGRESSIONS = [
   },
   {
     id: "quintfall", sigVersatz: 0, name: "Quintfall", takt: 4, tempo: 120,
-    was: "Sieben Dominanten hintereinander, jede eine Quinte tiefer. Die beste Übung für Zieltöne überhaupt.",
+    was: "Acht Dominanten hintereinander, jede eine Quinte tiefer. Die beste Übung für Zieltöne überhaupt.",
     akkorde: [
       { grad: 2, q: "dom7", takte: 1 }, { grad: 7, q: "dom7", takte: 1 },
       { grad: 0, q: "dom7", takte: 1 }, { grad: 5, q: "dom7", takte: 1 },
