@@ -50,9 +50,9 @@ main{
   display: flex; gap: 8px; flex-wrap: wrap;
   margin: 0 0 14px;
 }
-/* Einzeilig und seitlich scrollbar. Bei einem Dutzend Tonarten waeren
-   umbrechende Chips sieben Zeilen hoch und schoeben den Notentext unter die
-   Falz -- und die Hauptsache darf nie unter der Falz stehen. */
+/* Einzeilig und seitlich scrollbar. Bei einem Dutzend Tonarten wären
+   umbrechende Chips sieben Zeilen hoch und schöben den Notentext unter die
+   Falz — und die Hauptsache darf nie unter der Falz stehen. */
 .chips.scroll{
   flex-wrap: nowrap;
   overflow-x: auto;
@@ -153,3 +153,13 @@ nav button[aria-selected="true"]{ color: var(--brass); border-top-color: var(--b
   display: flex; align-items: center;
 }
 .toast.tap:focus-visible{ outline: 2px solid #12242A; outline-offset: -5px; }
+
+/* Jedes Werkzeug beginnt gleich weit unter der Werkzeugleiste. Vorher gab
+   der obere Rand des ersten Elements den Abstand vor — eine Überschrift
+   26 px, eine Kachelreihe 10, ein Hinweis 0 —, und beim Wechsel zwischen
+   zwei Werkzeugen sprang der Inhalt. Die mitlaufende Uhr der Session ist
+   fixiert und zählt nicht mit. */
+
+#tool > :first-child,
+#tool > .mini-uhr + *,
+#tool > :first-child > :first-child:not(.mini-uhr){ margin-top: 0; }

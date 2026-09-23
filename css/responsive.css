@@ -140,6 +140,11 @@
 
   /* Zweispaltig, wo der Inhalt es hergibt. Der Notentext bleibt einspaltig:
      er ist breit und verträgt keine halbe Spalte. */
+  /* Die Chip-Reihen ragen am Telefon bis an den Bildschirmrand. Hier hat
+     der Inhalt keinen Seitenrand, also bleiben sie in der Spalte — sonst
+     entsteht ein seitlicher Überlauf über das Fenster hinaus. */
+  .chips.scroll{ margin-inline: 0; padding-inline: 0; scroll-padding-inline: 0; }
+
   .zwei-spalten{
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

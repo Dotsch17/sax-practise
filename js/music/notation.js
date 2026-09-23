@@ -172,8 +172,8 @@ export function renderStaff(opts = {}) {
 
   const totalW = width || (x + rightPad);
 
-  // Beschriftungen muessen unter die tiefste Note, sonst schneiden sie
-  // Hilfslinien. Dasselbe gilt fuer die Dynamik.
+  // Beschriftungen müssen unter die tiefste Note, sonst schneiden sie
+  // Hilfslinien. Dasselbe gilt für die Dynamik.
   const tiefsterVon = L => L.nt?.chord ? Math.max(...L.nt.chord.map(c => noteY(c.pitch, clef)))
     : L.nt?.pitch ? noteY(L.nt.pitch, clef) : null;
   const hoechsterVon = L => L.nt?.chord ? Math.min(...L.nt.chord.map(c => noteY(c.pitch, clef)))

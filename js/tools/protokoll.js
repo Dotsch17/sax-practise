@@ -60,12 +60,23 @@ function render(root) {
   });
 }
 
+/* „Mi., 23. Sep.“ statt 2026-09-23: liest sich schneller, und das ISO-Datum
+   brach am Telefon mitten in der Zahl um. Das Jahr nur, wenn es nicht das
+   laufende ist. */
+function datumKurz(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  const opts = { weekday: "short", day: "numeric", month: "short" };
+  if (y !== new Date().getFullYear()) opts.year = "numeric";
+  return dt.toLocaleDateString("de-AT", opts);
+}
+
 function entryHtml(e) {
   const minuten = e.spent && e.spent !== e.minutes
     ? `${e.spent} min gespielt · ${e.minutes} geplant`
     : humanMinutes(e.minutes);
   return `<div class="entry">
-    <div class="head"><b>${escapeHtml(e.date)}</b><span>${escapeHtml(minuten)}</span></div>
+    <div class="head"><b>${escapeHtml(datumKurz(e.date))}</b><span>${escapeHtml(minuten)}</span></div>
     <div class="meta">${e.blocks.map(escapeHtml).join(", ") || "keine Blöcke"}</div>
     ${e.note ? `<div class="note">${escapeHtml(e.note)}</div>` : ""}
   </div>`;

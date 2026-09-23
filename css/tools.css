@@ -224,7 +224,8 @@ textarea{
 /* --- Protokoll ------------------------------------------------------------ */
 .entry{ border-bottom: 1px solid var(--line); padding: 14px 2px; }
 .entry .head{ display:flex; justify-content:space-between; gap:10px; font-size: 15px; }
-.entry .head b{ font-weight: 500; }
+.entry .head b{ font-weight: 500; white-space: nowrap; }
+.entry .head span{ text-align: right; }
 .entry .meta{ color: var(--cane-dim); font-size: 13.5px; margin-top: 3px; }
 .entry .note{ color: var(--cane-dim); font-size: 14.5px; margin-top: 7px; font-style: italic; }
 

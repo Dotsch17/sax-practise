@@ -14,7 +14,7 @@
 
 import { $, el, escapeHtml, humanMinutes, todayISO, parseISO, daysBetween } from "../core/dom.js";
 import { state } from "../core/store.js";
-import { BLOCKS, planFor } from "../data/plan.js";
+import { planFor, kontextOf } from "../data/plan.js";
 
 /* --- Auswerten -------------------------------------------------------------- */
 
@@ -59,18 +59,24 @@ function serie(liste) {
   return { aktuell, beste };
 }
 
-/** Wie oft ein Block in den letzten N Tagen vorkam, je Block. */
+/**
+ * Wie oft ein Block in den letzten N Tagen vorkam, je Block — für den
+ * Kontext, in dem gerade geübt wird. Gezählt werden nur Tage, an denen in
+ * diesem Kontext geübt wurde. Früher standen hier fest die Blöcke des
+ * Tonarbeits-Plans; wer im Probelokal übte, sah deshalb nur Nullen.
+ */
 function blockVerteilung(liste, tageZurueck = 28) {
   const s = state();
-  const grenze = liste.length
-    ? liste.filter(t => daysBetween(t.date, todayISO()) < tageZurueck)
-    : [];
-  const zaehler = new Map(BLOCKS.map(b => [b.name, 0]));
+  const namen = planFor(s.kontext, { minuten: 0 }).map(b => b.name);
+  const imKontext = new Set(namen);
+  const grenze = liste.filter(t => daysBetween(t.date, todayISO()) < tageZurueck
+    && [...t.bloecke].some(n => imKontext.has(n)));
+  const zaehler = new Map(namen.map(n => [n, 0]));
   for (const t of grenze) for (const name of t.bloecke) {
     if (zaehler.has(name)) zaehler.set(name, zaehler.get(name) + 1);
   }
   // Sekunden je Block aus dem laufenden Tag mitzählen, sonst fehlt heute.
-  return { zaehler, tage: grenze.length };
+  return { zaehler, tage: grenze.length, kontext: kontextOf(s.kontext).name };
 }
 
 /* --- Ansicht ----------------------------------------------------------------- */
@@ -79,7 +85,7 @@ function render(root) {
   const liste = tage();
   const s = serie(liste);
   const gesamt = liste.reduce((a, t) => a + t.minuten, 0);
-  const { zaehler, tage: nTage } = blockVerteilung(liste);
+  const { zaehler, tage: nTage, kontext } = blockVerteilung(liste);
 
   if (!liste.length) {
     root.innerHTML = `<p class="empty">
@@ -102,10 +108,11 @@ function render(root) {
     <div class="daybars" id="daybars"></div>
 
     <h2>Welcher Block fällt aus?</h2>
-    <p class="hint">
-      An wie vielen der letzten ${nTage} ${nTage === 1 ? "Übetag" : "Übetage"} kam
+    <p class="hint">${nTage
+      ? `Kontext ${escapeHtml(kontext)}: an wie vielen der letzten ${nTage} ${nTage === 1 ? "Übetag" : "Übetage"} dort kam
       jeder Block vor. Was unten steht, überspringst du — und das ist meistens
-      das, was du am nötigsten hättest.
+      das, was du am nötigsten hättest.`
+      : `Im Kontext ${escapeHtml(kontext)} gibt es in den letzten vier Wochen noch keine gespeicherte Session. Wechsle unter Üben den Kontext, um einen anderen auszuwerten.`}
     </p>
     <div id="blockbars"></div>
 
@@ -146,7 +153,8 @@ function renderDayBars(root, liste) {
 
 function renderBlockBars(root, zaehler, nTage) {
   const host = $("#blockbars", root);
-  const eintraege = BLOCKS.map(b => ({ name: b.name, n: zaehler.get(b.name) || 0 }))
+  if (!nTage) { host.innerHTML = ""; return; }
+  const eintraege = [...zaehler].map(([name, n]) => ({ name, n }))
     .sort((a, b) => b.n - a.n);
   const max = Math.max(1, nTage);
 
@@ -171,7 +179,7 @@ function renderBlockBars(root, zaehler, nTage) {
 function renderPlanReal(root) {
   const host = $("#planreal", root);
   const s = state();
-  const plan = planFor(s.kontext, s.week);
+  const plan = planFor(s.kontext, { minuten: s.settings.minuten || 0, schwerpunkt: s.day.schwerpunkt || null });
 
   // Summe der wirklich verbrachten Sekunden je Block über das Protokoll
   // hinweg lässt sich nicht rekonstruieren — gespeichert wird nur die

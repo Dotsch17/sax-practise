@@ -127,3 +127,9 @@ p{ margin: 0 0 12px; }
 @media (prefers-reduced-motion: reduce){
   *{ transition: none !important; animation: none !important; }
 }
+
+/* Platz für den Scrollbalken immer freihalten. Sonst springt die ganze
+   Spalte um seine Breite zur Seite, sobald ein Werkzeug länger ist als
+   das Fenster — beim Wechsel von Protokoll zu Auswertung etwa. Auf iPad
+   und iPhone liegen Scrollbalken über dem Inhalt; dort ändert das nichts. */
+html{ scrollbar-gutter: stable; }
