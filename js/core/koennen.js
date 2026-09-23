@@ -39,6 +39,7 @@ const ZIEL = {
   gehoer:       { tab: "gehoer",  tool: "gehoerbildung", name: "Gehörbildung" },
   hoertest:     { tab: "gehoer",  tool: "hoertest",     name: "Hörtest" },
   kadenzen:     { tab: "technik", tool: "kadenzen",     name: "Kadenzen" },
+  klavierblatt: { tab: "technik", tool: "klavierblatt", name: "Klavier-Blattspiel" },
   nachspielen:  { tab: "gehoer",  tool: "nachspielen",  name: "Nachspielen" },
   stimmgeraet:  { tab: "ton",     tool: "stimmgeraet",  name: "Stimmgerät" },
   obertoene:    { tab: "ton",     tool: "obertoene",    name: "Obertöne" },
@@ -61,10 +62,10 @@ const NICHT_IM_KONTEXT = {
   // Kadenzen sind Klavier. Mit dem Saxophon in der Hand hilft ein
   // Klaviervorschlag nicht, also nur im Kontext Klavier.
   // Die Simulation braucht das echte Saxophon, laut, und eine halbe Stunde.
-  travelsax: new Set(["obertoene", "stimmgeraet", "tonanalyse", "bordun", "kadenzen", "simulation"]),
-  leise:     new Set(["gigtraining", "kadenzen", "simulation"]),
-  probelokal: new Set(["kadenzen"]),
-  tonplan:    new Set(["kadenzen", "simulation"]),
+  travelsax: new Set(["obertoene", "stimmgeraet", "tonanalyse", "bordun", "kadenzen", "klavierblatt", "simulation"]),
+  leise:     new Set(["gigtraining", "kadenzen", "klavierblatt", "simulation"]),
+  probelokal: new Set(["kadenzen", "klavierblatt"]),
+  tonplan:    new Set(["kadenzen", "klavierblatt", "simulation"]),
   // Am Klavier ist kein Saxophon in der Hand. Was bleibt, ist das Gehör.
   klavier:    new Set(["obertoene", "stimmgeraet", "tonanalyse", "bordun", "tonleitern",
                        "rhythmus", "blattspiel", "improvisation", "tonartfinden", "callresponse",
@@ -349,6 +350,15 @@ function klavier(drills) {
       titel: "Die Kadenzen waren noch nie dran",
       grund: "Sie sind der Teil der Klavierprüfung, der sich am sichersten vorbereiten lässt: fünfunddreißig feste Aufgaben. Anfangen mit C-Dur in Quintlage.",
       gewicht: 0.8, messbar: false,
+    }];
+  }
+  const blatt = mitPraefix(drills, "klavierblatt").filter(x => (x.d?.durch || 0) + (x.d?.fehler || 0) + (x.d?.halt || 0) > 0);
+  if (!blatt.length) {
+    return [{
+      id: "klavierblatt:nie", bereich: "Klavier", ziel: ZIEL.klavierblatt,
+      titel: "Blattspiel am Klavier war noch nie dran",
+      grund: "Blattspiel lässt sich nicht auf ein Stück vorbereiten, nur als Gewohnheit: jeden Tag ein kurzes neues Stück, einmal durch. Anfangen mit der rechten Hand allein.",
+      gewicht: 0.6, messbar: false,
     }];
   }
   return [];

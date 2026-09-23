@@ -43,6 +43,7 @@ export const defaultState = () => ({
     bandEinzaehlen: true, // eigene Stücke: ein Takt Hi-Hat vorweg
     lickBpm: 80,          // Tempo für den Lick der Woche
     vibratoBpm: 72,       // Metronom-Übung im Vibrato-Werkzeug
+    klavierBpm: 60,       // Blattspiel am Klavier
     ausgabeVerzug: 0,     // ms bis der Ton im Ohr ist, je Gerät (Bluetooth)
     bandSpuren: { bass: true, comp: true, becken: true },
   },

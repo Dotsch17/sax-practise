@@ -118,6 +118,8 @@ export function renderStaff(opts = {}) {
     padBottom = 40,
     ariaLabel = "Notenbeispiel",
     extraClass = "",
+    teil = false,          // true: Inhalt und Maße statt fertigem SVG (für das Klaviersystem)
+    startX = null,         // wo die erste Note frühestens steht
   } = opts;
 
   let x = leftPad;
@@ -151,21 +153,23 @@ export function renderStaff(opts = {}) {
   }
 
   x += 8;   // Luft zwischen Vorspann und erster Note
+  if (startX != null) x = Math.max(x, startX);
 
   /* --- Platzierung ----------------------------------------------------- */
   const laid = [];
   for (const nt of notes) {
     if (nt.spacer) { x += nt.spacer; continue; }
+    if (nt.x != null) x = nt.x;             // feste Lage, vom Klaviersystem vorgegeben
     if (nt.barline) { laid.push({ x, barline: nt.barline }); x += 12; continue; }
     // Vor einem Vorzeichen muss Luft sein, sonst klebt es am Vorgänger.
     if (nt.chord) {
       const lage = akkordLage(nt.chord);
-      x += lage.spalten * 8;
+      if (nt.x == null) x += lage.spalten * 8;
       laid.push({ x, nt, lage });
       x += (noteSpacing || spacingFor(nt.dur)) + (lage.versetzt ? 10 : 0);
       continue;
     }
-    if (nt.accidental) x += 9;
+    if (nt.accidental && nt.x == null) x += 9;
     laid.push({ x, nt });
     x += noteSpacing || spacingFor(nt.dur);
   }
@@ -183,7 +187,9 @@ export function renderStaff(opts = {}) {
   const labelY = dynY + (notes.some(n => n.dynamic) ? 20 : 0);
 
   let staff = "";
-  for (let i = 0; i < 5; i++) staff += line(0, i * SP, totalW, i * SP);
+  // Im Klaviersystem beginnen die Linien rechts der Klammer.
+  const links = teil ? leftPad : 0;
+  for (let i = 0; i < 5; i++) staff += line(links, i * SP, totalW, i * SP);
 
   /* --- Halsrichtung je Balkengruppe ------------------------------------ */
   const groups = new Map();
@@ -216,8 +222,10 @@ export function renderStaff(opts = {}) {
     }
 
     if (!nt.pitch) {                                   // Pause
-      const name = REST_GLYPH[nt.dur] || "restQuarter";
-      g += glyph(name, L.x, REST_Y[nt.dur] ?? 2 * SP);
+      // Eine Ganztaktpause ist in jeder Taktart die ganze Pause.
+      const d = nt.ganztakt ? 4 : nt.dur;
+      const name = REST_GLYPH[d] || "restQuarter";
+      g += glyph(name, L.x, REST_Y[d] ?? 2 * SP);
       if (nt.dots) g += glyph("augmentationDot", L.x + ADVANCE[name] + 3, 2 * SP - 5);
       body += `<g${cls}>${g}</g>`;
       continue;
@@ -321,10 +329,93 @@ export function renderStaff(opts = {}) {
   const highest = laid.reduce((m, L) => hoechsterVon(L) != null ? Math.min(m, hoechsterVon(L)) : m, 0);
   const top = Math.min(-padTop, highest - 26);
   const bottom = Math.max(STAFF_H + padBottom, labelY + 10);
+  if (teil) return { inhalt: `${staff}${beams}${body}${marks}`, top, bottom, breite: totalW };
   const vb = `0 ${r(top)} ${r(totalW)} ${r(bottom - top)}`;
   return `<svg class="staff ${extraClass}" viewBox="${vb}" role="img" aria-label="${esc(ariaLabel)}"
      preserveAspectRatio="xMinYMid meet" fill="currentColor" stroke="currentColor"
      >${staff}${beams}${body}${marks}</svg>`;
+}
+
+/* --- Klaviersystem -------------------------------------------------------------
+   Zwei Systeme, Violin- und Bassschlüssel, mit Klammer. Was gleichzeitig
+   klingt, steht genau untereinander: beide Hände bekommen eine gemeinsame
+   Zeitachse, und jede Note ihre x-Lage daraus. Taktstriche gehen durch
+   beide Systeme, wie im Klaviersatz üblich.
+
+   `oben` und `unten` sind Notenfolgen wie bei renderStaff, mit
+   Taktstrichen; beide müssen dieselbe Taktgliederung haben. */
+
+const dauerVon = n => n.dur * (n.dots ? 1.5 : 1);
+
+function vorspannBreite(clef, keySig, timeSig) {
+  let x = 6 + ADVANCE[CLEF[clef].glyph] + 7;
+  const n = keySignatureSteps(keySig).length;
+  if (n) x += n * (keySig >= 0 ? 6.2 : 6.6) + 9;
+  if (timeSig) {
+    const wide = s => String(s).split("").reduce((a, d) => a + ADVANCE["timeSig" + d], 0);
+    x += Math.max(wide(timeSig[0]), wide(timeSig[1])) + 12;
+  }
+  return x + 8;
+}
+
+export function renderSystem({ oben = [], unten = [], keySig = 0, timeSig = null,
+                               ariaLabel = "Klaviersatz", extraClass = "" } = {}) {
+  const KLAMMER = 14;
+  // Zeitpunkte beider Hände: Taktstriche vor Noten, die im selben Moment beginnen.
+  const punkte = new Map();
+  const merke = (liste) => {
+    let t = 0;
+    for (const n of liste) {
+      const key = n.barline ? `${t.toFixed(4)}|a` : `${t.toFixed(4)}|b`;
+      if (!punkte.has(key)) punkte.set(key, { t, bar: !!n.barline, noten: [] });
+      if (!n.barline) { punkte.get(key).noten.push(n); t += dauerVon(n); }
+    }
+  };
+  merke(oben); merke(unten);
+  const reihe = [...punkte.entries()].sort((a, b) => a[1].t - b[1].t || a[0].localeCompare(b[0]));
+
+  let x = KLAMMER + Math.max(vorspannBreite("g", keySig, timeSig), vorspannBreite("f", keySig, timeSig));
+  const lage = new Map();
+  for (const [key, p] of reihe) {
+    if (p.bar) { lage.set(key, x); x += 12; continue; }
+    if (p.noten.some(n => n.accidental)) x += 9;
+    lage.set(key, x);
+    x += spacingFor(Math.min(...p.noten.map(n => n.dur)));
+  }
+  const mitX = liste => {
+    let t = 0;
+    return liste.map(n => {
+      const key = n.barline ? `${t.toFixed(4)}|a` : `${t.toFixed(4)}|b`;
+      const neu = { ...n, x: lage.get(key) };
+      if (!n.barline) t += dauerVon(n);
+      return neu;
+    });
+  };
+  const a = renderStaff({ notes: mitX(oben), clef: "g", keySig, timeSig, leftPad: KLAMMER, teil: true, padBottom: 20 });
+  const b = renderStaff({ notes: mitX(unten), clef: "f", keySig, timeSig, leftPad: KLAMMER, teil: true, padTop: 20 });
+  const dy = Math.max(STAFF_H + 50, a.bottom - b.top);
+  const breite = Math.max(a.breite, b.breite);
+  const unterkante = dy + STAFF_H;
+
+  // Taktstriche durch beide Systeme: das Stück zwischen den Systemen.
+  let verbindung = line(KLAMMER, 0, KLAMMER, unterkante, 1.4);
+  let t = 0;
+  for (const n of oben) {
+    if (n.barline) {
+      const bx = lage.get(`${t.toFixed(4)}|a`);
+      if (bx != null && n.barline !== "end") verbindung += line(bx, STAFF_H, bx, dy, 1.4);
+      if (n.barline === "end") verbindung += rect(bx, STAFF_H, 1.2, dy - STAFF_H) + rect(bx + 3.5, STAFF_H, 3.5, dy - STAFF_H);
+    } else t += dauerVon(n);
+  }
+  // Die Klammer, als geschwungene Linie.
+  const h = unterkante, kx = KLAMMER - 5;
+  const klammer = `<path d="M${kx} 0 C${kx - 7} ${h * 0.12} ${kx + 1} ${h * 0.38} ${kx - 6} ${h * 0.5} C${kx + 1} ${h * 0.62} ${kx - 7} ${h * 0.88} ${kx} ${h}" fill="none" stroke-width="2.4"/>`;
+
+  const top = a.top, bottom = dy + b.bottom;
+  const vb = `0 ${r(top)} ${r(breite)} ${r(bottom - top)}`;
+  return `<svg class="staff system ${extraClass}" viewBox="${vb}" role="img" aria-label="${esc(ariaLabel)}"
+     preserveAspectRatio="xMinYMid meet" fill="currentColor" stroke="currentColor"
+     >${a.inhalt}<g transform="translate(0,${r(dy)})">${b.inhalt}</g>${verbindung}${klammer}</svg>`;
 }
 
 /* --- Akkorde ----------------------------------------------------------------

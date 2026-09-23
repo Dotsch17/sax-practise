@@ -260,13 +260,13 @@ export const KONTEXTE = [
         "Dazu II–V–I in Dur, eine der drei Varianten vom Beiblatt",
         "Langsam und ohne Blick auf die Hände. Die Stimmen gehen den kürzesten Weg",
       ]},
-      { id: "kl_stueck", name: "Klavierstück", min: 12, werkzeug: null, cues: [
+      { id: "kl_stueck", name: "Klavierstück", min: 12, werkzeug: "klavierstueck", cues: [
         "Hände einzeln, bis jede für sich sicher ist, erst dann zusammen",
         "Fingersatz einmal festlegen und in die Noten schreiben, dann nie mehr ändern",
         "Täglich das eine Stück, jeden zweiten Tag das andere",
       ]},
-      { id: "kl_blatt", name: "Blattspiel", min: 5, werkzeug: null, cues: [
-        "Mikrokosmos oder Microjazz, ein neues Stück pro Tag, einmal durch",
+      { id: "kl_blatt", name: "Blattspiel", min: 5, werkzeug: "klavierblatt", cues: [
+        "Ein neues Stück pro Tag, einmal durch — aus der App, aus Mikrokosmos oder Microjazz",
         "Vorher zehn Sekunden schauen: Tonart, Takt, Lage der Hände",
         "Nicht anhalten. Lieber eine Hand weglassen als stehenbleiben",
       ]},

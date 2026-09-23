@@ -33,6 +33,8 @@ import vibrato   from "./tools/vibrato.js";
 import metronom  from "./tools/metronom.js";
 import tonleitern from "./tools/tonleitern.js";
 import kadenzen  from "./tools/kadenzen.js";
+import klavierblatt from "./tools/klavierblatt.js";
+import klavierstueck from "./tools/klavierstueck.js";
 import gehoer    from "./tools/gehoer.js";
 import hoertest  from "./tools/hoertest.js";
 import nachspielen from "./tools/nachspielen.js";
@@ -58,7 +60,7 @@ import daten     from "./tools/daten.js";
 export const TABS = [
   { id: "ueben",   label: "Üben",    tools: [session, pruefung, simulation, aufnahme] },
   { id: "ton",     label: "Ton",     tools: [stimmgeraet, obertoene, vibrato, tonanalyse, bordun] },
-  { id: "technik", label: "Technik", tools: [tonleitern, kadenzen, rhythmus, blattspiel, griffe, metronom] },
+  { id: "technik", label: "Technik", tools: [tonleitern, kadenzen, klavierblatt, klavierstueck, rhythmus, blattspiel, griffe, metronom] },
   { id: "gehoer",  label: "Gehör",   tools: [hoertest, gehoer, nachspielen] },
   { id: "impro",   label: "Impro",   tools: [grundlagen, improvisation, leadsheets, lickwoche, callresponse] },
   { id: "gig",     label: "Gig",     tools: [setlist, songmitspielen, tonartfinden, gigtraining, popsound] },

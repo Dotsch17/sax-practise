@@ -164,7 +164,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 |---|---|
 | Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block. Prüfung: Countdown, alle Prüfungspunkte mit Stufen, Zeitplan rückwärts. Simulation: das ganze Programm am Stück mit Aufnahme. Aufnahme: aufnehmen, nach Titel ablegen, erste gegen letzte hören |
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Vibrato-Analyse, Tonanalyse, Bordun |
-| Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Kadenzen fürs Klavier, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
+| Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Kadenzen, Blattspiel und Stückübung fürs Klavier, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Hörtest (Probe-Gehörtest und alle sieben Aufgaben des Mustertests der mdw, dazu Tonhöhen- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
 | Impro | Grundlagen (Stile und Formen mit Band und Formübung, Skalen, Konzepte, Über einen Song), Begleitband, Eigene Stücke (Band zu den eigenen Leadsheets), Lick der Woche, Call and Response |
 | Gig | Setlist mit Bühnenansicht, Zum Song spielen, Tonart finden, Gig-Training, Pop-Sound |
@@ -918,11 +918,53 @@ braucht eigene Werkzeuge.
   sicher sind. Die Harmonien der Prüfungsstücke stehen weiterhin nicht im
   Code; der Standard-Artikel verweist auf „Eigene Stücke“.
 
+**Phase 22 — Aufgeräumtes Layout und der Klavierteil, umgesetzt (v27, v28).**
+- Layout (v27): Jedes Werkzeug beginnt gleich weit unter der
+  Werkzeugleiste — vorher gab der obere Rand des ersten Elements den
+  Abstand vor, und beim Wechsel sprang der Inhalt (Regel in `shell.css`).
+  `scrollbar-gutter: stable`, damit die Spalte am Laptop nicht um den
+  Scrollbalken springt. Scrollbare Chip-Reihen ragen ab 960 px nicht mehr
+  über das Fenster. Geprüft mit einem Durchlauf über alle Werkzeuge in
+  375, 820 und 1180 px: gleicher Abstand, gleiche Spalte, kein Überlauf.
+  Wer ein Werkzeug baut, prüft das wieder so.
+- Auswertung „Welcher Block fällt aus?“ zählte fest die Blöcke des alten
+  Tonarbeits-Plans; wer im Probelokal übte, sah nur Nullen. Jetzt die
+  Blöcke des aktuellen Kontexts, über die Tage in diesem Kontext.
+  Protokoll-Datum deutsch („Mi., 23. Sep.“), ohne Umbruch.
+- Notensatz: `renderSystem()` setzt das Klaviersystem — Violin- und
+  Bassschlüssel mit Klammer, eine gemeinsame Zeitachse für beide Hände
+  (was gleichzeitig klingt, steht untereinander), Taktstriche durch beide
+  Systeme. Ganztaktpausen stehen in jeder Taktart als ganze Pause
+  (`ganztakt: true`).
+- `music/klavierblatt.js` und Technik → „Klavier-Blatt“: Blattspiel am
+  Klavier in sechs Stufen vom Anfang von Mikrokosmos bis zum Ende von
+  Band 1 — rechte Hand, linke Hand, abwechselnd, parallel, Gegenbewegung
+  (gleiche Finger in beiden Händen), Melodie mit liegender Quinte. Alles
+  in Fünftonlagen (C, G, F, D, a, d, e); nur Schritte und Terzen, Schluss
+  auf dem Grundton. Ablauf wie in der Prüfung: 30 Sekunden ansehen,
+  einzählen, mit leisem Puls durchspielen, erst danach anhören, dann
+  ehrlich bewerten. Die Tastatur zeigt die Handlage mit Fingernummern —
+  die ergeben sich aus der Fünftonlage und sind kein Fingersatz, den der
+  Lehrer festlegen müsste (anders als bei Kadenzen und Stücken).
+- Technik → „Klavierstück“: ein Stück in Abschnitte teilen, je Abschnitt
+  rechts, links und zusammen (erst freigeschaltet, wenn beide Hände
+  allein sitzen) in drei Stufen, Tempo je Abschnitt mit Metronom.
+  „Heute dran“ geht der Reihe nach, bis jeder Abschnitt zusammen langsam
+  sitzt, danach der Abschnitt, der am weitesten zurück ist. Dazu die
+  Anleitung, wie man ein Stück von null lernt. Keine Fingersätze.
+- Der Kontext Klavier hängt beide Werkzeuge in seine Blöcke, das Cockpit
+  verlinkt sie, das Können-Profil meldet Blattspiel am Klavier, solange
+  es nie dran war (nur im Kontext Klavier).
+- Korrektur in den Vorschlägen: das bekannte Menuett G-Dur aus dem
+  Notenbüchlein für Anna Magdalena Bach ist von Christian Petzold.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
-   der Klavierprüfung. Für die Stücke reicht vorerst das Cockpit; fürs
-   Blattspiel ließe sich der Melodiegenerator zweihändig machen.
+1. **Barocke Tänze und Microjazz-artige Übungen** fürs Klavier-Blatt:
+   bisher nur Fünftonlagen. Die mdw nennt auch „einfache barocke Tänze“;
+   dafür bräuchte es Lagenwechsel und einfache Zweistimmigkeit.
+2. **Klavier mit Mikrofon prüfen**: ob am iPad die Tonhöhen einer Hand
+   verlässlich erkannt werden. Zweistimmig geht das mit YIN nicht.
 
 ## 9. Arbeitsweise
 
@@ -956,11 +998,11 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute dreiundzwanzig Suiten mit zusammen rund 73 500
+alle Testsuiten. Stand heute vierundzwanzig Suiten mit zusammen rund 78 500
 Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
 Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
 Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Kadenzen, Leadsheets,
-Grooves, Pop-Vokabular, Lick der Woche und Setlist, Vibrato, Abgleich und Verzug, Prüfungssimulation, Mustertest Gehörbildung, Tonhöhenerkennung. Dazu die
+Grooves, Pop-Vokabular, Lick der Woche und Setlist, Vibrato, Abgleich und Verzug, Prüfungssimulation, Mustertest Gehörbildung, Blattspiel am Klavier, Tonhöhenerkennung. Dazu die
 Rechtschreibprüfung aus Abschnitt 9.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`

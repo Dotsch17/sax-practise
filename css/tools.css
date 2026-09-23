@@ -1422,3 +1422,39 @@ svg.vb-kurve{ display: block; width: 100%; height: 110px; margin: 6px 0; }
 .st-gitter .ls-takt.on small{ color: #12242A; }
 .st-gitter.verdeckt .ls-takt b, .st-gitter.verdeckt .ls-takt small{ visibility: hidden; }
 .st-gitter.verdeckt .ls-takt.on{ background: var(--surface); color: inherit; }
+
+/* --- Klavier-Blattspiel ------------------------------------------------------ */
+.kb-lage-kopf{ margin: 4px 0 6px; font-size: 16px; }
+.kb-tasten{ margin: 0 0 4px; }
+.kb-tasten svg{ height: 110px; width: auto; max-width: 100%; display: block; margin: 0 auto; }
+.kb-uhr{ font-size: 64px; margin: 6px 0 10px; }
+.kb-tempo{ margin-top: 12px; }
+svg.staff.system{ max-height: none; }
+
+/* --- Klavierstück üben -------------------------------------------------------- */
+.ks-anleitung{ margin: 0 0 14px; }
+.ks-anleitung summary{ cursor: pointer; min-height: 40px; font-weight: 500; color: var(--brass); }
+.ks-kopf{ display: flex; align-items: flex-end; gap: 14px; margin: 6px 0 10px; }
+.ks-kopf label{ display: flex; flex-direction: column; font-size: 13px; color: var(--cane-dim); }
+.ks-kopf input{ width: 90px; }
+.ks-stelle{ border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 10px; background: var(--surface); }
+.ks-stelle.dran{ border-color: var(--brass); }
+.ks-stelle-kopf{ display: flex; justify-content: space-between; align-items: center; }
+.ks-stelle-kopf b{ font-family: var(--serif); font-weight: 400; font-size: 20px; }
+.ks-haende{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; }
+.ks-hand{ min-height: 58px; border-radius: 10px; border: 1px solid var(--line); background: var(--ground); color: var(--cane);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.ks-hand small{ font-size: 11.5px; color: var(--cane-dim); }
+.ks-hand.stufe-1{ border-color: var(--brass-dim); }
+.ks-hand.stufe-2{ border-color: var(--brass); background: var(--brass); color: #12242A; }
+.ks-hand.stufe-2 small{ color: #12242A; }
+.ks-hand:disabled{ opacity: .35; }
+.ks-tempo{ display: flex; align-items: center; gap: 8px; }
+.ks-tempo span{ flex: 1; text-align: center; color: var(--cane-dim); }
+.ks-tempo span b{ color: var(--cane); font-size: 20px; font-variant-numeric: tabular-nums; }
+.ks-tempo button{ min-height: 44px; min-width: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--ground); color: var(--cane); }
+.ks-tempo .ks-metro{ padding: 0 12px; }
+.ks-tempo .ks-metro.on{ border-color: var(--brass); color: var(--brass); }
+.ks-neu{ display: flex; align-items: flex-end; gap: 8px; }
+.ks-neu .feld{ flex: 1; }
+.ks-neu button{ min-height: 48px; padding: 0 16px; }
