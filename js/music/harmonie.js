@@ -17,7 +17,7 @@
 
 "use strict";
 
-import { spellOnStep, toMidi, chromatic, spell, NAMING } from "./theory.js";
+import { spellOnStep, toMidi, chromatic, spell, NAMING, stufeInTonart, writtenKeySignature, TRANSPOSE_ALTO } from "./theory.js";
 
 /* --- Akkordarten -----------------------------------------------------------
    `steps` sind die Halbtöne über dem Grundton.
@@ -321,6 +321,31 @@ export function buildProgression(prog, tonikaPc, oktave = 3) {
     takt += a.takte;
     return eintrag;
   });
+}
+
+/**
+ * Ein Akkord einer Folge, klingend und gegriffen, jeweils in der Tonart
+ * der Folge buchstabiert. `tonikaSig` ist die Dur-Vorzeichnung der
+ * klingenden Tonika, `versatz` das `sigVersatz` der Folge.
+ *
+ * Die Folge selbst ist nach Tonhöhe gebaut (Bläser-Schreibweise). Für die
+ * Anzeige reicht das nicht: gegriffen in Cis-Dur ist die zweite Stufe Dis,
+ * nicht Es — wer Es-7 liest, sucht die Terz bei G statt bei Fisis. Die
+ * gegriffene Tonart ist die, deren Vorzeichnung auch im Notenbild steht
+ * (`writtenKeySignature`, mit derselben Verwechslung bei mehr als sieben
+ * Vorzeichen).
+ */
+export function inTonart(akkord, tonikaSig, versatz = 0) {
+  const k = toMidi(akkord.root);
+  const g = k + TRANSPOSE_ALTO;
+  const tonikaGegriffen = writtenKeySignature(tonikaSig + versatz) - versatz;
+  const klingend = spellOnStep(k, stufeInTonart(k % 12, tonikaSig));
+  const gegriffen = spellOnStep(g, stufeInTonart(g % 12, tonikaGegriffen));
+  return {
+    ...akkord,
+    klingend, klingendSymbol: chordSymbol(klingend, akkord.q),
+    root: gegriffen, symbol: chordSymbol(gegriffen, akkord.q),
+  };
 }
 
 export const progressionTakte = akkorde =>

@@ -23,7 +23,7 @@
 import { $, $$, el, clamp, mmss, escapeHtml, toast } from "../core/dom.js";
 import { state, drill, recordDrill } from "../core/store.js";
 import {
-  PROGRESSIONS, buildProgression, progressionTakte, chordSymbol,
+  PROGRESSIONS, buildProgression, progressionTakte, chordSymbol, inTonart,
 } from "../music/harmonie.js";
 import {
   toWritten, toMidi, fromMidi, writtenKeySignature,
@@ -282,12 +282,8 @@ function aufTakt(root, info) {
   const fill = $("#gig-fill", root);
   if (fill) fill.style.width = (100 * lauf.seitTakten / a.takte).toFixed(0) + "%";
 
-  const sig = writtenKeySignature(TONARTEN[sel.tonartIdx].sig + (progOf().sigVersatz || 0));
-  const w = toWritten(toMidi(info.akkord.root));
-  const griffRoot = { ...fromMidi(w, sig < 0 ? "flat" : "sharp"),
-                      octave: info.akkord.root.octave + 1 };
   const feld = $("#gig-akkord", root);
-  if (feld) feld.textContent = chordSymbol(griffRoot, info.akkord.q);
+  if (feld) feld.textContent = inTonart(info.akkord, TONARTEN[sel.tonartIdx].sig, progOf().sigVersatz || 0).symbol;
 }
 
 function zeigeAuflage(root) {

@@ -22,12 +22,10 @@
 
 import { $, $$, el, clamp, toast } from "../core/dom.js";
 import { state, setSetting, drill, recordDrill } from "../core/store.js";
-import { PROGRESSIONS, buildProgression, progressionTakte, chordAtBar, chordSymbol }
+import { PROGRESSIONS, buildProgression, progressionTakte, chordAtBar, chordSymbol, inTonart }
   from "../music/harmonie.js";
 import { generateLick, STUFEN as LICK_STUFEN } from "../music/lick.js";
-import {
-  toWritten, toMidi, fromMidi, spell, writtenKeySignature,
-} from "../music/theory.js";
+import { toWritten, toMidi, fromMidi, spell, writtenKeySignature, spellOnStep, stufeInTonart } from "../music/theory.js";
 import { renderStaff, autoBeam, DUR } from "../music/notation.js";
 import { playAt } from "../audio/signals.js";
 import { audio } from "../audio/context.js";
@@ -287,20 +285,18 @@ function aufTakt(root, info) {
   }
 }
 
-/** Ein klingender Akkord, gegriffen gelesen. */
-function gegriffen(akkord) {
-  const sig = writtenKeySignature(TONARTEN[sel.tonartIdx].sig + (progOf().sigVersatz || 0));
-  const w = toWritten(toMidi(akkord.root));
-  const root = { ...fromMidi(w, sig < 0 ? "flat" : "sharp"), octave: akkord.root.octave + 1 };
-  return chordSymbol(root, akkord.q);
-}
+/** Ein klingender Akkord, gegriffen gelesen, in der Tonart der Folge. */
+const gegriffen = akkord => inTonart(akkord, TONARTEN[sel.tonartIdx].sig, progOf().sigVersatz || 0).symbol;
 
 function zeigeNoten(root) {
   const host = $("#cr-noten", root);
   if (!host) return;
   if (!letztesLick || !sel.zeigeNoten) { host.innerHTML = ""; return; }
 
-  const sig = writtenKeySignature(TONARTEN[sel.tonartIdx].sig + (progOf().sigVersatz || 0));
+  const versatz = progOf().sigVersatz || 0;
+  const sig = writtenKeySignature(TONARTEN[sel.tonartIdx].sig + versatz);
+  // Buchstabiert in der gegriffenen Tonart: in Cis-Dur heißt der Ton Eis, nicht F.
+  const tonika = sig - versatz;
   // Klingend gespielt, gegriffen gelesen — wie überall in der App.
   const noten = [];
   let letzterTakt = -1;
@@ -309,7 +305,7 @@ function zeigeNoten(root) {
     if (takt !== letzterTakt && letzterTakt >= 0) noten.push({ barline: true });
     letzterTakt = takt;
     noten.push({
-      pitch: fromMidi(toWritten(nt.midi), sig < 0 ? "flat" : "sharp"),
+      pitch: spellOnStep(toWritten(nt.midi), stufeInTonart(toWritten(nt.midi) % 12, tonika)),
       dur: nt.dauer >= 1 ? DUR.viertel : DUR.achtel,
     });
   }

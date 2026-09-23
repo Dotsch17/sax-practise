@@ -19,7 +19,7 @@
 import { $, $$, el, clamp, toast } from "../core/dom.js";
 import { state, setSetting, drill, recordDrill } from "../core/store.js";
 import {
-  PROGRESSIONS, QUALITIES, PATTERNS, buildProgression, progressionTakte,
+  PROGRESSIONS, QUALITIES, PATTERNS, buildProgression, progressionTakte, inTonart,
   chordPitches, guidePitches, scalePitches, chordSymbol, applyPattern,
 } from "../music/harmonie.js";
 import {
@@ -66,15 +66,9 @@ let offBar = null, offState = null;
 const progOf = () => PROGRESSIONS.find(p => p.id === sel.prog) || PROGRESSIONS[0];
 const grooveJetzt = () => sel.groove || progOf().groove || "swing";
 
-/** Ein klingender Akkord, wie er gegriffen gelesen wird. */
-function gegriffen(akkord) {
-  const w = toWritten(toMidi(akkord.root));
-  // Die Schreibweise des Griffs folgt der gegriffenen Tonart, damit über
-  // klingend Es7 ein C7 steht und kein H♯7.
-  const sig = writtenKeySignature(majorKeySignature(akkord.root));
-  const root = { ...fromMidi(w, sig < 0 ? "flat" : "sharp"), octave: akkord.root.octave + 1 };
-  return { ...akkord, root, symbol: chordSymbol(root, akkord.q) };
-}
+/** Ein klingender Akkord, wie er gegriffen gelesen wird — buchstabiert in
+    der Tonart der Folge, nicht nach seinem eigenen Grundton. */
+const gegriffen = akkord => inTonart(akkord, TONARTEN[sel.tonartIdx].sig, progOf().sigVersatz || 0);
 
 /* --- Ansicht ---------------------------------------------------------------- */
 
@@ -255,7 +249,7 @@ function zeigeAkkord(root) {
   const q = QUALITIES[a.q];
 
   $("#im-akkord", root).textContent = g.symbol;
-  $("#im-klingend", root).textContent = `klingt ${a.symbol}`;
+  $("#im-klingend", root).textContent = `klingt ${g.klingendSymbol}`;
   $("#im-takt", root).textContent = `Takt ${aktuell.takt + 1} von ${progressionTakte(akkorde)}`;
   const n = aktuell.naechster ? gegriffen(aktuell.naechster) : null;
   $("#im-naechst", root).textContent = n && n.symbol !== g.symbol ? `dann ${n.symbol}` : "";

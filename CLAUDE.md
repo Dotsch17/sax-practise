@@ -375,6 +375,10 @@ Vorversion schreiben — der Nutzer hat dann echte Übungsdaten drin.
   eine große Terz über Fis ist ein Ais, kein B. Beides klingt gleich und
   liest sich falsch. Dafür gibt es `buildScale()`, `buildChord()` und
   `intervalFrom()`.
+- **Akkorde einer Folge werden in der Tonart der Folge buchstabiert**
+  (`inTonart()` in `harmonie.js`), nicht nach ihrem eigenen Grundton und
+  nicht nach Kreuz- oder B-Vorliebe. Die Folgen selbst sind nach Tonhöhe
+  gebaut; wer ein Symbol anzeigt, geht über `inTonart`.
 - **Vorzeichnungen kommen aus dem buchstabierten Grundton**
   (`majorKeySignature`), nicht aus der Tonhöhenklasse: Ges-Dur hat sechs Ben,
   Fis-Dur sechs Kreuze, und beides klingt gleich.
@@ -726,6 +730,20 @@ braucht eigene Werkzeuge.
   schmale mitlaufende Uhr mit Pause, sobald der Countdown aus dem Bild
   gescrollt ist (iPad hochkant, Telefon).
 
+**Phase 17 — Akkorde in der Tonart der Folge, umgesetzt (v22).**
+- Der offene Prüfpunkt aus Phase 14 war ein echter Fehler: „Improvisation“
+  buchstabierte jeden gegriffenen Akkord nach seinem eigenen Grundton. In
+  klingend E (gegriffen Cis-Dur, sieben Kreuze) stand „Esm7 As7 Cismaj7“
+  statt „Dism7 Gis7 Cismaj7“, und die Zieltöne darunter bekamen die
+  falschen Vorzeichen. Call and Response und Gig-Training nahmen die
+  Vorliebe der Tonart, was bei Ausweichungen ebenso danebengehen kann.
+- `stufeInTonart()` in `theory.js`: die zwölf Stellen von erniedrigter
+  zweiter bis erhöhter vierter Stufe im Quintenzirkel enthalten jede
+  Tonhöhenklasse genau einmal — daraus kommt der Buchstabe. `inTonart()`
+  in `harmonie.js` liefert damit Akkord und Symbol klingend und gegriffen;
+  alle drei Werkzeuge nutzen es, Call and Response auch für die Noten des
+  Licks. Getestet über alle Folgen in allen zwölf Tonarten.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
 1. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
@@ -735,11 +753,6 @@ braucht eigene Werkzeuge.
 3. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
    der Klavierprüfung. Für die Stücke reicht vorerst das Cockpit; fürs
    Blattspiel ließe sich der Melodiegenerator zweihändig machen.
-4. **Buchstabierung der gegriffenen Akkorde in „Improvisation“ prüfen.**
-   Dort wird gegriffen über `fromMidi` mit Vorzeichen-Vorliebe gerechnet,
-   nicht über Stufen wie in `leadsheet.js` und `lickwoche.js`. Ob dabei in
-   entlegenen Tonarten dieselbe Verwechslung wie oben entsteht, ist nicht
-   geprüft.
 
 ## 9. Arbeitsweise
 

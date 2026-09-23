@@ -6,7 +6,7 @@
    Tonarten etwas anderes als in der zwölften. */
 
 import * as H from "../js/music/harmonie.js";
-import { spell, toMidi, chromatic, MAJOR_KEYS } from "../js/music/theory.js";
+import { spell, toMidi, chromatic, MAJOR_KEYS, stufeInTonart, writtenKeySignature } from "../js/music/theory.js";
 
 let fail = 0, n = 0;
 const ok = (c, m) => { n++; if (!c) { console.log("  FAIL " + m); fail++; } };
@@ -151,6 +151,51 @@ for (const prog of H.PROGRESSIONS) {
 eq(H.PROGRESSIONS.find(p => p.id === "moll251").sigVersatz, -3, "Moll-II-V-I");
 eq(H.PROGRESSIONS.find(p => p.id === "dorisch_vamp").sigVersatz, -2, "dorischer Vamp");
 eq(H.PROGRESSIONS.find(p => p.id === "dur251").sigVersatz, 0, "Dur-II-V-I");
+
+console.log("\nGegriffene Akkorde in der Tonart der Folge");
+{
+  // Dieselbe Liste wie TONARTEN im Improvisations-Werkzeug.
+  const TONARTEN = [
+    { pc: 10, sig: -2 }, { pc: 3, sig: -3 }, { pc: 5, sig: -1 }, { pc: 0, sig: 0 },
+    { pc: 7, sig: 1 }, { pc: 2, sig: 2 }, { pc: 9, sig: 3 }, { pc: 4, sig: 4 },
+    { pc: 11, sig: 5 }, { pc: 6, sig: 6 }, { pc: 1, sig: -5 }, { pc: 8, sig: -4 },
+  ];
+  const QUINTE = [0, 2, 4, -1, 1, 3, 5];
+  const lof = p => QUINTE[p.step] + 7 * p.alter;
+  for (const prog of H.PROGRESSIONS) {
+    for (const t of TONARTEN) {
+      const v = prog.sigVersatz || 0;
+      const tonikaG = writtenKeySignature(t.sig + v) - v;
+      for (const a of H.buildProgression(prog, t.pc)) {
+        const x = H.inTonart(a, t.sig, v);
+        const wo = `${prog.id} in ${t.pc}, ${a.symbol}`;
+        ok(toMidi(x.root) === toMidi(a.root) + 9, `${wo}: gegriffen ist eine große Sexte höher`);
+        ok(toMidi(x.klingend) === toMidi(a.root), `${wo}: klingend bleibt die Tonhöhe`);
+        const d = lof(x.root) - tonikaG;
+        ok(d >= -5 && d <= 6, `${wo}: ${spell(x.root)} liegt in der gegriffenen Tonart (${d})`);
+        const dk = lof(x.klingend) - t.sig;
+        ok(dk >= -5 && dk <= 6, `${wo}: ${spell(x.klingend)} liegt in der klingenden Tonart (${dk})`);
+      }
+    }
+  }
+  const folge = (id, pc, sig) => {
+    const prog = H.PROGRESSIONS.find(p => p.id === id);
+    return H.buildProgression(prog, pc).map(a => H.inTonart(a, sig, prog.sigVersatz || 0));
+  };
+  // Das war der Fehler: jeder Akkord nach seinem eigenen Grundton
+  // buchstabiert, in klingend E also Esm7 As7 Cismaj7 unter sieben Kreuzen.
+  eq(folge("dur251", 4, 4).map(x => x.symbol), ["Dism7", "Gis7", "Cismaj7"], "klingend E: gegriffen in Cis-Dur");
+  eq(folge("dur251", 9, 3).map(x => x.symbol), ["Gism7", "Cis7", "Fismaj7"], "klingend A: gegriffen in Fis-Dur");
+  eq(folge("dur251", 11, 5).map(x => x.symbol), ["Bm7", "Es7", "Asmaj7"], "klingend H: gegriffen in As-Dur, wie die Vorzeichnung");
+  eq(folge("dur251", 3, -3).map(x => x.symbol), ["Dm7", "G7", "Cmaj7"], "klingend Es: gegriffen in C-Dur");
+  eq(folge("dur251", 1, -5).map(x => x.klingendSymbol), ["Esm7", "As7", "Desmaj7"], "klingend Des bleibt Des");
+  eq(folge("dur251", 6, 6).map(x => x.klingendSymbol), ["Gism7", "Cis7", "Fismaj7"], "klingend Fis bleibt Fis");
+
+  eq(stufeInTonart(1, 0), 1, "in C heißt der Tritonus-Ersatz Des");
+  eq(stufeInTonart(6, 0), 3, "in C heißt die erhöhte Quarte Fis");
+  eq(stufeInTonart(3, 7), 1, "in Cis-Dur heißt die zweite Stufe Dis");
+  eq(stufeInTonart(8, -3), 5, "in Es-Dur heißt die vierte Stufe As");
+}
 
 console.log(fail ? `\n${fail} von ${n} Prüfungen fehlgeschlagen\n` : `\nAlle ${n} Prüfungen bestanden\n`);
 process.exit(fail ? 1 : 0);

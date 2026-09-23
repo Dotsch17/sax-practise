@@ -247,6 +247,23 @@ export function spellOnStep(midi, step) {
 }
 
 /**
+ * Der Buchstabe einer Tonhöhenklasse im Zusammenhang einer Tonart.
+ * `tonikaPos` ist die Stelle der Tonika im Quintenzirkel (C 0, G 1, F -1,
+ * B -2 …); für Dur ist das die Vorzeichnung. Die zwölf Stellen von
+ * erniedrigter zweiter bis erhöhter vierter Stufe (T-5 bis T+6) enthalten
+ * jede Tonhöhenklasse genau einmal — daraus kommt die Schreibweise. So
+ * heißt die zweite Stufe in Cis-Dur Dis und nicht Es, und der Tritonus-
+ * Ersatz in C bleibt Des7 statt Cis7. Gibt die Stufe zurück (C 0 … H 6).
+ */
+export function stufeInTonart(pc, tonikaPos) {
+  const ziel = ((pc % 12) + 12) % 12;
+  for (let p = tonikaPos - 5; p <= tonikaPos + 6; p++) {
+    if ((((7 * p) % 12) + 12) % 12 === ziel) return QUINT_STUFE[(((p + 1) % 7) + 7) % 7];
+  }
+}
+const QUINT_STUFE = [3, 0, 4, 1, 5, 2, 6];   // F C G D A E H
+
+/**
  * Baut eine Skala als Folge von Tripeln auf, ausgehend von einem
  * buchstabierten Grundton. Siebenstufige Skalen bekommen aufsteigende
  * Buchstaben, alles andere wird nach Kreuz- oder B-Vorliebe geschrieben.
