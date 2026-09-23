@@ -84,7 +84,7 @@ try {
   // Wörter, in denen s und z wirklich aufeinandertreffen.
   const ERLAUBT = new Set([
     "Disziplin", "Disziplinen", "Prüfungsdisziplin", "Prüfungsdisziplinen",
-    "Minuszeichen", "Auflösungszeichen", "Wiederholungszeichen", "Adresszeile", "Kreuzsymbol",
+    "Minuszeichen", "Auflösungszeichen", "Wiederholungszeichen", "Versetzungszeichen", "Adresszeile", "Kreuzsymbol",
   ]);
   // Trennbare Verben mit „zu“ im Inneren: herauszufinden, auszuschalten,
   // loszulegen, herauszurechnen. Das ist eine offene Wortklasse, die sich

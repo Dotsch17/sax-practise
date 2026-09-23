@@ -30,6 +30,10 @@ export const QUELLEN = [
     url: "https://www.mdw.ac.at/stdmp/igp-ba-zulassung/" },
   { titel: "Grundkenntnisse Klavier (mdw)",
     url: "https://www.mdw.ac.at/lvb/studium/igp-bachelorstudium-grundkenntnisse-klavier-zulassungspruefung/" },
+  { titel: "Hör- und Vorstellungsfähigkeit (Anton Bruckner Institut), mit Mustertest",
+    url: "https://www.mdw.ac.at/abi/?PageId=4251" },
+  { titel: "Mustertest Gehörbildung und Vorspielblatt",
+    url: "https://www.mdw.ac.at/upload/MDWeb/iab/downloads/260421_ZULAS_NEU_GHB_ME_Vorspielblatt.pdf" },
   { titel: "Beiblatt Kadenzen",
     url: "https://www.mdw.ac.at/upload/MDWeb/tip/downloads/BeiblattKadenzenIGPPFZuLa2023.pdf" },
 ];
@@ -165,7 +169,7 @@ export const TEILE = [
     punkte: [
       { id: "diktat", art: "pruefpunkt", titel: "Melodie- und Rhythmusdiktat",
         was: "Tonale und freitonale Melodien und Rhythmen vom Klavier aufschreiben. Zur Vorbereitung gibt die mdw zusätzlich das Programm MusicCoach frei.",
-        werkzeug: { tab: "gehoer", tool: "hoertest", modus: "melodie", name: "Hörtest: Diktat" } },
+        werkzeug: { tab: "gehoer", tool: "hoertest", modus: "ergaenzen", name: "Hörtest: Melodie ergänzen" } },
       { id: "akkorde", art: "pruefpunkt", titel: "Intervalle und Akkorde",
         was: "Intervalle, Dur- und Molldreiklänge, Septakkorde, jeweils mit Umkehrungen.",
         werkzeug: { tab: "gehoer", tool: "hoertest", modus: "akkorde", name: "Hörtest: Akkorde" } },

@@ -244,6 +244,10 @@ svg.staff{
   stroke-linecap: butt;
 }
 svg.staff.compact{ height: 96px; }
+/* Vier Takte, die man auf einen Blick sehen muss: auf die Breite
+   verkleinert statt seitlich gescrollt. Beim Diktat ist Scrollen fatal —
+   man verliert beim Hören die Stelle. */
+svg.staff.passend{ max-width: 100%; height: auto !important; }
 .staff-label{
   font-family: var(--sans); font-size: 11px;
   fill: var(--cane-dim); stroke: none;
@@ -1190,6 +1194,8 @@ svg.staff.compact{ height: 96px; }
   display: flex; align-items: center; justify-content: center;
 }
 .zelle:disabled{ opacity: .3; }
+.zelle.on{ border-color: var(--brass); background: var(--surface-hi); }
+.ht-werte{ grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); margin-bottom: 10px; }
 .zelle:active{ background: var(--surface-hi); }
 svg.staff.mini{ height: 60px; }
 .weiter:disabled{ opacity: .4; }

@@ -214,5 +214,87 @@ console.log("\nZeitplan");
   ok(z.noten.every(x => x.dauer > 0), "jede Note klingt");
 }
 
+console.log("\nMelodie ergänzen");
+{
+  const laengeVon = x => x.dur * (x.dots ? 1.5 : 1);
+  const takteVon = noten => {
+    const out = [[]];
+    for (const x of noten) { if (x.barline) { if (x.barline !== "end") out.push([]); continue; } out[out.length - 1].push(x); }
+    return out.filter(t => t.length);
+  };
+  const toene = noten => noten.filter(x => !x.barline && x.pitch).map(x => x.pitch);
+  const zaehl = { takt: new Set(), moll: 0, abweichung: 0 };
+  for (let i = 0; i < 400; i++) {
+    const stufe = 1 + (i % 3);
+    const a = D.melodieErgaenzen({ stufe, rng });
+    const wo = `Stufe ${stufe}, ${a.tonart.name}, ${a.schlaege}/4`;
+    const takte = takteVon(a.noten);
+    eq(takte.length, 8, `${wo}: acht Takte`);
+    ok(takte.every(t => Math.abs(t.reduce((s, x) => s + laengeVon(x), 0) - a.schlaege) < 1e-6), `${wo}: jeder Takt geht auf`);
+    eq(takteVon(a.vorgabe).length, 4, `${wo}: vier Takte vorgegeben`);
+    eq(takteVon(a.gesucht).length, 4, `${wo}: vier Takte gesucht`);
+    eq(JSON.stringify(takteVon(a.gesucht)), JSON.stringify(takte.slice(4)), `${wo}: gesucht sind genau die Takte 5 bis 8`);
+    const rh = t => t.map(x => laengeVon(x)).join();
+    ok(rh(takte[4]) === rh(takte[0]) && rh(takte[5]) === rh(takte[1]), `${wo}: der Nachsatz beginnt im Rhythmus des Vordersatzes`);
+    const alle = toene(a.noten);
+    ok(alle.every(p => T.toMidi(p) >= D.TIEF && T.toMidi(p) <= D.HOCH), `${wo}: alles im Violinschlüssel-Rahmen`);
+    const tonika = T.toMidi(a.tonart.tonic);
+    ok(pc(T.toMidi(alle[alle.length - 1])) === pc(tonika), `${wo}: endet auf dem Grundton`);
+    const t4 = takte[3], schluss4 = t4[t4.length - 1];
+    const stufeVon = p => pc(T.toMidi(p) - tonika);
+    const halbschluss = a.moll ? [2, 7] : [2, 7];
+    ok(halbschluss.includes(stufeVon(schluss4.pitch)), `${wo}: Takt 4 endet auf der zweiten oder fünften Stufe`);
+    ok(laengeVon(schluss4) >= 1, `${wo}: Takt 4 endet auf einem langen Ton`);
+    ok(takte.flat().every(x => x.pitch), `${wo}: keine Pausen`);
+    // Schreibweise: jeder Ton aus der Leiter der Tonart.
+    const leiter = T.buildScale(a.tonart.tonic, a.moll ? "moll_harmonisch" : "dur", 1).slice(0, 7);
+    ok(alle.every(p => leiter.some(l => l.step === p.step && l.alter === p.alter)), `${wo}: jeder Ton in der Tonart buchstabiert`);
+    // Keine übermäßige Sekunde im harmonischen Moll.
+    if (a.moll) {
+      zaehl.moll++;
+      const m = alle.map(T.toMidi);
+      const sekunde = j => [1, 6].includes((((alle[j].step - alle[j - 1].step) % 7) + 7) % 7);
+      ok(m.every((x, j) => j === 0 || !(sekunde(j) && Math.abs(x - m[j - 1]) === 3)), `${wo}: keine übermäßige Sekunde`);
+    }
+    const v12 = toene(takte.slice(0, 2).flat().map(x => x)), n12 = toene(takte.slice(4, 6).flat());
+    if (JSON.stringify(v12) !== JSON.stringify(n12)) zaehl.abweichung++;
+    zaehl.takt.add(a.schlaege);
+    // Wer genau das Gesuchte einträgt, bekommt alle vier Punkte.
+    const ein = a.gesucht.filter(x => !x.barline).map(x => ({ pitch: x.pitch, dur: x.dur, dots: x.dots }));
+    const e = D.vergleicheErgaenzung(a.gesucht, D.eingabeZuNoten(ein, a.schlaege).noten, a.schlaege);
+    ok(e.alles && e.punkte === 4, `${wo}: die Lösung selbst ergibt vier Punkte`);
+  }
+  eq([...zaehl.takt].sort(), [2, 3, 4], "Zwei-, Drei- und Vierviertel kommen vor");
+  ok(zaehl.moll > 40, `auch Moll (${zaehl.moll})`);
+  ok(zaehl.abweichung > 40, `Takt 5 und 6 weichen manchmal vom Anfang ab (${zaehl.abweichung})`);
+
+  // Auswertung an einem festen Beispiel: 2/4, vier Takte.
+  const n = (step, dur, dots = 0, alter = 0, octave = 4) => ({ pitch: { step, alter, octave }, dur, dots });
+  const soll = D.eingabeZuNoten([n(4, 1), n(2, 1), n(3, 0.5), n(2, 0.5), n(1, 1), n(2, 1), n(4, 1), n(0, 2)], 2).noten;
+  const ist = (xs) => D.eingabeZuNoten(xs, 2).noten;
+  const r1 = D.vergleicheErgaenzung(soll, ist([n(4, 1), n(2, 1), n(3, 0.5), n(2, 0.5), n(1, 1), n(2, 1), n(4, 1), n(0, 2)]), 2);
+  eq([r1.punkte, r1.alles], [4, true], "alles richtig: vier Punkte");
+  const r2 = D.vergleicheErgaenzung(soll, ist([n(4, 1), n(2, 1), n(3, 0.5), n(1, 0.5), n(1, 1), n(2, 1), n(4, 1), n(0, 2)]), 2);
+  eq(r2.punkte, 3.5, "ein falscher Ton, Rhythmus richtig: halber Punkt weg");
+  eq(D.ergaenzungsHinweise(r2), ["Takt 6: Rhythmus stimmt, Töne nicht."], "und der Hinweis nennt den Takt");
+  const r3 = D.vergleicheErgaenzung(soll, ist([n(4, 1), n(2, 1), n(3, 1), n(1, 1), n(2, 1), n(4, 1), n(0, 2)]), 2);
+  ok(r3.takte[1].toene === false && r3.takte[1].rhythmus === false, "Achtel als Viertel: Rhythmus falsch, und ein Ton fehlt");
+  const r4 = D.vergleicheErgaenzung(soll, ist([n(4, 1), n(2, 1), n(3, 1, 0), n(2, 1), n(1, 1), n(2, 1), n(4, 1), n(0, 2)]), 2);
+  eq(r4.punkte, 1.5, "zwei Achtel als zwei Viertel verschiebt alles danach");
+  const r5 = D.vergleicheErgaenzung(soll, ist([n(4, 1, 0, 0, 5), n(2, 1, 0, 0, 5), n(3, 0.5), n(2, 0.5), n(1, 1), n(2, 1), n(4, 1), n(0, 2)]), 2);
+  eq(D.ergaenzungsHinweise(r5)[0], "Takt 5: richtige Töne, falsche Oktave.", "Oktave wird eigens genannt");
+  const r6 = D.vergleicheErgaenzung(soll, ist([n(4, 1), n(2, 1), n(3, 0.5), n(2, 0.5), n(1, 1), n(2, 1), n(4, 1), n(1, 2, 0, -2)]), 2);
+  eq(D.ergaenzungsHinweise(r6)[0], "Takt 8: klingt richtig, ist aber anders geschrieben.", "Deses statt C wird als Schreibfehler erkannt");
+  eq(D.vergleicheErgaenzung(soll, ist([]), 2).punkte, 0, "leer: null Punkte");
+  eq(r2.einzeln, ["richtig", "richtig", "richtig", "falsch", "richtig", "richtig", "richtig", "richtig"], "je Note markiert");
+
+  const e1 = D.eingabeZuNoten([n(0, 1)], 3);
+  eq([e1.rest, e1.takt, e1.schlag, e1.voll], [2, 1, 2, false], "nach einer Viertel im Dreiviertel sind noch zwei frei");
+  const e2 = D.eingabeZuNoten([n(0, 2, 1)], 3);
+  eq([e2.rest, e2.takt, e2.schlag], [3, 2, 1], "nach einem vollen Takt beginnt der nächste");
+  eq(D.notenwerte(1, 4).map(w => w.laenge), [4, 3, 2, 1], "Stufe 1: Ganze, punktierte Halbe, Halbe, Viertel");
+  eq(D.notenwerte(3, 2).map(w => w.laenge), [2, 1.5, 1, 0.75, 0.5, 0.25], "Stufe 3 im Zweiviertel: nichts über zwei Schläge");
+}
+
 console.log(fail ? `\n${fail} von ${n} Prüfungen fehlgeschlagen` : `\nAlle ${n} Prüfungen bestanden`);
 process.exit(fail ? 1 : 0);

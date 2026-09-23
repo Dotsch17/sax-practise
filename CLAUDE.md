@@ -37,7 +37,8 @@ wer nur eines davon kennt, baut am anderen vorbei:
    Improvisation, Blattlesen. Dazu zwei Prüfungsteile außerhalb des
    Saxophons, die genauso bestanden werden müssen: **Klavier** (zwei Stücke,
    Blattspiel, Kadenzen inklusive II–V–I) und ein **schriftlicher Hörtest**
-   (Melodie- und Rhythmusdiktat, Akkorde mit Umkehrungen, Fehler erkennen).
+   (Melodie- und Rhythmusdiktat, Akkorde mit Umkehrungen, Fehler erkennen;
+   der Aufbau des Mustertests der mdw steht in Phase 19).
    Der Nutzer fängt am Klavier bei null an. Seine Kandidaten für die Stücke:
    There Will Never Be Another You, Straight No Chaser, Parker's Mood, Oleo,
    Have You Met Miss Jones — alles Swing, deshalb mahnt das Cockpit eine
@@ -164,7 +165,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 | Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block. Prüfung: Countdown, alle Prüfungspunkte mit Stufen, Zeitplan rückwärts. Simulation: das ganze Programm am Stück mit Aufnahme. Aufnahme: aufnehmen, nach Titel ablegen, erste gegen letzte hören |
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Vibrato-Analyse, Tonanalyse, Bordun |
 | Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Kadenzen fürs Klavier, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
-| Gehör | Hörtest (Melodie- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
+| Gehör | Hörtest (Melodie ergänzen wie im Mustertest, Tonhöhen- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
 | Impro | Grundlagen, Begleitband, Eigene Stücke (Band zu den eigenen Leadsheets), Lick der Woche, Call and Response |
 | Gig | Setlist mit Bühnenansicht, Zum Song spielen, Tonart finden, Gig-Training, Pop-Sound |
 | Journal | Protokoll, Auswertung, Repertoire, Wissen, Daten |
@@ -768,11 +769,60 @@ braucht eigene Werkzeuge.
   Programmpunkte über „gewählt“ hinaus sind und die letzte vier Wochen
   zurückliegt — nur im Probelokal. Das Cockpit zeigt, wann zuletzt.
 
+**Phase 19 — Vollständiges Melodiediktat nach dem Mustertest, umgesetzt (v24).**
+- Die mdw hat einen **Mustertest Gehörbildung mit Vorspielblatt**
+  veröffentlicht (Anton Bruckner Institut, dieselbe Seite, auf die die
+  IGP-Zulassung für den Hörtest verweist; Links in `QUELLEN` in
+  `data/pruefung.js`). Er ist die beste Quelle dafür, wie der Hörtest
+  wirklich aussieht — vor jeder neuen Hörtest-Aufgabe dort nachsehen.
+  Sieben Aufgaben, 31,5 Punkte, 16 zum Bestehen:
+  1. Intervall zur Zweistimmigkeit ergänzen (Ton gegeben, ▲ oder ▼,
+     dreimal simultan), Violin- und Bassschlüssel.
+  2. Zwei Melodien: Rhythmus ergänzen und Taktstriche setzen — die
+     Tonhöhen stehen als Notenköpfe da (zweimal Melodie, zweimal Satz).
+  3. **Melodie ergänzen:** acht Takte, die ersten vier vorgegeben, Takt 5
+     bis 8 mit Tonhöhen und Rhythmus notieren, dreimal vorgespielt,
+     vier Punkte.
+  4. Zwei vierstimmige Akkorde, der zweite um einen Ton oder ein
+     Vorzeichen verändert: den zweiten notieren.
+  5. Dreistimmiger Akkord, Bass gegeben: die zwei Töne darüber notieren.
+  6. Dur-moll-tonale Melodie (auch 6/8): Versetzungszeichen ergänzen.
+  7. Akkordtyp bestimmen: D, m, v, ü, D7, m7.
+  „Zweistimmigkeit“ heißt dort also nur Aufgabe 1, kein zweistimmiges
+  Diktat. Die bisherigen Hörtest-Modi decken 7 und Teile von 4 ab.
+- `melodieErgaenzen()` in `music/diktat.js` baut Aufgabe 3 nach: eine
+  Periode wie im Beispiel der mdw. Vordersatz mit Halbschluss (Takt 4
+  endet lang auf der zweiten oder fünften Stufe), Nachsatz, der in Takt 5
+  und 6 den Anfang wiederholt — in der Hälfte der Fälle mit einem
+  veränderten Ton in Takt 6, wie im Mustertest — und auf dem Grundton
+  schließt. Zwei-, Drei- und Vierviertel, Dur und harmonisch Moll ohne
+  übermäßige Sekunde, keine Pausen, jeder Ton aus der Leiter buchstabiert.
+  Der Tonraum hängt von der Tonart ab (`r.lo`/`r.hi`), sonst lag H-Dur
+  über dem System. Drei Stufen, die dritte etwa so schwer wie der
+  Mustertest.
+- Auswertung wie die mdw: ein Punkt je Takt, ein halber, wenn nur
+  Rhythmus oder nur Töne stimmen. Jeder falsche Takt bekommt einen Satz
+  („Takt 6: Rhythmus stimmt, Töne nicht.“, Oktave und Schreibweise
+  eigens). Für die Statistik gilt eine Aufgabe ab drei Punkten als
+  geschafft; die Punkte stehen daneben als Schnitt.
+- Im Hörtest der neue erste Modus „Melodie ergänzen“; der alte
+  Melodie-Modus heißt jetzt „Tonhöhen“. Eingabe wie auf Papier: Notenwert
+  wählen (bleibt gewählt), dann Ton; Werte, die nicht mehr in den Takt
+  passen, sind gesperrt. Gezählt wird „1 von 3“ gehört, mehr geht, mit
+  Hinweis. Die Kadenz gibt es nur als Übungsknopf.
+- Notenzeilen im Diktat scrollen nicht mehr seitlich: alle Zeilen in einem
+  gemeinsamen Maßstab, am Telefon zwei Takte je Zeile. Beim Hören die
+  Stelle zu verlieren, weil man scrollen muss, wäre das Gegenteil von
+  Übung. Klasse `passend` in `tools.css`.
+- Das Cockpit führt beim Diktat jetzt direkt zu „Melodie ergänzen“.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
-   dazu Zweistimmigkeit, falls die mdw sie verlangt — vorher bei
-   MusicCoach nachsehen, wie die Aufgaben dort aussehen.
+1. **Die übrigen Aufgaben des Mustertests** (Aufbau siehe Phase 19):
+   Rhythmus und Taktstriche zu gegebenen Tonhöhen, Versetzungszeichen
+   ergänzen, Intervall zur Zweistimmigkeit ergänzen, Bass gegeben und
+   zwei Töne darüber notieren, veränderten Akkord notieren. Danach ein
+   ganzer Probe-Gehörtest im Format der mdw, mit Punkten.
 2. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
    der Klavierprüfung. Für die Stücke reicht vorerst das Cockpit; fürs
    Blattspiel ließe sich der Melodiegenerator zweihändig machen.
@@ -809,7 +859,7 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute zweiundzwanzig Suiten mit zusammen rund 44 400
+alle Testsuiten. Stand heute zweiundzwanzig Suiten mit zusammen rund 52 600
 Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
 Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
 Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Kadenzen, Leadsheets,

@@ -194,6 +194,274 @@ export function kadenz(key, moll = false) {
   });
 }
 
+/* --- Melodie ergänzen: das vollständige Melodiediktat ------------------------------
+
+   So steht es im Mustertest der mdw (Gehörtest, Aufgabe 3): „Sie hören eine
+   durmolltonale Melodie, deren erste vier Takte bereits vorgegeben sind.
+   Komplettieren Sie die zweiten vier Takte. Die Melodie wird dreimal
+   vorgespielt.“ Tonhöhen und Rhythmus zugleich, vier Punkte, einer je Takt.
+
+   Die Melodie ist eine Periode, wie im Beispiel der mdw: Vordersatz mit
+   Halbschluss (Takt 4 endet auf der zweiten oder fünften Stufe),
+   Nachsatz, der wie der Vordersatz beginnt und auf dem Grundton schließt.
+   Das ist keine Bequemlichkeit des Generators, sondern die wichtigste
+   Hörstrategie für diese Aufgabe: Takt 5 und 6 kennt man meist schon —
+   man muss nur hören, ob und wo sie abweichen. */
+
+export const ERGAENZEN_STUFEN = [
+  { id: 1, label: "Stufe 1", rhythmus: 1, schlaege: [4], maxSig: 1, moll: 0, bpm: 72,
+    was: "Vierviertel, Viertel und Halbe, Dur bis ein Vorzeichen" },
+  { id: 2, label: "Stufe 2", rhythmus: 2, schlaege: [2, 3, 4], maxSig: 2, moll: 0.35, bpm: 80,
+    was: "Zwei-, Drei- und Vierviertel mit Achteln und Punktierungen, Dur und harmonisch Moll" },
+  { id: 3, label: "Stufe 3", rhythmus: 3, schlaege: [2, 3, 4], maxSig: 3, moll: 0.4, bpm: 88,
+    was: "Dazu Sechzehntel, bis drei Vorzeichen — etwa so schwer wie der Mustertest der mdw" },
+];
+
+/** Die Notenwerte, die man eintragen kann, je Stufe. `laenge` in Vierteln. */
+export function notenwerte(stufe, schlaege) {
+  const alle = [
+    { dur: 4, dots: 0, stufe: 1 }, { dur: 2, dots: 1, stufe: 1 }, { dur: 2, dots: 0, stufe: 1 },
+    { dur: 1, dots: 1, stufe: 2 }, { dur: 1, dots: 0, stufe: 1 }, { dur: 0.5, dots: 1, stufe: 3 },
+    { dur: 0.5, dots: 0, stufe: 2 }, { dur: 0.25, dots: 0, stufe: 3 },
+  ];
+  return alle
+    .filter(w => w.stufe <= stufe)
+    .map(w => ({ dur: w.dur, dots: w.dots, laenge: w.dur * (w.dots ? 1.5 : 1) }))
+    .filter(w => w.laenge <= schlaege);
+}
+
+const laenge = n => n.dur * (n.dots ? 1.5 : 1);
+
+/* Ein Takt ohne Taktstriche, der genau aufgeht. Pausen werden zu Tönen:
+   eine Melodie in dieser Aufgabe singt durch, und eine Viertelpause
+   mitten im Takt ist beim Hören nicht von einer kurzen Note zu
+   unterscheiden — das wäre ein Rätsel, kein Diktat. */
+function taktRhythmus(schlaege, stufe, rng) {
+  return generateRhythm({ beats: schlaege, stufe, takte: 1, seed: Math.floor(rng() * 1e9) })
+    .noten.filter(n => !n.barline).map(n => ({ dur: n.dur, dots: n.dots || 0, pause: false }));
+}
+
+/* Ein Takt, der mit einem langen Ton schließt: Halbschluss oder Schluss.
+   `ganz` heißt: der Schlusston füllt den ganzen Takt. */
+function schlussTakt(schlaege, stufe, rng, ganz) {
+  if (ganz) {
+    const w = schlaege === 4 ? { dur: 4, dots: 0 } : schlaege === 3 ? { dur: 2, dots: 1 } : { dur: 2, dots: 0 };
+    return [{ ...w, pause: false }];
+  }
+  const lang = schlaege === 2 ? 1 : 2;
+  const vorn = schlaege - lang > 0 ? taktRhythmus(schlaege - lang, stufe, rng) : [];
+  // Keine Pause direkt vor dem Schlusston: das klänge nach Abbruch.
+  if (vorn.length && vorn[vorn.length - 1].pause) vorn[vorn.length - 1].pause = false;
+  return [...vorn, { dur: lang, dots: 0, pause: false }];
+}
+
+/* Stufen-Index relativ zum Grundton: 0 Grundton, 4 Quinte, 7 Oktave,
+   -3 Quinte darunter. Der Rahmen `r` ({ lo, hi }) hält die Melodie
+   sangbar und im Violinschlüssel; er hängt von der Tonart ab, denn in
+   H-Dur liegt die Oktave über dem Grundton schon über dem System. */
+const mod7 = i => ((i % 7) + 7) % 7;
+/* Im harmonischen Moll liegt zwischen sechster und siebter Stufe eine
+   übermäßige Sekunde. In einem Diktat für diese Stufe hat sie nichts zu
+   suchen; wer sie hören soll, bekommt sie in Aufgabe 6 des Mustertests. */
+const verboten = (a, b, moll) => moll && Math.abs(a - b) === 1 && [5, 6].includes(mod7(a)) && [5, 6].includes(mod7(b));
+
+function schrittVon(idx, letzter, moll, rng, r) {
+  for (let versuch = 0; versuch < 30; versuch++) {
+    let ziel;
+    if (Math.abs(letzter) >= 3) {
+      // Nach einem Sprung schrittweise zurück: so klingt eine Melodie.
+      ziel = idx - Math.sign(letzter);
+    } else if (rng() < 0.68) {
+      const weiter = letzter !== 0 && rng() < 0.6 ? Math.sign(letzter) : (rng() < 0.5 ? -1 : 1);
+      ziel = idx + weiter;
+    } else {
+      // Sprung in einen Ton des Tonika-Dreiklangs, höchstens eine Quinte.
+      const kandidaten = [];
+      for (let z = idx - 4; z <= idx + 4; z++) {
+        if (Math.abs(z - idx) >= 2 && [0, 2, 4].includes(mod7(z))) kandidaten.push(z);
+      }
+      ziel = kandidaten[Math.floor(rng() * kandidaten.length)];
+    }
+    if (ziel == null || ziel < r.lo || ziel > r.hi || verboten(idx, ziel, moll)) continue;
+    return ziel;
+  }
+  const runter = idx - 1 >= r.lo && !verboten(idx, idx - 1, moll);
+  return runter ? idx - 1 : idx + 1;
+}
+
+function wanderung(start, anzahl, moll, rng, r) {
+  const out = [];
+  let idx = start, letzter = 0;
+  for (let i = 0; i < anzahl; i++) {
+    const neu = schrittVon(idx, letzter, moll, rng, r);
+    letzter = neu - idx;
+    idx = neu;
+    out.push(idx);
+  }
+  return out;
+}
+
+const naechsterAus = (von, kandidaten, moll, r) => kandidaten
+  .filter(k => !verboten(von, k, moll) && k >= r.lo && k <= r.hi)
+  .sort((a, b) => Math.abs(a - von) - Math.abs(b - von))[0];
+
+/**
+ * Eine Aufgabe „Melodie ergänzen“. Gibt die ganze Melodie, die vier
+ * vorgegebenen Takte und die vier gesuchten, jeweils im Format von
+ * notation.js, dazu Tonart, Takt und Tempo.
+ */
+export function melodieErgaenzen({ stufe = 2, rng = Math.random } = {}) {
+  const st = ERGAENZEN_STUFEN.find(s => s.id === stufe) || ERGAENZEN_STUFEN[1];
+  const schlaege = waehle(st.schlaege, rng);
+  const moll = rng() < st.moll;
+  const t = tonaleTonarten(st.maxSig);
+  const key = waehle(moll ? t.moll : t.dur, rng);
+
+  // Rhythmus der Periode. Takt 5 und 6 wiederholen Takt 1 und 2.
+  let takte;
+  for (let versuch = 0; versuch < 50; versuch++) {
+    const t1 = taktRhythmus(schlaege, st.rhythmus, rng);
+    const t2 = taktRhythmus(schlaege, st.rhythmus, rng);
+    const t3 = taktRhythmus(schlaege, st.rhythmus, rng);
+    const t4 = schlussTakt(schlaege, st.rhythmus, rng, false);
+    const t7 = taktRhythmus(schlaege, st.rhythmus, rng);
+    const t8 = schlussTakt(schlaege, st.rhythmus, rng, st.id === 1 || rng() < 0.5);
+    takte = [t1, t2, t3, t4, t1.map(x => ({ ...x })), t2.map(x => ({ ...x })), t7, t8];
+    // Eine Periode, die mit einer Pause beginnt, klingt nach Fehlstart;
+    // zu wenig Töne in den gesuchten Takten ist kein Diktat.
+    const toene = takte.slice(4).flat().filter(x => !x.pause).length;
+    if (!t1[0].pause && toene >= 2 * schlaege + (st.id > 1 ? 2 : 0)) break;
+  }
+
+  // Tonhöhen als Stufen-Index. Der Rahmen: alles, was mit etwas Luft in
+  // G3 bis A5 liegt, höchstens eine Quinte unter und eine None über dem
+  // Grundton.
+  const leiter = buildScale({ ...key.tonic, octave: 3 }, moll ? "moll_harmonisch" : "dur", 3);
+  const tonAus = i => leiter[i + 7];
+  const r = { lo: -5, hi: 9 };
+  while (toMidi(tonAus(r.lo)) < TIEF + 2) r.lo++;
+  while (toMidi(tonAus(r.hi)) > HOCH - 2) r.hi--;
+  r.lo = Math.max(r.lo, r.hi - 12);
+  const anzahl = takte.map(tk => tk.filter(x => !x.pause).length);
+  const vorder = anzahl.slice(0, 4).reduce((a, b) => a + b, 0);
+  const start = waehle([0, 2, 4].filter(x => x >= r.lo && x <= r.hi), rng);
+  const v = [start, ...wanderung(start, vorder - 2, moll, rng, r)];
+  v.push(naechsterAus(v[v.length - 1], [1, 4, -3, 8], moll, r) ?? 4);     // Halbschluss
+
+  const n12 = anzahl[0] + anzahl[1];
+  const nach = v.slice(0, n12);
+  // Oft weicht Takt 6 im ersten Ton ab, wie im Beispiel der mdw. Genau
+  // darauf muss man beim Hören achten.
+  if (anzahl[5] > 0 && rng() < 0.5) {
+    const i = anzahl[4];
+    const alt = nach[i];
+    const neu = naechsterAus(alt, [alt + 1, alt - 1], moll, r);
+    if (neu != null && !verboten(nach[i - 1] ?? neu, neu, moll)) nach[i] = neu;
+  }
+  const rest = anzahl[6] + anzahl[7];
+  const mitte = wanderung(nach[nach.length - 1], Math.max(0, rest - 2), moll, rng, r);
+  const vorletzter = naechsterAus(mitte.length ? mitte[mitte.length - 1] : nach[nach.length - 1], r.hi >= 7 ? [1, -1, 8, 6] : [1, -1], moll, r) ?? 1;
+  const letzter = vorletzter === 1 || vorletzter === -1 ? 0 : 7;
+  const indizes = [...v, ...nach, ...mitte, vorletzter, letzter].slice(0, vorder + n12 + rest);
+  if (rest === 1) indizes[indizes.length - 1] = naechsterAus(nach[nach.length - 1], [0, 7], moll, r) ?? 0;
+
+  const pitches = indizes.map(tonAus);
+
+  const noten = [];
+  let k = 0;
+  takte.forEach((tk, ti) => {
+    if (ti > 0) noten.push({ barline: true });
+    for (const x of tk) noten.push({ pitch: x.pause ? null : pitches[k++], dur: x.dur, dots: x.dots });
+  });
+  noten.push({ barline: "end" });
+
+  const grenze = noten.findIndex((n, i) => n.barline && noten.slice(0, i).filter(m => m.barline).length === 3);
+  const vorgabe = [...noten.slice(0, grenze), { barline: "end" }];
+  const gesucht = noten.slice(grenze + 1);
+  return {
+    art: "ergaenzen", stufe: st.id, schlaege, keySig: key.sig, tonart: key, moll, bpm: st.bpm,
+    noten, vorgabe, gesucht, kadenz: kadenz(key, moll),
+    letzterVorgabeTon: [...vorgabe].reverse().find(n => n.pitch)?.pitch || null,
+  };
+}
+
+/**
+ * Macht aus eingetragenen Ereignissen `{ pitch | null, dur, dots }` Noten
+ * mit Taktstrichen. Ein Wert, der über den Taktstrich ragen würde, wird
+ * nicht angenommen — `rest` sagt der Oberfläche, was im Takt noch frei ist.
+ */
+export function eingabeZuNoten(ereignisse, schlaege, takte = 4) {
+  const noten = [];
+  let pos = 0;
+  for (const e of ereignisse) {
+    if (pos > 0 && Math.abs(pos % schlaege) < 1e-6) noten.push({ barline: true });
+    noten.push({ pitch: e.pitch, dur: e.dur, dots: e.dots || 0 });
+    pos += laenge(e);
+  }
+  const voll = pos >= schlaege * takte - 1e-6;
+  if (voll) noten.push({ barline: "end" });
+  const imTakt = pos % schlaege;
+  const rest = voll ? 0 : (Math.abs(imTakt) < 1e-6 ? schlaege : schlaege - imTakt);
+  return { noten, pos, voll, rest, takt: Math.min(takte, Math.floor(pos / schlaege + 1e-6) + 1), schlag: Math.floor(imTakt + 1e-6) + 1 };
+}
+
+/* Die Noten eines Takts: Beginn im Takt, Länge, Tonhöhe. */
+function taktweise(noten, schlaege) {
+  const takte = [];
+  let pos = 0;
+  for (const n of noten) {
+    if (n.barline) continue;
+    const t = Math.floor(pos / schlaege + 1e-6);
+    (takte[t] ||= []).push({ start: pos - t * schlaege, laenge: laenge(n), pitch: n.pitch });
+    pos += laenge(n);
+  }
+  return takte;
+}
+
+const gleicherTon = (a, b) => (!a && !b) || (a && b && a.step === b.step && a.alter === b.alter && a.octave === b.octave);
+
+/**
+ * Wertet die gesuchten Takte aus, wie die mdw punktet: einer je Takt.
+ * Ein Takt mit richtigem Rhythmus und richtigen Tönen zählt ganz, mit
+ * einem von beiden halb. Dazu je eingetragener Note, ob sie stimmt, und je
+ * Takt ein Satz, was daran falsch war.
+ */
+export function vergleicheErgaenzung(soll, ist, schlaege) {
+  const a = taktweise(soll, schlaege), b = taktweise(ist, schlaege);
+  const takte = a.map((s, i) => {
+    const x = b[i] || [];
+    const rhythmus = s.length === x.length && s.every((e, j) =>
+      Math.abs(e.start - x[j].start) < 1e-6 && Math.abs(e.laenge - x[j].laenge) < 1e-6 && !e.pitch === !x[j].pitch);
+    const tS = s.filter(e => e.pitch).map(e => e.pitch), tI = x.filter(e => e.pitch).map(e => e.pitch);
+    const toene = tS.length === tI.length && tS.every((p, j) => gleicherTon(p, tI[j]));
+    const klang = tS.length === tI.length && tS.every((p, j) => toMidi(p) === toMidi(tI[j]));
+    const ohneOktave = tS.length === tI.length && tS.every((p, j) => p.step === tI[j].step && p.alter === tI[j].alter);
+    return { rhythmus, toene, klang, ohneOktave, punkte: rhythmus && toene ? 1 : (rhythmus || toene) ? 0.5 : 0 };
+  });
+  // Je eingetragener Note: gibt es im Soll eine Note mit demselben Beginn,
+  // derselben Länge und demselben Ton?
+  const zustaende = [];
+  b.forEach((x, ti) => x.forEach(e => {
+    const s = (a[ti] || []).find(z => Math.abs(z.start - e.start) < 1e-6);
+    zustaende.push(s && Math.abs(s.laenge - e.laenge) < 1e-6 && gleicherTon(s.pitch, e.pitch) ? "richtig" : "falsch");
+  }));
+  const punkte = takte.reduce((s, t) => s + t.punkte, 0);
+  return { takte, punkte, max: a.length, alles: punkte === a.length, einzeln: zustaende };
+}
+
+/** Ein Satz je falschem Takt, gezählt ab `ersterTakt`. */
+export function ergaenzungsHinweise(ergebnis, ersterTakt = 5) {
+  return ergebnis.takte.map((t, i) => {
+    const nr = ersterTakt + i;
+    if (t.rhythmus && t.toene) return null;
+    if (t.rhythmus && t.klang) return `Takt ${nr}: klingt richtig, ist aber anders geschrieben.`;
+    if (t.rhythmus && t.ohneOktave) return `Takt ${nr}: richtige Töne, falsche Oktave.`;
+    if (t.rhythmus) return `Takt ${nr}: Rhythmus stimmt, Töne nicht.`;
+    if (t.toene) return `Takt ${nr}: Töne stimmen, Rhythmus nicht.`;
+    return `Takt ${nr}: Rhythmus und Töne.`;
+  }).filter(Boolean);
+}
+
 /* --- Rhythmusdiktat -------------------------------------------------------------- */
 
 const dauerVon = t => t.dur * (t.dots ? 1.5 : 1);
