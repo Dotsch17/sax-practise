@@ -239,5 +239,25 @@ console.log("\nDatenlage ist Datenlage, kein Können");
   ok(voll.every(x => x.stand <= 1), "und bleibt bei eins gedeckelt");
 }
 
+console.log("\nPrüfung am Stück");
+{
+  const programm = {
+    "pruefung:stueck1": { titel: "Oleo", stufe: 3 },
+    "pruefung:etuede1": { titel: "Niehaus 3", stufe: 2 },
+  };
+  const mit = (drills, datum = "2026-09-23") => ({ drills, day: { date: datum } });
+  const hat = (st, k = "probelokal") => K.befunde(st, k).some(b => b.id === "simulation:faellig");
+  ok(!hat(mit({ "pruefung:stueck1": { titel: "Oleo", stufe: 3 } })), "ein Stück allein reicht noch nicht");
+  ok(hat(mit(programm)), "zwei Programmpunkte über „gewählt“ hinaus: Simulation fällig");
+  ok(!hat(mit(programm), "travelsax"), "nie am Travel Sax");
+  ok(!hat(mit(programm), "leise"), "nie im leisen Kontext");
+  const kuerzlich = { ...programm, "simulation:liste": { eintraege: [{ datum: "2026-09-10" }] } };
+  ok(!hat(mit(kuerzlich)), "nach einer Simulation vor 13 Tagen nicht");
+  const lange = { ...programm, "simulation:liste": { eintraege: [{ datum: "2026-08-01" }] } };
+  const b = K.befunde(mit(lange)).find(x => x.id === "simulation:faellig");
+  ok(b && /53 Tagen/.test(b.titel), `nach 53 Tagen wieder, mit Zahl (${b?.titel})`);
+  ok(b?.ziel.tool === "simulation" && b.ziel.tab === "ueben", "Sprungziel ist die Simulation");
+}
+
 console.log(fail ? `\n${fail} von ${n} Prüfungen fehlgeschlagen\n` : `\nAlle ${n} Prüfungen bestanden\n`);
 process.exit(fail ? 1 : 0);

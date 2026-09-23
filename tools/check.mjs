@@ -145,6 +145,7 @@ ok = run(["tools/test-popvokabular.mjs"], "Pop-Vokabular") && ok;
 ok = run(["tools/test-lickwoche.mjs"], "Lick der Woche und Setlist") && ok;
 ok = run(["tools/test-vibrato.mjs"], "Vibrato") && ok;
 ok = run(["tools/test-abgleich.mjs"], "Abgleich und Verzug") && ok;
+ok = run(["tools/test-simulation.mjs"], "Prüfungssimulation") && ok;
 ok = run(["tools/test-pitch.mjs"], "Tonhoehenerkennung") && ok;
 ok = run(["tools/sync-precache.mjs"], "Precache-Liste") && ok;
 

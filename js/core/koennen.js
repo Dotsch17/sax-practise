@@ -50,6 +50,7 @@ const ZIEL = {
   callresponse: { tab: "impro",   tool: "callresponse", name: "Call and Response" },
   gigtraining:  { tab: "gig",     tool: "gigtraining",  name: "Gig-Training" },
   songmitspielen:{tab: "gig",     tool: "songmitspielen",name:"Zum Song spielen" },
+  simulation:   { tab: "ueben",   tool: "simulation",   name: "Simulation" },
 };
 
 /* Was in welchem Kontext überhaupt geht. Am Travel Sax fehlt der Luftstrom
@@ -59,14 +60,15 @@ const ZIEL = {
 const NICHT_IM_KONTEXT = {
   // Kadenzen sind Klavier. Mit dem Saxophon in der Hand hilft ein
   // Klaviervorschlag nicht, also nur im Kontext Klavier.
-  travelsax: new Set(["obertoene", "stimmgeraet", "tonanalyse", "bordun", "kadenzen"]),
-  leise:     new Set(["gigtraining", "kadenzen"]),
+  // Die Simulation braucht das echte Saxophon, laut, und eine halbe Stunde.
+  travelsax: new Set(["obertoene", "stimmgeraet", "tonanalyse", "bordun", "kadenzen", "simulation"]),
+  leise:     new Set(["gigtraining", "kadenzen", "simulation"]),
   probelokal: new Set(["kadenzen"]),
-  tonplan:    new Set(["kadenzen"]),
+  tonplan:    new Set(["kadenzen", "simulation"]),
   // Am Klavier ist kein Saxophon in der Hand. Was bleibt, ist das Gehör.
   klavier:    new Set(["obertoene", "stimmgeraet", "tonanalyse", "bordun", "tonleitern",
                        "rhythmus", "blattspiel", "improvisation", "tonartfinden", "callresponse",
-                       "gigtraining", "songmitspielen", "nachspielen"]),
+                       "gigtraining", "songmitspielen", "nachspielen", "simulation"]),
 };
 
 const ALLE_DUR = [
@@ -78,6 +80,8 @@ const ALLE_DUR = [
 
 const versuche = d => (d?.right || 0) + (d?.wrong || 0);
 const quote = d => { const n = versuche(d); return n ? (d.right || 0) / n : null; };
+const utcTag = iso => { const [y, m, d] = iso.split("-").map(Number); return Date.UTC(y, m - 1, d); };
+const tageZwischen = (von, bis) => Math.round((utcTag(bis) - utcTag(von)) / 86400000);
 
 /** Alle Drills, deren Schlüssel mit `praefix:` beginnt. */
 function mitPraefix(drills, praefix) {
@@ -377,10 +381,33 @@ export function befunde(S, kontext = "probelokal") {
   const alle = [
     ...tonleitern(drills), ...intonation(drills), ...obertoene(drills),
     ...gehoer(drills), ...improvisation(drills), ...technik(drills), ...klavier(drills),
+    ...pruefungAmStueck(drills, S?.day?.date),
   ];
   return alle
     .filter(b => !gesperrt.has(b.ziel.tool))
     .sort((a, b) => b.gewicht - a.gewicht);
+}
+
+/**
+ * Prüfung am Stück: sobald Stücke oder Etüden über „gewählt“ hinaus sind,
+ * gehört alle vier Wochen eine Simulation dazu. Einzelne Stellen üben
+ * macht nicht prüfungsfest; am Stück spielen, ohne Nochmal, schon.
+ */
+function pruefungAmStueck(drills, heute) {
+  const programm = ["stueck1", "stueck2", "stueck3", "etuede1", "etuede2"]
+    .map(id => drills["pruefung:" + id] || {});
+  const weit = programm.filter(e => e.titel && (e.stufe ?? 0) >= 2).length;
+  if (weit < 2) return [];
+  const l = drills["simulation:liste"]?.eintraege || [];
+  const letzte = l.map(e => e.datum).sort().pop();
+  const tage = letzte && heute ? tageZwischen(letzte, heute) : null;
+  if (tage != null && tage < 28) return [];
+  return [{
+    id: "simulation:faellig", bereich: "Prüfung", ziel: ZIEL.simulation,
+    titel: tage == null ? "Das Programm war noch nie am Stück dran" : `Seit ${tage} Tagen keine Prüfung am Stück`,
+    grund: "Stellen üben macht Stellen sicher, nicht den Durchlauf. Einmal das ganze Programm kalt, in fremder Reihenfolge, mit Aufnahme — und danach wissen, welche Stelle wirklich wackelt.",
+    gewicht: 0.69, messbar: false,
+  }];
 }
 
 /** Der eine Vorschlag für jetzt, oder null, wenn nichts ansteht. */

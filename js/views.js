@@ -24,6 +24,7 @@
 import session   from "./tools/session.js";
 import pruefung  from "./tools/pruefung.js";
 import aufnahme  from "./tools/aufnahme.js";
+import simulation from "./tools/simulation.js";
 import bordun    from "./tools/bordun.js";
 import stimmgeraet from "./tools/stimmgeraet.js";
 import tonanalyse from "./tools/tonanalyse.js";
@@ -55,7 +56,7 @@ import repertoire from "./tools/repertoire.js";
 import daten     from "./tools/daten.js";
 
 export const TABS = [
-  { id: "ueben",   label: "Üben",    tools: [session, pruefung, aufnahme] },
+  { id: "ueben",   label: "Üben",    tools: [session, pruefung, simulation, aufnahme] },
   { id: "ton",     label: "Ton",     tools: [stimmgeraet, obertoene, vibrato, tonanalyse, bordun] },
   { id: "technik", label: "Technik", tools: [tonleitern, kadenzen, rhythmus, blattspiel, griffe, metronom] },
   { id: "gehoer",  label: "Gehör",   tools: [hoertest, gehoer, nachspielen] },
@@ -69,7 +70,7 @@ export const TABS = [
    Ansatzarbeit, die das Blasrohr nicht kann. Im Kontext Travel Sax steht
    darüber ein Hinweis, statt dass das Werkzeug still nichts misst. */
 export const BRAUCHT_SAXOPHON = new Set([
-  "stimmgeraet", "obertoene", "vibrato", "tonanalyse", "nachspielen", "aufnahme", "popsound",
+  "stimmgeraet", "obertoene", "vibrato", "tonanalyse", "nachspielen", "aufnahme", "popsound", "simulation",
 ]);
 
 export const findTab = id => TABS.find(t => t.id === id) || TABS[0];

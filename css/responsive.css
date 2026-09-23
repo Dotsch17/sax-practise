@@ -48,6 +48,9 @@
   svg.staff.compact{ height: 124px; }
 
   .tuner-note{ font-size: 110px; }
+  .sim-titel{ font-size: 52px; }
+  .sim-uhr{ font-size: 104px; }
+  .sim-aufgabe{ font-size: 60px; }
   .jetzt-akkord{ font-size: 86px; }
   .cr-akkord{ font-size: 72px; }
   .ob-gross{ font-size: 50px; }

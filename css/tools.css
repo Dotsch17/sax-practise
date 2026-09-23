@@ -1343,3 +1343,37 @@ svg.vb-kurve{ display: block; width: 100%; height: 110px; margin: 6px 0; }
 .vb-pfad{ fill: none; stroke: var(--brass); stroke-width: 1.6; stroke-linejoin: round; }
 .vb-tonlinie{ stroke: var(--cane-dim); stroke-width: 1; stroke-dasharray: 4 4; }
 .vb-einsatz{ stroke: var(--line); stroke-width: 1; }
+
+/* --- Prüfungssimulation ------------------------------------------------------ */
+.sim-kopf{
+  display:flex; justify-content:space-between; align-items:center;
+  color: var(--cane-dim); font-size: 15px; margin-top: 10px;
+}
+.sim-kopf b{ color: var(--cane); font-variant-numeric: tabular-nums; font-weight: 500; }
+.sim-rec{
+  display:inline-block; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--brass); margin-right: 4px; vertical-align: 1px;
+}
+.sim-titel{
+  font-family: var(--serif); font-weight: 400;
+  font-size: 40px; line-height: 1.1; margin: 14px 0 6px;
+}
+.sim-was{ color: var(--cane-dim); font-size: 17px; line-height: 1.45; margin: 0 0 8px; }
+.sim-uhr{ font-size: 76px; }
+.sim-danke{
+  font-family: var(--serif); font-style: italic;
+  font-size: 30px; color: var(--brass); margin: 4px 0 10px;
+}
+.sim-aufgabe{
+  font-family: var(--serif); font-size: 44px; line-height: 1.1; margin: 4px 0 8px;
+}
+.sim-weiter{ margin-top: 22px; min-height: 64px; font-size: 20px; }
+.sim-zeile{
+  display:flex; justify-content:space-between; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px;
+}
+.sim-zeile span{ color: var(--cane-dim); text-align: right; }
+.sim-audio{ width: 100%; margin: 10px 0 6px; }
+.sim-urteil{ padding: 12px 0; border-bottom: 1px solid var(--line); }
+.sim-urteil-kopf{ display:flex; justify-content:space-between; align-items:baseline; gap: 10px; margin-bottom: 6px; }
+.sim-urteil-kopf b{ font-family: var(--serif); font-weight: 400; font-size: 21px; }

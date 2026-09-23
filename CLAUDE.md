@@ -161,7 +161,7 @@ tools/          Entwicklungswerkzeuge und Tests, nie Teil der App
 
 | Bereich | Werkzeuge |
 |---|---|
-| Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block. Prüfung: Countdown, alle Prüfungspunkte mit Stufen, Zeitplan rückwärts. Aufnahme: aufnehmen, nach Titel ablegen, erste gegen letzte hören |
+| Üben | Session-Runner: Kontext und Zeit wählen, Blöcke, Countdown, Merkpunkte, Werkzeug im Block. Prüfung: Countdown, alle Prüfungspunkte mit Stufen, Zeitplan rückwärts. Simulation: das ganze Programm am Stück mit Aufnahme. Aufnahme: aufnehmen, nach Titel ablegen, erste gegen letzte hören |
 | Ton | Stimmgerät mit Intonationskarte, Obertonübung, Vibrato-Analyse, Tonanalyse, Bordun |
 | Technik | Tonleitern und Akkorde mit Prüfermodus und Abdeckung, Kadenzen fürs Klavier, Rhythmus mit Messung, Blattspiel, Griffe, Metronom |
 | Gehör | Hörtest (Melodie- und Rhythmusdiktat, Akkorde mit Lage, Fehler finden, Wiedererkennen), Erkennen (Intervalle/Akkorde/Skalen benennen), Nachspielen mit Mikrofonkontrolle |
@@ -744,13 +744,36 @@ braucht eigene Werkzeuge.
   alle drei Werkzeuge nutzen es, Call and Response auch für die Noten des
   Licks. Getestet über alle Folgen in allen zwölf Tonarten.
 
+**Phase 18 — Prüfungssimulation, umgesetzt (v23).**
+- `data/simulation.js` und `tools/simulation.js` unter Üben: das
+  Saxophon-Programm am Stück. Eine Minute Einstimmen, Stück 1 (das wählt
+  man selbst), dann die anderen Stücke und Etüden in einer Reihenfolge,
+  die die „Kommission“ mischt, drei Tonleitern oder Akkorde gewichtet wie
+  der Prüfermodus, Blattlesen mit einer Minute Ansehzeit. Einziger Knopf:
+  Weiter. Wer den Reiter wechselt, bricht ab — eine Prüfung pausiert man
+  nicht.
+- Auf Wunsch unterbricht die Kommission nach 75 bis 150 Sekunden
+  („Danke, das reicht.“), bei Stücken in sechs von zehn Fällen. Kein
+  Beleg für die mdw, aber gängige Praxis bei Aufnahmeprüfungen, und das
+  Ziel ist, die ersten zwei Minuten jedes Stücks prüfungsfest zu machen.
+  Steht in `UNTERBRECHUNG` und lässt sich abschalten.
+- Eine Aufnahme über alles, mit Marken je Station (`marken` im
+  Aufnahme-Eintrag). Am Ende springt man damit zu jedem Teil und bewertet
+  ihn: sicher, Wackler, ausgestiegen. Die Bilanz nennt den Ausstieg beim
+  Namen. Verlauf unter `drills["simulation:liste"]`.
+- Die Titel kommen aus dem Cockpit; fehlt einer, steht der Platzhalter da
+  und die Bilanz sagt es. Hat ein Stück unter „Eigene Stücke“ denselben
+  Titel, spielt auf Wunsch die Band.
+- Das Können-Profil schlägt die Simulation vor, sobald zwei
+  Programmpunkte über „gewählt“ hinaus sind und die letzte vier Wochen
+  zurückliegt — nur im Probelokal. Das Cockpit zeigt, wann zuletzt.
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
-1. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
-2. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
+1. **Vollständiges Melodiediktat**: Tonhöhen und Rhythmus in einer Aufgabe,
    dazu Zweistimmigkeit, falls die mdw sie verlangt — vorher bei
    MusicCoach nachsehen, wie die Aufgaben dort aussehen.
-3. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
+2. **Klavierstücke und Blattspiel am Klavier**: die beiden anderen Teile
    der Klavierprüfung. Für die Stücke reicht vorerst das Cockpit; fürs
    Blattspiel ließe sich der Melodiegenerator zweihändig machen.
 
@@ -786,11 +809,11 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute einundzwanzig Suiten mit zusammen rund 43 900
+alle Testsuiten. Stand heute zweiundzwanzig Suiten mit zusammen rund 44 400
 Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
 Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
 Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Kadenzen, Leadsheets,
-Grooves, Pop-Vokabular, Lick der Woche und Setlist, Vibrato, Abgleich und Verzug, Tonhöhenerkennung. Dazu die
+Grooves, Pop-Vokabular, Lick der Woche und Setlist, Vibrato, Abgleich und Verzug, Prüfungssimulation, Tonhöhenerkennung. Dazu die
 Rechtschreibprüfung aus Abschnitt 9.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`

@@ -28,6 +28,7 @@ import * as aufnahmen from "../core/aufnahmen.js";
 import { vorwaehlen } from "./aufnahme.js";
 import { vorwaehlen as hoertestModus } from "./hoertest.js";
 import { oeffneFuerTitel } from "./leadsheets.js";
+import { tageSeitLetzter } from "../data/simulation.js";
 
 let offen = null;
 let root = null;
@@ -73,6 +74,13 @@ function render() {
 
     ${tipps.map(h => `<p class="warnung">${escapeHtml(h)}</p>`).join("")}
 
+    <button class="wide" id="pr-simulation">Prüfung simulieren</button>
+    <p class="hint">${(() => {
+      const d = tageSeitLetzter(drills, heute());
+      return d == null ? "Das ganze Programm am Stück, mit Aufnahme. Noch nie gemacht."
+        : d === 0 ? "Heute schon simuliert." : `Zuletzt vor ${d} ${d === 1 ? "Tag" : "Tagen"}.`;
+    })()}</p>
+
     ${TEILE.map(teil => `
       <section class="pr-teil">
         <h2>${escapeHtml(teil.titel)}</h2>
@@ -94,6 +102,7 @@ function render() {
       die Institute ändern Details von Jahr zu Jahr.</p>
     ${QUELLEN.map(q => `<p class="hint"><a class="linkish" href="${q.url}" target="_blank" rel="noopener">${escapeHtml(q.titel)}</a></p>`).join("")}`;
 
+  $("#pr-simulation", root)?.addEventListener("click", () => gehZu("ueben", "simulation"));
   $("#pr-termin", root).addEventListener("change", e => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) return;
     speichereEintrag("termin", { datum: e.target.value });
