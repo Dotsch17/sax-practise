@@ -7,12 +7,12 @@
 import { $, $$, el, on, toast, initToast } from "./core/dom.js";
 import { state, save } from "./core/store.js";
 import * as session from "./core/session.js";
-import { installUnlock } from "./audio/context.js";
+import { installUnlock, setAusgabeVerzug } from "./audio/context.js";
 import * as drone from "./audio/drone.js";
 import * as metro from "./audio/metronome.js";
 import * as band from "./audio/begleitung.js";
 import { isPlaying, stopPlayback, onPlayback } from "./audio/signals.js";
-import { TABS, findTab, findTool } from "./views.js";
+import { TABS, findTab, findTool, BRAUCHT_SAXOPHON } from "./views.js";
 
 /* --- Navigation ----------------------------------------------------------- */
 
@@ -46,7 +46,13 @@ function openTool(tool) {
     host.innerHTML = `<p class="empty">Hier kommt noch etwas hin.</p>`;
   } else {
     lastTool.set(currentTab.id, tool.id);
-    try { tool.mount(host); }
+    let ziel = host;
+    if (state().kontext === "travelsax" && BRAUCHT_SAXOPHON.has(tool.id)) {
+      host.append(el("p", { class: "warnung", text:
+        "Du übst gerade am Travel Sax. Dieses Werkzeug braucht das echte Saxophon: das Mikrofon hört den Travel Sax nicht, sein Ton geht in die Kopfhörer." }));
+      ziel = host.appendChild(el("div"));
+    }
+    try { tool.mount(ziel); }
     catch (e) {
       console.error("Werkzeug konnte nicht geladen werden:", tool.id, e);
       host.innerHTML = `<p class="empty">Dieses Werkzeug ist gerade kaputt. Details stehen in der Konsole.</p>`;
@@ -139,6 +145,8 @@ function boot() {
     sound: state().settings.metroSound,
   });
   drone.setVolume(state().settings.droneVol / 100);
+  setAusgabeVerzug(state().settings.ausgabeVerzug);
+  on("settings:changed", ({ key, value }) => { if (key === "ausgabeVerzug") setAusgabeVerzug(value); });
 
   // Werkzeuge, die die Kopfzeile beeinflussen, melden sich hier.
   on("topbar:refresh", renderTopbar);

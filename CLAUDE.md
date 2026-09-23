@@ -67,7 +67,17 @@ jede Technikfrage:
 
 Die Werkzeuge im Einzelnen stehen in Abschnitt 4.
 
-**Primärer Nutzungskontext, der alle UI-Entscheidungen bestimmt:** Das iPhone
+**Zwei Geräte, zwei Rollen (Stand September 2026, vom Nutzer so gesagt):**
+das **iPad** steht ohne Travel Sax am Notenständer, mit dem echten
+Saxophon — dort laufen Mikrofon-Werkzeuge, Session und Prüfungsstücke. Das
+**iPhone** ist mit dem Travel Sax verbunden: der Travel Sax empfängt den
+Ton des Telefons über Bluetooth und mischt ihn in seine Kopfhörer. Daraus
+folgt zweierlei: am iPhone hört das Mikrofon den Spieler nicht, und alles,
+was die App abspielt, kommt rund eine Fünftelsekunde zu spät im Ohr an
+(siehe Abschnitt 3 und Phase 16). Jedes Gerät hat seinen eigenen Speicher;
+abgeglichen wird über „Zusammenführen“ unter Journal → Daten.
+
+**Nutzungskontext, der die UI-Entscheidungen bestimmt:** Das Gerät
 steht am Notenständer im Probelokal. Der Nutzer hat beide Hände am Instrument,
 liest aus etwa 60 cm Entfernung und will mit einem Blick und einem Fingertipp
 auskommen. Große Flächen, große Ziffern, kein Scrollen für die Hauptaktion,
@@ -118,6 +128,16 @@ gelten als gesetzt — nicht neu herleiten, nicht dagegen anprogrammieren:
 - **Ausweg, falls eine dieser Grenzen blockierend wird:** Capacitor um denselben
   Code legen. Das gibt Hintergrund-Audio und ein echtes Dateisystem. Deshalb
   darf die Audio-Schicht niemals DOM-Abhängigkeiten enthalten.
+
+- **Bluetooth verzögert, und die App erfährt es nicht.** Über Bluetooth —
+  Kopfhörer oder der Travel Sax als Empfänger — kommt der Ton 150 bis
+  250 ms nach dem Zeitpunkt an, den die Web-Audio-Uhr meldet;
+  `outputLatency` ist in Safari nicht verlässlich. Deshalb wird der Verzug
+  je Gerät gemessen (`settings.ausgabeVerzug`) und überall eingerechnet, wo
+  eine Anzeige auf den Klang fällt oder ein Tipp gegen ihn gemessen wird:
+  `bisHoerbar(t)` für Anzeigen, `ausgabeVerzug()` für Messungen, beide in
+  `js/audio/context.js`. Wer eine neue Anzeige auf den Schlag legt, nimmt
+  `bisHoerbar`, nicht `(t - currentTime) * 1000`.
 
 Timer rechnen immer gegen `Date.now()` mit gespeichertem Zielzeitpunkt, nie per
 Sekunden-Dekrement — gedrosselte Timer verlieren sonst Zeit.
@@ -321,6 +341,11 @@ damit Export und Import trivial bleiben.
 keine Migration braucht. Die Schlüssel sind sprechend:
 `skala:dur:C-Dur`, `gehoer:intervalle:leicht`, `rhythmus:2`,
 `blattspiel:3`, `stimmgeraet:noten`.
+
+`settings.ausgabeVerzug` gilt nur für das Gerät, auf dem er gemessen wurde.
+Beim Einlesen und Zusammenführen bleibt er der hiesige (`GERAET_EINSTELLUNGEN`
+in `js/core/abgleich.js`); beim Zusammenführen bleiben alle Einstellungen,
+der Kontext und der Tag die des Geräts.
 
 Beim Laden wird `day` verworfen, wenn das Datum nicht dem heutigen entspricht.
 Die Migration von `v1` läuft automatisch; `v1` bleibt als Sicherung liegen und
@@ -678,6 +703,29 @@ braucht eigene Werkzeuge.
 - Pop-Sound misst damit sechs Techniken: Pop-Vibrato und Shake kommen
   über `MESSUNGEN` in `popmessung.js` dazu.
 
+**Phase 16 — iPad am Notenständer, iPhone am Travel Sax, umgesetzt (v21).**
+- `core/abgleich.js`: Zusammenführen zweier Übestände. Die Regel, an der
+  alles hängt: zweimal zusammenführen ergibt dasselbe wie einmal, auch hin
+  und zurück. Deshalb Listen vereinigen (Einträge mit `id` ineinander),
+  Zahlen das Größere statt der Summe, Datum das Spätere, abgehakt bleibt
+  abgehakt, anderer Text von hier. Zähler sind danach eher zu klein als
+  doppelt. In Daten: „An anderes Gerät“ öffnet das Teilen-Menü mit der
+  Datei (AirDrop), „Zusammenführen“ liest sie ein. Einlesen und Ersetzen
+  gibt es weiter, behält aber den Verzug des Geräts.
+- `audio/verzug.js` und Daten → „Ton über Bluetooth“: vier Klicks zum
+  Hineinhören, zwölf zum Mittippen, der Median des Abstands ist der
+  Verzug. Unruhiges Tippen und zu wenige Tipps werden abgelehnt, unter
+  30 ms gilt als Finger und nicht als Kabel. `context.js` rechnet ihn in
+  Metronom- und Taktanzeige, Kadenz-Mitlauf und die Rhythmusmessung ein —
+  ohne das wertete die Rhythmusmessung am Travel Sax jeden Tipp als zu spät.
+- Im Kontext Travel Sax steht über Stimmgerät, Obertönen, Vibrato,
+  Tonanalyse, Nachspielen, Aufnahme und Pop-Sound ein Hinweis, dass das
+  Werkzeug das echte Saxophon braucht (`BRAUCHT_SAXOPHON` in `views.js`).
+- Session: ab 960 px stehen Uhr und Werkzeug des Blocks nebeneinander, die
+  Uhr bleibt stehen (iPad quer am Ständer). Darunter erscheint eine
+  schmale mitlaufende Uhr mit Pause, sobald der Countdown aus dem Bild
+  gescrollt ist (iPad hochkant, Telefon).
+
 **Was noch offen ist, in der Reihenfolge des Nutzens:**
 
 1. **Prüfungssimulation**: das ganze Programm kalt, am Stück, mit Aufnahme.
@@ -725,11 +773,11 @@ braucht eigene Werkzeuge.
 **`node tools/check.mjs` vor jedem Deployen.** Das bündelt alles: Syntax
 jeder Moduldatei, Ladbarkeit aller Module (findet kaputte Importpfade, die
 eine Syntaxprüfung nicht sieht), gültiges Manifest, die Precache-Liste und
-alle Testsuiten. Stand heute zwanzig Suiten mit zusammen rund 43 900
+alle Testsuiten. Stand heute einundzwanzig Suiten mit zusammen rund 43 900
 Prüfungen: Theorie, Notensatz, Rhythmus, Melodien, Harmonielehre,
 Notenerkennung, Licks, Teiltöne, Können-Profil, Übungsplan,
 Prüfungsstoff Tonleitern, Prüfungsplan, Hörtest, Kadenzen, Leadsheets,
-Grooves, Pop-Vokabular, Lick der Woche und Setlist, Vibrato, Tonhöhenerkennung. Dazu die
+Grooves, Pop-Vokabular, Lick der Woche und Setlist, Vibrato, Abgleich und Verzug, Tonhöhenerkennung. Dazu die
 Rechtschreibprüfung aus Abschnitt 9.
 
 - `node tools/sync-precache.mjs --write` hält die Precache-Liste in `sw.js`

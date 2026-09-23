@@ -22,6 +22,25 @@ export function audio() {
 
 export const now = () => audio().currentTime;
 
+/* Wie spät der Ton im Ohr ankommt, nachdem er abgeschickt ist. Über
+   Bluetooth — Kopfhörer oder der Travel Sax, der den Ton des Telefons
+   empfängt — sind das oft 150 bis 250 ms. Die Web-Audio-Uhr weiß davon
+   nichts: sie meldet den Zeitpunkt, zu dem der Klang das Gerät verlässt.
+   Wer Anzeigen auf den Schlag legt oder Tipps gegen den Schlag misst,
+   rechnet diesen Verzug dazu. Er wird am Gerät gemessen (Journal → Daten)
+   und gilt je Gerät. */
+let verzug = 0;
+
+export function setAusgabeVerzug(ms) {
+  verzug = Math.min(0.5, Math.max(0, (Number(ms) || 0) / 1000));
+}
+
+/** Der Verzug in Sekunden. */
+export const ausgabeVerzug = () => verzug;
+
+/** Millisekunden, bis ein für `t` geplanter Klang wirklich zu hören ist. */
+export const bisHoerbar = t => Math.max(0, (t - audio().currentTime + verzug) * 1000);
+
 /** Läuft der Context? Für Anzeigen, die sonst still falsch wären. */
 export const isRunning = () => !!ac && ac.state === "running";
 

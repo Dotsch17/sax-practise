@@ -28,7 +28,7 @@ import {
   abdeckung, pruefungsAufgabe, klang, artOf,
 } from "../music/kadenz.js";
 import { renderKlaviatur } from "../music/klaviatur.js";
-import { audio } from "../audio/context.js";
+import { audio, bisHoerbar } from "../audio/context.js";
 import { playAt, stopPlayback } from "../audio/signals.js";
 
 let sel = { art: "dur", lage: "quint", key: 0, schritt: 0 };
@@ -211,7 +211,7 @@ function vorspielen(kad) {
       if (!root) return;
       sel.schritt = i;
       renderSchritt(kad);
-    }, (t - jetzt) * 1000));
+    }, bisHoerbar(t)));
     t += a.dauer * HALBE;
   });
 }

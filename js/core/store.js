@@ -13,6 +13,7 @@
 "use strict";
 
 import { todayISO, emit } from "./dom.js";
+import { fuehreZusammen, behalteGeraet } from "./abgleich.js";
 
 const KEY_V1 = "sax.uebeplan.v1";
 const KEY    = "sax.uebeplan.v2";
@@ -42,6 +43,7 @@ export const defaultState = () => ({
     bandEinzaehlen: true, // eigene Stücke: ein Takt Hi-Hat vorweg
     lickBpm: 80,          // Tempo für den Lick der Woche
     vibratoBpm: 72,       // Metronom-Übung im Vibrato-Werkzeug
+    ausgabeVerzug: 0,     // ms bis der Ton im Ohr ist, je Gerät (Bluetooth)
     bandSpuren: { bass: true, comp: true, becken: true },
   },
   // Fortschritt je Übungsart. Bewusst flach und nach Übung getrennt,
@@ -182,5 +184,13 @@ export function exportBlob() {
 export async function importFile(file) {
   const data = JSON.parse(await file.text());
   if (typeof data !== "object" || data === null) throw new Error("Kein Objekt");
-  return replaceState(data);
+  return replaceState(behalteGeraet(S, data));
+}
+
+/** Liest den Stand eines anderen Geräts und führt ihn in den hiesigen. */
+export async function mergeFile(file) {
+  const data = JSON.parse(await file.text());
+  const { zustand, bilanz } = fuehreZusammen(S, data);
+  replaceState(zustand);
+  return bilanz;
 }

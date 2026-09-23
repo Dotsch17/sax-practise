@@ -11,7 +11,7 @@
 
 "use strict";
 
-import { audio } from "./context.js";
+import { audio, bisHoerbar } from "./context.js";
 
 const LOOKAHEAD_S = 0.1;
 const TICK_MS = 25;
@@ -96,8 +96,7 @@ function schedule() {
     // Die Anzeige wird per Timeout nachgezogen, damit sie mit dem Klang
     // zusammenfällt und nicht mit dem Scheduler.
     const payload = { beat: mainBeat, sub, time: nextTime, accent: level === "accent" };
-    const delay = Math.max(0, (nextTime - ctx.currentTime) * 1000);
-    setTimeout(() => { for (const fn of beatWatchers) fn(payload); }, delay);
+    setTimeout(() => { for (const fn of beatWatchers) fn(payload); }, bisHoerbar(nextTime));
 
     beat++;
     nextTime += stepDur;
@@ -137,11 +136,9 @@ export function countIn(bars = 1, done = () => {}) {
   for (let i = 0; i < total; i++) {
     click(t, i % beats === 0 ? "accent" : "normal");
     const payload = { beat: i % beats, sub: 0, time: t, accent: i % beats === 0, countIn: true };
-    const delay = Math.max(0, (t - ctx.currentTime) * 1000);
-    setTimeout(() => { for (const fn of beatWatchers) fn(payload); }, delay);
+    setTimeout(() => { for (const fn of beatWatchers) fn(payload); }, bisHoerbar(t));
     t += stepDur;
   }
-  const ms = Math.max(0, (t - ctx.currentTime) * 1000);
-  setTimeout(done, ms);
+  setTimeout(done, bisHoerbar(t));
   return t;                     // Startzeitpunkt auf der Audio-Uhr
 }

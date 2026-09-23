@@ -144,6 +144,23 @@
     align-items: start;
   }
 
+  /* Session am iPad quer: Uhr links und stehend, das Werkzeug des Blocks
+     rechts daneben. Am Notenständer muss man so nie scrollen, um die Zeit
+     zu sehen, und das Werkzeug hat die volle Höhe. */
+  .session-buehne:has(> #werkzeug:not([hidden])){
+    display: grid;
+    grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+    gap: 0 32px;
+    align-items: start;
+  }
+  .session-buehne:has(> #werkzeug:not([hidden])) > .now{
+    position: sticky; top: 12px;
+  }
+  .session-buehne:has(> #werkzeug:not([hidden])) .clock{ font-size: 104px; }
+  .session-buehne:has(> #werkzeug:not([hidden])) .now h1{ font-size: 34px; }
+  .session-buehne > #werkzeug{ margin-top: 14px; }
+  .mini-uhr{ display: none !important; }
+
   .keys{ grid-template-columns: repeat(6, 1fr); }
   .grid3{ grid-template-columns: repeat(4, 1fr); }
   svg.staff{ height: 180px; }

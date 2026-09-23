@@ -64,5 +64,13 @@ export const TABS = [
   { id: "journal", label: "Journal", tools: [protokoll, statistik, repertoire, wissen, daten] },
 ];
 
+/* Werkzeuge, die das echte Saxophon hören müssen. Am Travel Sax geht der
+   Ton in die Kopfhörer, das Mikrofon hört nichts — und Pop-Sound ist
+   Ansatzarbeit, die das Blasrohr nicht kann. Im Kontext Travel Sax steht
+   darüber ein Hinweis, statt dass das Werkzeug still nichts misst. */
+export const BRAUCHT_SAXOPHON = new Set([
+  "stimmgeraet", "obertoene", "vibrato", "tonanalyse", "nachspielen", "aufnahme", "popsound",
+]);
+
 export const findTab = id => TABS.find(t => t.id === id) || TABS[0];
 export const findTool = (tab, id) => tab.tools.find(t => t.id === id) || tab.tools[0];

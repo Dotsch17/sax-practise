@@ -18,7 +18,7 @@ import { $, $$, el, clamp, toast } from "../core/dom.js";
 import { state, setSetting, drill, recordDrill } from "../core/store.js";
 import { generateRhythm, bewerte, STUFEN } from "../music/rhythmus.js";
 import { renderStaff, autoBeam } from "../music/notation.js";
-import { audio } from "../audio/context.js";
+import { audio, bisHoerbar, ausgabeVerzug } from "../audio/context.js";
 import { ok as sigOk } from "../audio/signals.js";
 import { holdScreen, releaseScreen } from "../core/session.js";
 
@@ -194,9 +194,9 @@ function starte(root) {
     if (!lauf) return;
     $("#r-tap-text", root).textContent = "Tippen";
     tap.classList.add("aktiv");
-  }, Math.max(0, (startZeit - ctx.currentTime) * 1000));
+  }, bisHoerbar(startZeit));
 
-  const endeMs = (startZeit - ctx.currentTime + aufgabe.dauer * spv + 0.6) * 1000;
+  const endeMs = bisHoerbar(startZeit + aufgabe.dauer * spv + 0.6);
   lauf.timer = setTimeout(() => werteAus(root), endeMs);
 }
 
@@ -214,7 +214,9 @@ function puls(time, betont) {
 
 function tippe() {
   if (!lauf) return;
-  lauf.taps.push(audio().currentTime);
+  // Gemessen wird gegen das, was man hört, nicht gegen das, was das Gerät
+  // abgeschickt hat — über Bluetooth liegt dazwischen eine Fünftelsekunde.
+  lauf.taps.push(audio().currentTime - ausgabeVerzug());
   const t = $("#r-tap");
   if (t) { t.classList.add("schlag"); setTimeout(() => t.classList.remove("schlag"), 90); }
 }

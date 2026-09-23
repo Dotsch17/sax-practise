@@ -47,6 +47,33 @@
 }
 
 .controls{ display:flex; gap: 10px; }
+
+/* Die mitlaufende Uhr, sobald der Countdown aus dem Bild gescrollt ist. */
+.mini-uhr{
+  position: fixed; z-index: 20;
+  top: 0; left: 0; right: 0;
+  padding: calc(env(safe-area-inset-top) + 8px) var(--pad) 8px;
+  display: flex; align-items: center; gap: 14px;
+  background: color-mix(in srgb, var(--ground) 92%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.mini-uhr span{
+  flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--cane-dim); font-size: 15px;
+}
+.mini-uhr b{
+  font-family: var(--serif); font-weight: 400;
+  font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums;
+}
+.mini-uhr b.running{ color: var(--brass); }
+.mini-uhr button{
+  min-height: 44px; padding: 0 18px;
+  border-radius: 999px; border: 1px solid var(--brass);
+  background: none; color: var(--brass); font-size: 16px;
+}
 .controls button{
   flex: 1; min-height: 60px;
   border-radius: var(--radius);

@@ -76,6 +76,26 @@ async function haengeWerkzeugEin(root, id) {
 
 /* --- Ansicht ------------------------------------------------------------------ */
 
+/* Die Uhr darf nie aus dem Blick geraten. Am Telefon und am iPad hochkant
+   steht das Werkzeug unter dem Countdown, und wer darin scrollt, verliert
+   die Zeit. Dann erscheint oben eine schmale Leiste mit Block, Restzeit
+   und Pause. Am iPad quer und am Laptop stehen Uhr und Werkzeug
+   nebeneinander (responsive.css), dort braucht es sie nicht. */
+let beobachter = null;
+
+function beobachteUhr(root) {
+  beobachter?.();
+  beobachter = null;
+  const pruefe = () => {
+    const clock = $("#clock", root), mini = $("#mini-uhr", root);
+    if (!clock || !mini) return;
+    mini.hidden = clock.getBoundingClientRect().bottom > 0 || $("#werkzeug", root)?.hidden !== false;
+  };
+  window.addEventListener("scroll", pruefe, { passive: true });
+  beobachter = () => window.removeEventListener("scroll", pruefe);
+  pruefe();
+}
+
 function render(root) {
   const st = S.status();
   const b = st.block;
@@ -87,11 +107,17 @@ function render(root) {
   const doneMin = p.filter(x => day.done.includes(x.id)).reduce((a, x) => a + x.min, 0);
 
   root.innerHTML = `
+    <div class="mini-uhr" id="mini-uhr" hidden>
+      <span id="mini-name">${escapeHtml(b.name)}</span>
+      <b id="mini-zeit">${mmss(st.remaining)}</b>
+      <button id="mini-toggle"></button>
+    </div>
     <div class="chips scroll" id="kontext-chips" role="group" aria-label="Wo übst du"></div>
     <div class="chips scroll" id="zeit-chips" role="group" aria-label="Wie viel Zeit hast du"></div>
     <p class="hint" id="kontext-was">${escapeHtml(k.was)}</p>
     ${k.warnung ? `<p class="warnung">${escapeHtml(k.warnung)}</p>` : ""}
 
+    <div class="session-buehne">
     <div class="now">
       <h1 id="block-name">${escapeHtml(b.name)}</h1>
       <div class="of">Block ${st.index + 1} von ${p.length} · ${b.min} Minuten</div>
@@ -108,6 +134,7 @@ function render(root) {
       <h3 class="werkzeug-kopf">Dafür brauchst du: <b id="werkzeug-titel"></b></h3>
       <div id="werkzeug-inhalt"></div>
     </section>
+    </div>
 
     <div id="rat"></div>
 
@@ -125,6 +152,8 @@ function render(root) {
   haengeWerkzeugEin(root, b.werkzeug || null);
 
   $("#btn-toggle", root).addEventListener("click", () => S.toggle());
+  $("#mini-toggle", root).addEventListener("click", () => S.toggle());
+  beobachteUhr(root);
   $("#btn-done", root).addEventListener("click", () => {
     S.stop();
     S.done(S.status().block.id);
@@ -301,8 +330,14 @@ function paint(root) {
   const fill = $("#bar-fill", root);
   if (fill) fill.style.width = (100 * (1 - st.remaining / (st.block.min * 60))).toFixed(1) + "%";
   const btn = $("#btn-toggle", root);
-  if (btn) btn.textContent = st.running ? "Pause"
-    : (st.remaining < st.block.min * 60 ? "Weiter" : "Starten");
+  const knopf = st.running ? "Pause" : (st.remaining < st.block.min * 60 ? "Weiter" : "Starten");
+  if (btn) btn.textContent = knopf;
+  const mini = $("#mini-zeit", root);
+  if (mini) {
+    mini.textContent = mmss(st.remaining);
+    mini.classList.toggle("running", st.running);
+    $("#mini-toggle", root).textContent = knopf;
+  }
 }
 
 export default {
@@ -317,7 +352,12 @@ export default {
     const offChange = on("session:changed", () => render(root));
     this._off = () => { offTick(); offChange(); };
   },
-  unmount() { this._off?.(); raeumeWerkzeug(); },
+  unmount() {
+    this._off?.();
+    raeumeWerkzeug();
+    beobachter?.();
+    beobachter = null;
+  },
   // Wie lang und worauf — das steht in der Kopfzeile, die Wahl in den Chips.
   topbar: () => null,
   focusLine: () => {

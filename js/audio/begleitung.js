@@ -17,7 +17,7 @@
 
 "use strict";
 
-import { audio } from "./context.js";
+import { audio, bisHoerbar } from "./context.js";
 import { midiToFreq } from "../music/theory.js";
 import { chordAtBar, progressionTakte, akkordAufSchlag, akkordeImTakt } from "../music/harmonie.js";
 import { grooveOf, ereignisse, subAnteil } from "../music/grooves.js";
@@ -280,8 +280,7 @@ function schedule() {
         durchgang: Math.floor(takt / gesamtTakte),
         zeit: naechsteZeit,
       };
-      const delay = Math.max(0, (naechsteZeit - ctx.currentTime) * 1000);
-      setTimeout(() => { for (const fn of barWatchers) fn(payload); }, delay);
+      setTimeout(() => { for (const fn of barWatchers) fn(payload); }, bisHoerbar(naechsteZeit));
     }
 
     position++;
